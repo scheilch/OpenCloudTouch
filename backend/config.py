@@ -22,7 +22,7 @@ class AppConfig(BaseSettings):
 
     # Server
     host: str = Field(default="0.0.0.0", description="API bind address")
-    port: int = Field(default=8000, description="API port")
+    port: int = Field(default=6000, description="API port")
     log_level: str = Field(default="INFO", description="Logging level")
 
     # Database
@@ -39,7 +39,7 @@ class AppConfig(BaseSettings):
 
     # Station Descriptor
     station_descriptor_base_url: str = Field(
-        default="http://localhost:8000/stations/preset",
+        default="http://localhost:6000/stations/preset",
         description="Base URL for station descriptors (used in preset URLs)",
     )
 
