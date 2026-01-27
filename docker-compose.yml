@@ -11,16 +11,16 @@ services:
       - stb-data:/data
     environment:
       - STB_HOST=0.0.0.0
-      - STB_PORT=6000
+      - STB_PORT=7777
       - STB_DB_PATH=/data/stb.db
       - STB_LOG_LEVEL=INFO
       - STB_DISCOVERY_ENABLED=true
       - STB_DISCOVERY_TIMEOUT=10
       # Station descriptor URL - adjust if running on different host
-      - STB_STATION_DESCRIPTOR_BASE_URL=http://localhost:6000/stations/preset
+      - STB_STATION_DESCRIPTOR_BASE_URL=http://localhost:7777/stations/preset
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:6000/health')"]
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:7777/health')"]
       interval: 30s
       timeout: 10s
       retries: 3
