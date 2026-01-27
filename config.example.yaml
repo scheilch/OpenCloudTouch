@@ -4,7 +4,7 @@
 
 # Server settings
 host: "0.0.0.0"
-port: 6000
+port: 7777
 log_level: "INFO"
 
 # Database
@@ -24,4 +24,4 @@ soundtouch_ws_port: 8080
 # Station descriptor base URL
 # This is the URL that SoundTouch devices will use to fetch preset station info
 # Adjust to your actual STB host (IP or hostname)
-station_descriptor_base_url: "http://192.168.1.50:6000/stations/preset"
+station_descriptor_base_url: "http://192.168.1.50:7777/stations/preset"
