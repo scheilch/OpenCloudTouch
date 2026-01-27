@@ -22,7 +22,7 @@ async def demo_iteration0():
     print("=" * 60)
     print()
 
-    base_url = "http://localhost:8000"
+    base_url = "http://localhost:6000"
     
     async with httpx.AsyncClient() as client:
         # 1. Health Check

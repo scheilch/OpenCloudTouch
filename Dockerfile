@@ -42,10 +42,10 @@ RUN mkdir -p /data
 
 # Healthcheck
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-  CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')" || exit 1
+  CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:6000/health')" || exit 1
 
 # Expose port
-EXPOSE 8000
+EXPOSE 6000
 
 # Run as non-root user
 RUN useradd -m -u 1000 stb && chown -R stb:stb /app /data
@@ -53,9 +53,9 @@ USER stb
 
 # Environment defaults
 ENV STB_HOST=0.0.0.0
-ENV STB_PORT=8000
+ENV STB_PORT=6000
 ENV STB_DB_PATH=/data/stb.db
 ENV STB_LOG_LEVEL=INFO
 
 # Start application
-CMD ["python", "-m", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["python", "-m", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "6000"]
