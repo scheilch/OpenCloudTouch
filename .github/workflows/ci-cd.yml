@@ -40,12 +40,13 @@ jobs:
       
       - name: Install dependencies
         run: |
-          cd backend
-          pip install -r requirements-dev.txt
+          pip install -r backend/requirements-dev.txt
       
       - name: Run tests with coverage
         run: |
           pytest
+        env:
+          PYTHONPATH: ${{ github.workspace }}
       
       - name: Upload coverage reports
         uses: codecov/codecov-action@v4
