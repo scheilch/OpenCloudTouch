@@ -24,6 +24,8 @@ class AppConfig(BaseSettings):
     host: str = Field(default="0.0.0.0", description="API bind address")
     port: int = Field(default=7777, description="API port")
     log_level: str = Field(default="INFO", description="Logging level")
+    log_format: str = Field(default="text", description="Log format: 'text' or 'json'")
+    log_file: Optional[str] = Field(default=None, description="Optional log file path")
 
     # Database
     db_path: str = Field(default="/data/stb.db", description="SQLite database path")
@@ -31,7 +33,13 @@ class AppConfig(BaseSettings):
     # Discovery
     discovery_enabled: bool = Field(default=True, description="Enable SSDP/UPnP discovery")
     discovery_timeout: int = Field(default=10, description="Discovery timeout (seconds)")
-    manual_device_ips: list[str] = Field(default_factory=list, description="Manual device IPs as fallback")
+    manual_device_ips: str = Field(default="", description="Manual device IPs (comma-separated)")
+
+    def get_manual_ips(self) -> list[str]:
+        """Get manual IPs as list."""
+        if not self.manual_device_ips:
+            return []
+        return [ip.strip() for ip in self.manual_device_ips.split(",") if ip.strip()]
 
     # SoundTouch
     soundtouch_http_port: int = Field(default=8090, description="SoundTouch HTTP API port")
@@ -48,6 +56,18 @@ class AppConfig(BaseSettings):
     def validate_log_level(cls, v: str) -> str:
         allowed = {"DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"}
         v_upper = v.upper()
+        if v_upper not in allowed:
+            raise ValueError(f"log_level must be one of {allowed}, got {v}")
+        return v_upper
+    
+    @field_validator("log_format")
+    @classmethod
+    def validate_log_format(cls, v: str) -> str:
+        allowed = {"text", "json"}
+        v_lower = v.lower()
+        if v_lower not in allowed:
+            raise ValueError(f"log_format must be one of {allowed}, got {v}")
+        return v_lower
         if v_upper not in allowed:
             raise ValueError(f"log_level must be one of {allowed}")
         return v_upper

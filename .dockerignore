@@ -9,7 +9,6 @@
 **/venv/
 **/.pytest_cache/
 **/.coverage
-e2e/
 docs/
 tests/
 *.md
