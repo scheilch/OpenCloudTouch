@@ -213,14 +213,17 @@ Fokus: **Knopf drücken → Sender spielt → Anzeige**
 - Frontend (React + Vite)
 - Docker Multi-Stage Build (amd64 + arm64)
 - CI/CD Pipeline (GitHub Actions)
-- Tests (pytest)
+- Tests (pytest, 85% coverage)
 - Health Check Endpoint
 
-### 🔜 Iteration 1: Discovery + Device Inventory
+### ✅ Iteration 1: Discovery + Device Inventory (FERTIG)
 - SSDP/UPnP Discovery
-- Manuelle IP-Liste als Fallback
-- GET `/api/devices` Endpoint
-- Device Detail Caching
+- Manual IP Fallback
+- SoundTouch HTTP Client (/info, /now_playing)
+- SQLite Device Repository
+- GET/POST `/api/devices` Endpoints
+- Frontend: Device List UI
+- Tests (Discovery, Client, Repository)
 
 ### 🔜 Iteration 2: RadioBrowser Adapter
 - RadioBrowser API Client

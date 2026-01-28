@@ -6,5 +6,5 @@ pydantic-settings==2.6.0
 aiosqlite==0.20.0
 PyYAML==6.0.2
 websockets==13.1
-zeroconf==0.136.2
-async-upnp-client==0.40.0
+bosesoundtouchapi==1.0.86
+ssdpy==0.4.1

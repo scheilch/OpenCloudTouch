@@ -12,43 +12,54 @@ from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 
 from backend.config import init_config, get_config
+from backend.db import DeviceRepository
+from backend.api import devices_router
+from backend.logging_config import setup_logging
 
 
-# Logging setup
-def setup_logging():
-    """Configure logging for the application."""
-    cfg = get_config()
-    logging.basicConfig(
-        level=cfg.log_level,
-        format="%(asctime)s | %(levelname)-8s | %(name)s | %(message)s",
-        datefmt="%Y-%m-%d %H:%M:%S",
-    )
+# Global instances
+device_repo: DeviceRepository = None
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Application lifespan: startup and shutdown."""
+    global device_repo
+    
+    # Initialize configuration
+    init_config()
+    
+    # Setup structured logging
+    setup_logging()
+    
     logger = logging.getLogger(__name__)
     cfg = get_config()
     logger.info(f"SoundTouchBridge starting on {cfg.host}:{cfg.port}")
     logger.info(f"Database: {cfg.db_path}")
     logger.info(f"Discovery enabled: {cfg.discovery_enabled}")
     
-    # Startup logic hier (z.B. DB init, discovery start)
+    # Initialize database
+    device_repo = DeviceRepository(cfg.db_path)
+    await device_repo.initialize()
+    logger.info("Device repository initialized")
+    
     yield
     
-    # Shutdown logic hier
+    # Shutdown
+    if device_repo:
+        await device_repo.close()
+        logger.info("Device repository closed")
+    
     logger.info("SoundTouchBridge shutting down")
 
 
 # Initialize config before app creation
 init_config()
-setup_logging()
 
 # FastAPI app
 app = FastAPI(
     title="SoundTouchBridge",
-    version="0.1.0",
+    version="0.2.0",
     description="Open-Source replacement for Bose SoundTouch cloud features",
     lifespan=lifespan,
 )
@@ -62,6 +73,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Include API routers
+app.include_router(devices_router)
+
 
 # Health endpoint
 @app.get("/health", tags=["System"])
@@ -72,7 +86,7 @@ async def health_check():
         status_code=200,
         content={
             "status": "healthy",
-            "version": "0.1.0",
+            "version": "0.2.0",
             "config": {
                 "discovery_enabled": cfg.discovery_enabled,
                 "db_path": cfg.db_path,
@@ -81,11 +95,13 @@ async def health_check():
     )
 
 
-# Static files (frontend) - will be built in later iterations
-# Commented out for now - no frontend build yet
-# static_dir = Path(__file__).parent.parent / "frontend" / "dist"
-# if static_dir.exists():
-#     app.mount("/", StaticFiles(directory=str(static_dir), html=True), name="static")
+# Static files (frontend)
+from pathlib import Path
+from fastapi.staticfiles import StaticFiles
+
+static_dir = Path(__file__).parent.parent / "frontend" / "dist"
+if static_dir.exists():
+    app.mount("/", StaticFiles(directory=str(static_dir), html=True), name="static")
 
 
 if __name__ == "__main__":

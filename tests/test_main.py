@@ -18,14 +18,14 @@ def client():
 def test_health_endpoint(client):
     """Test /health endpoint returns 200 and expected structure."""
     response = client.get("/health")
-    
+
     assert response.status_code == 200
-    
+
     data = response.json()
     assert "status" in data
     assert data["status"] == "healthy"
     assert "version" in data
-    assert data["version"] == "0.1.0"
+    assert data["version"] == "0.2.0"
     assert "config" in data
     assert "discovery_enabled" in data["config"]
     assert "db_path" in data["config"]

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import './App.css'
+import DeviceList from './components/DeviceList'
 
 function App() {
   const [health, setHealth] = useState(null)
@@ -23,39 +24,17 @@ function App() {
       <header className="app-header">
         <h1>SoundTouchBridge</h1>
         <p className="subtitle">Open-Source Replacement for Bose SoundTouch Cloud</p>
+        {health && (
+          <p className="version">v{health.version}</p>
+        )}
       </header>
       
       <main className="app-main">
-        <div className="status-card">
-          <h2>System Status</h2>
-          {loading ? (
-            <p>Loading...</p>
-          ) : health ? (
-            <div className="health-info">
-              <p className="status-ok">✓ Status: {health.status}</p>
-              <p>Version: {health.version}</p>
-              <p>Discovery: {health.config?.discovery_enabled ? 'Enabled' : 'Disabled'}</p>
-            </div>
-          ) : (
-            <p className="status-error">✗ Backend not reachable</p>
-          )}
-        </div>
-
-        <div className="info-card">
-          <h3>Iteration 0: MVP Setup</h3>
-          <ul>
-            <li>✓ Backend API (FastAPI)</li>
-            <li>✓ Frontend UI (React + Vite)</li>
-            <li>✓ Docker Build ready</li>
-            <li>⏳ Discovery (next iteration)</li>
-            <li>⏳ Radio Search (next iteration)</li>
-            <li>⏳ Presets (next iteration)</li>
-          </ul>
-        </div>
+        <DeviceList />
       </main>
 
       <footer className="app-footer">
-        <p>Iteration 0 – Repo/Build/Run Complete</p>
+        <p>Iteration 1 – Device Discovery & Inventory</p>
       </footer>
     </div>
   )
