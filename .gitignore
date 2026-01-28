@@ -6,6 +6,31 @@ __pycache__/
 # C extensions
 *.so
 
+# Project-specific - exclude from git
+# docs/ - personal work notes and agent documentation
+# deploy-to-server.ps1 - personal deployment script
+# export-image.ps1 - personal image export script
+# run-container.ps1 - personal container runner
+# test-all.ps1 - personal test runner
+# test-discovery.py - temporary test file
+# SERVER-DEPLOY.md - personal deployment guide
+docs/
+deploy-to-server.ps1
+export-image.ps1
+run-container.ps1
+test-all.ps1
+test-discovery.py
+SERVER-DEPLOY.md
+
+# Docker / Container artifacts
+*.tar
+soundtouch-bridge-image.tar
+
+# Local data directory
+data/
+*.db
+*.db-journal
+
 # Distribution / packaging
 .Python
 build/

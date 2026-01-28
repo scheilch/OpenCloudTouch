@@ -28,11 +28,14 @@ RUN apt-get update && \
 WORKDIR /app
 
 # Install Python dependencies
-COPY backend/requirements.txt ./
-RUN pip install --no-cache-dir -r requirements.txt
+COPY backend/requirements.txt ./backend/
+RUN pip install --no-cache-dir -r backend/requirements.txt
 
 # Copy backend code
-COPY backend/ ./
+COPY backend/ ./backend/
+
+# Copy E2E demo scripts
+COPY e2e/ ./e2e/
 
 # Copy frontend build from previous stage
 COPY --from=frontend-builder /app/frontend/dist ./frontend/dist
@@ -57,5 +60,8 @@ ENV STB_PORT=7777
 ENV STB_DB_PATH=/data/stb.db
 ENV STB_LOG_LEVEL=INFO
 
+# Set Python path
+ENV PYTHONPATH=/app
+
 # Start application
-CMD ["python", "-m", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "7777"]
+CMD ["python", "-m", "uvicorn", "backend.main:app", "--host", "0.0.0.0", "--port", "7777"]
