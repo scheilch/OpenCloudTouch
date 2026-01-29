@@ -1,0 +1,2 @@
+﻿<!-- Fetched: 2026-01-29 11:31:09 | Method: GET | Device: SoundTouch 30 | Status: OK -->
+<?xml version="1.0" encoding="UTF-8"?><network-data><devices><device deviceID="B92C7D383488"><deviceSerialNumber>T7319248914831159111551</deviceSerialNumber><interfaces><interface><name>eth0</name><mac-addr>B92C7D383488</mac-addr><bindings><ipv4address>192.0.2.78</ipv4address></bindings><running>true</running><kind>Wireless</kind><ssid>HomeNetwork</ssid><rssi>Excellent</rssi><frequencyKHz>5180000</frequencyKHz></interface></interfaces></device></devices></network-data>

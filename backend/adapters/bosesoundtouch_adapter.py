@@ -81,11 +81,15 @@ class BoseSoundTouchClientAdapter(SoundTouchClient):
         from urllib.parse import urlparse
         parsed = urlparse(base_url)
         self.ip = parsed.hostname or base_url.split('://')[1].split(':')[0]
+        port = parsed.port or 8090
         
-        # Create SoundTouchDevice object required by BoseClient
-        # Set minimal required properties: DeviceID, IP
-        device = SoundTouchDevice(self.ip)
-        device.ConnectTimeout = timeout  # Set timeout on device object
+        # Create SoundTouchDevice with connectTimeout parameter
+        # This initializes the device and loads info/capabilities
+        device = SoundTouchDevice(
+            host=self.ip,
+            connectTimeout=int(timeout),
+            port=port
+        )
         
         self._client = BoseClient(device)
     
@@ -98,20 +102,20 @@ class BoseSoundTouchClientAdapter(SoundTouchClient):
         """
         try:
             # BoseClient.GetInformation() returns InfoElement
-            # Properties: Name, DeviceId, Type, ModuleType, FirmwareVersion, etc.
+            # Properties: DeviceName, DeviceId, DeviceType, ModuleType, etc.
             info = self._client.GetInformation()
             
             # Extract network info for IP/MAC
-            # NetworkInfo has IpAddress, MacAddress
-            network_info = info.NetworkInfo if hasattr(info, 'NetworkInfo') else None
+            # NetworkInfo is a list - take first SCM entry
+            network_info = info.NetworkInfo[0] if info.NetworkInfo and len(info.NetworkInfo) > 0 else None
             
             return DeviceInfo(
                 device_id=info.DeviceId,
-                name=info.Name,
-                type=info.Type,
-                mac_address=network_info.MacAddress if network_info else '',
-                ip_address=network_info.IpAddress if network_info else self.ip,
-                firmware_version=info.FirmwareVersion if hasattr(info, 'FirmwareVersion') else '',
+                name=info.DeviceName,
+                type=info.DeviceType,
+                mac_address=info.MacAddress if hasattr(info, 'MacAddress') else '',
+                ip_address=network_info.IpAddress if network_info and hasattr(network_info, 'IpAddress') else self.ip,
+                firmware_version='',  # Not directly available in Information model
                 module_type=info.ModuleType if hasattr(info, 'ModuleType') else None,
                 variant=info.Variant if hasattr(info, 'Variant') else None,
                 variant_mode=info.VariantMode if hasattr(info, 'VariantMode') else None
@@ -129,25 +133,25 @@ class BoseSoundTouchClientAdapter(SoundTouchClient):
             NowPlayingInfo parsed from response
         """
         try:
-            # BoseClient.GetNowPlaying() returns NowPlayingStatus
-            # Properties: Source, PlayStatus, StationName, Artist, Track, Album, Art
-            now_playing = self._client.GetNowPlaying()
+            # BoseClient.GetNowPlayingStatus() returns NowPlayingStatus
+            # Properties: Source, PlayStatus, StationName, Artist, Track, Album, ArtUrl
+            now_playing = self._client.GetNowPlayingStatus()
             
             # Map PlayStatus to our state format
-            # BoseClient uses: PLAY_STATE, PAUSE_STATE, STOP_STATE
-            state = now_playing.PlayStatus if hasattr(now_playing, 'PlayStatus') else 'STOP_STATE'
+            # BoseClient uses: PLAY_STATE, PAUSE_STATE, STOP_STATE, BUFFERING_STATE
+            state = now_playing.PlayStatus if now_playing.PlayStatus else 'STOP_STATE'
             
-            # Extract content info
+            # Extract content info (ContentItem has source info)
             content = now_playing.ContentItem if hasattr(now_playing, 'ContentItem') else None
             
             return NowPlayingInfo(
-                source=now_playing.Source if hasattr(now_playing, 'Source') else 'UNKNOWN',
+                source=now_playing.Source if now_playing.Source else 'UNKNOWN',
                 state=state,
-                station_name=content.ItemName if content and hasattr(content, 'ItemName') else None,
-                artist=content.Artist if content and hasattr(content, 'Artist') else None,
-                track=content.Track if content and hasattr(content, 'Track') else None,
-                album=content.Album if content and hasattr(content, 'Album') else None,
-                artwork_url=now_playing.Art if hasattr(now_playing, 'Art') else None
+                station_name=now_playing.StationName if hasattr(now_playing, 'StationName') else None,
+                artist=now_playing.Artist if hasattr(now_playing, 'Artist') else None,
+                track=now_playing.Track if hasattr(now_playing, 'Track') else None,
+                album=now_playing.Album if hasattr(now_playing, 'Album') else None,
+                artwork_url=now_playing.ArtUrl if hasattr(now_playing, 'ArtUrl') else None
             )
             
         except Exception as e:

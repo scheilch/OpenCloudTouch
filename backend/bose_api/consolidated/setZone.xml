@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- AGENT: Consolidated schema from all 3 devices - schemas are identical -->
+<!-- Source: ST30_Living Room (SoundTouch 30 Series III) -->
+<!-- Verified: ST30 (.78), ST10 (.79), ST300 (.83) all return same structure -->
+
+<status>/setZone</status>

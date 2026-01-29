@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- AGENT: Consolidated schema with model differences -->
+<!-- Base schema: ST30_Living Room (SoundTouch 30 Series III) -->
+<!-- Differences: -->
+<!--   ST10_Kueche (SoundTouch 10): Schema differs -->
+<!-- Note: Detailed diff analysis needed for this endpoint -->
+
+<ListMediaServersResponse><media_server id="fa095ecc-e13e-40e7-8e6c-DDEEFF334455" mac="" ip="192.0.2.1" manufacturer="AVM Berlin" model_name="Generic Router" friendly_name="Generic Media Server" model_description="Generic Router" location="http://192.0.2.1:49000/MediaServerDevDesc.xml" /><media_server id="fa095ecc-e13e-40e7-8e6c-c80e148577d0" mac="" ip="192.0.2.7" manufacturer="AVM Berlin" model_name="Generic Router" friendly_name="fritz-box6490cabletuner3 Mediaserver" model_description="fritz-box6490cabletuner3" location="http://192.0.2.7:49000/MediaServerDevDesc.xml" /><media_server id="fa095ecc-e13e-40e7-8e6c-c80e14935498" mac="" ip="192.0.2.8" manufacturer="AVM Berlin" model_name="Generic Router" friendly_name="fritz-box6490cabletuner4 Mediaserver" model_description="fritz-box6490cabletuner4" location="http://192.0.2.8:49000/MediaServerDevDesc.xml" /></ListMediaServersResponse>
