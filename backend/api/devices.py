@@ -48,10 +48,9 @@ async def discover_devices():
             logger.error(f"Discovery failed: {e}")
     
     # Fallback to manual IPs
-    manual_ips = cfg.get_manual_ips()
-    if manual_ips:
-        logger.info(f"Using manual device IPs: {manual_ips}")
-        manual = ManualDiscovery(manual_ips)
+    if cfg.manual_device_ips:
+        logger.info(f"Using manual device IPs: {cfg.manual_device_ips}")
+        manual = ManualDiscovery(cfg.manual_device_ips)
         manual_devices = await manual.discover()
         devices.extend(manual_devices)
     
@@ -93,7 +92,7 @@ async def sync_devices(repo: DeviceRepository = Depends(get_device_repo)):
         except Exception as e:
             logger.error(f"Discovery failed: {e}")
     
-    manual_ips = cfg.get_manual_ips()
+    manual_ips = cfg.manual_device_ips
     if manual_ips:
         manual = ManualDiscovery(manual_ips)
         manual_devices = await manual.discover()

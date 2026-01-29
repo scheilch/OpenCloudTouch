@@ -33,13 +33,17 @@ class AppConfig(BaseSettings):
     # Discovery
     discovery_enabled: bool = Field(default=True, description="Enable SSDP/UPnP discovery")
     discovery_timeout: int = Field(default=10, description="Discovery timeout (seconds)")
-    manual_device_ips: str = Field(default="", description="Manual device IPs (comma-separated)")
+    manual_device_ips: list[str] = Field(default_factory=list, description="Manual device IPs")
 
-    def get_manual_ips(self) -> list[str]:
-        """Get manual IPs as list."""
-        if not self.manual_device_ips:
-            return []
-        return [ip.strip() for ip in self.manual_device_ips.split(",") if ip.strip()]
+    @field_validator("manual_device_ips", mode="before")
+    @classmethod
+    def parse_manual_ips(cls, v):
+        """Parse manual IPs from string or list."""
+        if isinstance(v, str):
+            if not v:
+                return []
+            return [ip.strip() for ip in v.split(",") if ip.strip()]
+        return v if v else []
 
     # SoundTouch
     soundtouch_http_port: int = Field(default=8090, description="SoundTouch HTTP API port")
