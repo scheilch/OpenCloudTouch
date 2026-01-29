@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- AGENT: Consolidated schema with model differences -->
+<!-- Base schema: ST30_Wohnzimmer (SoundTouch 30 Series III) -->
+<!-- Differences: -->
+<!--   ST10_Kueche (SoundTouch 10): Schema differs -->
+<!--   ST300_TV (SoundTouch 300): Schema differs -->
+<!-- Note: Detailed diff analysis needed for this endpoint -->
+
+<bearertoken value="Bearer fZK8a3nxgw4xCUheAVuD0VVJMSaZqFBhXNAoE35TZvhCQpHsEe71DZWTqy8qz/Lj1zi9j9d5OOkTgPoFFb0SAFhZ3cuizpyrJ0j8B4SBOIv8Sfd1oukbh0zUJo8miKkT" />

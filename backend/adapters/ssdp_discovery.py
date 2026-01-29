@@ -221,23 +221,27 @@ class SSDPDiscovery:
     
     def _find_xml_text(self, root: ElementTree.Element, path: str) -> Optional[str]:
         """
-        Find XML element text with namespace handling.
+        Find XML element text with namespace-agnostic search.
         
         Args:
             root: XML root element
-            path: XPath to element
+            path: XPath to element (e.g., ".//manufacturer")
             
         Returns:
             Element text or None
         """
-        # Try without namespace first
-        elem = root.find(path)
-        if elem is not None and elem.text:
-            return elem.text.strip()
+        # Try namespace-agnostic search using local-name()
+        # This works regardless of the namespace
+        if path.startswith(".//"):
+            tag_name = path[3:]  # Remove ".//"
+            # Search for element with matching local name, ignoring namespace
+            for elem in root.iter():
+                if elem.tag.endswith(tag_name) or elem.tag == tag_name:
+                    if elem.text:
+                        return elem.text.strip()
         
-        # Try with common UPnP namespace
-        namespaces = {"ns": "urn:schemas-upnp-org:device-1-0"}
-        elem = root.find(path.replace("//", ".//ns:"), namespaces)
+        # Fallback to normal find
+        elem = root.find(path)
         if elem is not None and elem.text:
             return elem.text.strip()
         

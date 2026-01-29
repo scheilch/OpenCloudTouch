@@ -1,0 +1,2 @@
+﻿<!-- Fetched: 2026-01-29 11:56:16 | Method: GET | Device: SoundTouch 300 | Status: OK -->
+<?xml version="1.0" encoding="UTF-8"?><network-data><devices><device deviceID="3045110A38CC"><deviceSerialNumber>3045110a38cc</deviceSerialNumber><interfaces><interface><name>eth0</name><mac-addr>3045110A38CC</mac-addr><bindings><ipv4address>192.168.178.83</ipv4address></bindings><running>true</running><kind>Wireless</kind><ssid>HardRockCafe</ssid><rssi>Excellent</rssi><frequencyKHz>5240000</frequencyKHz></interface></interfaces></device></devices></network-data>

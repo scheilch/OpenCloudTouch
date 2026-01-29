@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- AGENT: DEVICE-SPECIFIC ENDPOINT -->
+<!-- Available on: SoundTouch 300 -->
+<!-- Missing on: SoundTouch 30 Series III, SoundTouch 10 -->
+<!-- Source: ST300_TV (SoundTouch 300) -->
+
+<producthdmiassignmentcontrols hdmiinputselection_01="HDMI_IN_BUTTON_NONE" />
