@@ -164,3 +164,72 @@ async def get_device(device_id: str, repo: DeviceRepository = Depends(get_device
         raise HTTPException(status_code=404, detail="Device not found")
     
     return device.to_dict()
+
+
+@router.get("/{device_id}/capabilities")
+async def get_device_capabilities_endpoint(
+    device_id: str, 
+    repo: DeviceRepository = Depends(get_device_repo)
+):
+    """
+    Get device capabilities for UI feature detection.
+    
+    Returns which features this specific device supports:
+    - HDMI control (ST300 only)
+    - Bass/balance controls
+    - Available input sources
+    - Zone/group support
+    - All supported endpoints
+    
+    Args:
+        device_id: SoundTouch device ID
+        
+    Returns:
+        Feature flags and capabilities for UI rendering
+        
+    Example Response:
+        {
+            "device_id": "AABBCC112233",
+            "device_type": "SoundTouch 30 Series III",
+            "is_soundbar": false,
+            "features": {
+                "hdmi_control": false,
+                "bass_control": true,
+                "bluetooth": true,
+                ...
+            },
+            "sources": ["BLUETOOTH", "AUX", "INTERNET_RADIO"],
+            "advanced": {...}
+        }
+    """
+    from backend.adapters.capability_detection import (
+        get_device_capabilities,
+        get_feature_flags_for_ui
+    )
+    from bosesoundtouchapi import SoundTouchDevice, SoundTouchClient
+    
+    # Get device from DB
+    device = await repo.get_by_device_id(device_id)
+    
+    if not device:
+        raise HTTPException(status_code=404, detail="Device not found")
+    
+    try:
+        # Create SoundTouch client
+        st_device = SoundTouchDevice(device.ip)
+        client = SoundTouchClient(st_device)
+        
+        # Get capabilities
+        capabilities = await get_device_capabilities(client)
+        
+        # Convert to UI-friendly format
+        feature_flags = get_feature_flags_for_ui(capabilities)
+        
+        return feature_flags
+        
+    except Exception as e:
+        logger.error(f"Failed to get capabilities for device {device_id}: {e}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to query device capabilities: {str(e)}"
+        )

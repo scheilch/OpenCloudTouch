@@ -1,0 +1,4 @@
+Endpoints found in Bose SoundTouch Web API Documentation
+================================================================================
+
+GET, GET, GET        /capabilities
