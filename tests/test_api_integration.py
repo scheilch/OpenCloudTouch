@@ -17,7 +17,7 @@ def mock_config():
         mock_cfg = AsyncMock()
         mock_cfg.discovery_enabled = True
         mock_cfg.discovery_timeout = 5
-        mock_cfg.manual_device_ips = []
+        mock_cfg.manual_device_ips_list = []
         mock.return_value = mock_cfg
         yield mock_cfg
 
@@ -50,7 +50,7 @@ async def test_discover_endpoint_success(mock_config):
 async def test_discover_endpoint_with_manual_ips(mock_config):
     """Test discovery with manual IPs configured."""
     mock_config.discovery_enabled = False
-    mock_config.manual_device_ips = ["192.168.1.200"]
+    mock_config.manual_device_ips_list = ["192.168.1.200"]
     
     manual_discovered = [
         DiscoveredDevice(ip="192.168.1.200", port=8090, name="Manual Device")

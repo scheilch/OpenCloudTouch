@@ -109,17 +109,37 @@ class BoseSoundTouchClientAdapter(SoundTouchClient):
             # NetworkInfo is a list - take first SCM entry
             network_info = info.NetworkInfo[0] if info.NetworkInfo and len(info.NetworkInfo) > 0 else None
             
-            return DeviceInfo(
+            # Extract firmware version from Components
+            firmware_version = ''
+            if hasattr(info, 'Components') and info.Components:
+                # Components is a list - take first component's SoftwareVersion
+                firmware_version = info.Components[0].SoftwareVersion if hasattr(info.Components[0], 'SoftwareVersion') else ''
+            
+            device_info = DeviceInfo(
                 device_id=info.DeviceId,
                 name=info.DeviceName,
                 type=info.DeviceType,
                 mac_address=info.MacAddress if hasattr(info, 'MacAddress') else '',
                 ip_address=network_info.IpAddress if network_info and hasattr(network_info, 'IpAddress') else self.ip,
-                firmware_version='',  # Not directly available in Information model
+                firmware_version=firmware_version,
                 module_type=info.ModuleType if hasattr(info, 'ModuleType') else None,
                 variant=info.Variant if hasattr(info, 'Variant') else None,
                 variant_mode=info.VariantMode if hasattr(info, 'VariantMode') else None
             )
+            
+            # Structured logging with firmware details
+            logger.info(
+                f"Device {device_info.name} initialized",
+                extra={
+                    "device_id": device_info.device_id,
+                    "device_type": device_info.type,
+                    "firmware": firmware_version,
+                    "module_type": device_info.module_type,
+                    "variant": device_info.variant
+                }
+            )
+            
+            return device_info
             
         except Exception as e:
             logger.error(f"Failed to get info from {self.base_url}: {e}", exc_info=True)

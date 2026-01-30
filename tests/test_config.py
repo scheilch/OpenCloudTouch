@@ -17,9 +17,53 @@ def test_config_defaults():
     assert config.db_path == "/data/stb.db"
     assert config.discovery_enabled is True
     assert config.discovery_timeout == 10
-    assert config.manual_device_ips == []
+    assert config.manual_device_ips_list == []
     assert config.soundtouch_http_port == 8090
     assert config.soundtouch_ws_port == 8080
+    
+    # Feature toggles (9.3.6)
+    assert config.enable_hdmi_controls is True
+    assert config.enable_advanced_audio is True
+    assert config.enable_zone_management is True
+    assert config.enable_group_management is True
+
+
+def test_config_feature_toggles():
+    """Test feature toggle configuration."""
+    # Default: all enabled
+    config1 = AppConfig()
+    assert config1.enable_hdmi_controls is True
+    assert config1.enable_advanced_audio is True
+    
+    # Disable specific features
+    config2 = AppConfig(
+        enable_hdmi_controls=False,
+        enable_advanced_audio=False,
+        enable_zone_management=False
+    )
+    assert config2.enable_hdmi_controls is False
+    assert config2.enable_advanced_audio is False
+    assert config2.enable_zone_management is False
+    assert config2.enable_group_management is True  # Still enabled
+
+
+def test_config_feature_toggles_from_env():
+    """Test feature toggles from environment variables."""
+    import os
+    
+    # Set ENV variables
+    os.environ["STB_ENABLE_HDMI_CONTROLS"] = "false"
+    os.environ["STB_ENABLE_ADVANCED_AUDIO"] = "false"
+    
+    config = AppConfig()
+    
+    assert config.enable_hdmi_controls is False
+    assert config.enable_advanced_audio is False
+    assert config.enable_zone_management is True  # Not set, default True
+    
+    # Clean up
+    del os.environ["STB_ENABLE_HDMI_CONTROLS"]
+    del os.environ["STB_ENABLE_ADVANCED_AUDIO"]
 
 
 def test_config_log_level_validation():

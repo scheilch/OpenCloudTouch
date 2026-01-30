@@ -3,7 +3,8 @@ Device API Routes
 Endpoints for device discovery and management
 """
 import logging
-from typing import List
+import asyncio
+from typing import List, Dict, Any
 
 from fastapi import APIRouter, HTTPException, Depends
 
@@ -11,11 +12,15 @@ from backend.discovery import DiscoveredDevice
 from backend.adapters.bosesoundtouch_adapter import BoseSoundTouchDiscoveryAdapter, BoseSoundTouchClientAdapter
 from backend.discovery.manual import ManualDiscovery
 from backend.db import Device, DeviceRepository
-from backend.config import get_config
+from backend.config import get_config, AppConfig
 
 logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api/devices", tags=["Devices"])
+
+# Discovery lock to prevent concurrent discovery requests
+_discovery_lock = asyncio.Lock()
+_discovery_in_progress = False
 
 
 # Dependency injection
@@ -25,37 +30,41 @@ async def get_device_repo() -> DeviceRepository:
     return device_repo
 
 
-@router.get("/discover")
-async def discover_devices():
-    """
-    Trigger device discovery.
+# Helper functions for discover_devices (keep functions < 20 lines)
+async def _discover_via_ssdp(cfg: AppConfig) -> List[DiscoveredDevice]:
+    """Discover devices via SSDP (UPnP)."""
+    if not cfg.discovery_enabled:
+        return []
     
-    Returns:
-        List of discovered devices (not yet saved to DB)
-    """
-    cfg = get_config()
+    logger.info("Starting discovery via SSDP...")
+    discovery = BoseSoundTouchDiscoveryAdapter()
+    try:
+        devices = await discovery.discover(timeout=cfg.discovery_timeout)
+        logger.info(f"SSDP discovery found {len(devices)} device(s)")
+        return devices
+    except Exception as e:
+        logger.error(f"SSDP discovery failed: {e}")
+        return []
+
+
+async def _discover_via_manual_ips(cfg: AppConfig) -> List[DiscoveredDevice]:
+    """Discover devices via manually configured IP addresses."""
+    if not cfg.manual_device_ips_list:
+        return []
     
-    devices: List[DiscoveredDevice] = []
-    
-    # Try SSDP discovery first
-    if cfg.discovery_enabled:
-        logger.info("Starting discovery via bosesoundtouchapi...")
-        discovery = BoseSoundTouchDiscoveryAdapter()
-        try:
-            discovered_devices = await discovery.discover(timeout=cfg.discovery_timeout)
-            devices.extend(discovered_devices)
-        except Exception as e:
-            logger.error(f"Discovery failed: {e}")
-    
-    # Fallback to manual IPs
-    if cfg.manual_device_ips:
-        logger.info(f"Using manual device IPs: {cfg.manual_device_ips}")
-        manual = ManualDiscovery(cfg.manual_device_ips)
-        manual_devices = await manual.discover()
-        devices.extend(manual_devices)
-    
-    logger.info(f"Discovery complete: {len(devices)} device(s) found")
-    
+    logger.info(f"Using manual device IPs: {cfg.manual_device_ips_list}")
+    manual = ManualDiscovery(cfg.manual_device_ips_list)
+    try:
+        devices = await manual.discover()
+        logger.info(f"Manual discovery found {len(devices)} device(s)")
+        return devices
+    except Exception as e:
+        logger.error(f"Manual discovery failed: {e}")
+        return []
+
+
+def _format_discovery_response(devices: List[DiscoveredDevice]) -> Dict[str, Any]:
+    """Format discovery results as API response."""
     return {
         "count": len(devices),
         "devices": [
@@ -70,6 +79,26 @@ async def discover_devices():
     }
 
 
+@router.get("/discover")
+async def discover_devices() -> Dict[str, Any]:
+    """
+    Trigger device discovery.
+    
+    Returns:
+        List of discovered devices (not yet saved to DB)
+    """
+    cfg = get_config()
+    
+    # Discover via SSDP and manual IPs
+    ssdp_devices = await _discover_via_ssdp(cfg)
+    manual_devices = await _discover_via_manual_ips(cfg)
+    
+    all_devices = ssdp_devices + manual_devices
+    logger.info(f"Discovery complete: {len(all_devices)} device(s) found")
+    
+    return _format_discovery_response(all_devices)
+
+
 @router.post("/sync")
 async def sync_devices(repo: DeviceRepository = Depends(get_device_repo)):
     """
@@ -79,56 +108,68 @@ async def sync_devices(repo: DeviceRepository = Depends(get_device_repo)):
     Returns:
         Sync summary with success/failure counts
     """
-    cfg = get_config()
+    global _discovery_in_progress
     
-    # Discover devices
-    devices: List[DiscoveredDevice] = []
+    # Check if discovery already in progress
+    if _discovery_in_progress:
+        logger.warning("Discovery already in progress, rejecting concurrent request")
+        raise HTTPException(status_code=409, detail="Discovery already in progress")
     
-    if cfg.discovery_enabled:
-        discovery = BoseSoundTouchDiscoveryAdapter()
+    async with _discovery_lock:
+        _discovery_in_progress = True
         try:
-            discovered_devices = await discovery.discover(timeout=cfg.discovery_timeout)
-            devices.extend(discovered_devices)
-        except Exception as e:
-            logger.error(f"Discovery failed: {e}")
-    
-    manual_ips = cfg.manual_device_ips
-    if manual_ips:
-        manual = ManualDiscovery(manual_ips)
-        manual_devices = await manual.discover()
-        devices.extend(manual_devices)
-    
-    # Query each device for detailed info and save to DB
-    synced = 0
-    failed = 0
-    
-    for discovered in devices:
-        try:
-            client = BoseSoundTouchClientAdapter(discovered.base_url)
-            info = await client.get_info()
+            cfg = get_config()
             
-            device = Device(
-                device_id=info.device_id,
-                ip=discovered.ip,
-                name=info.name,
-                model=info.type,
-                mac_address=info.mac_address,
-                firmware_version=info.firmware_version,
-            )
+            # Discover devices
+            devices: List[DiscoveredDevice] = []
             
-            await repo.upsert(device)
-            synced += 1
-            logger.info(f"Synced device: {info.name} ({info.device_id})")
+            if cfg.discovery_enabled:
+                discovery = BoseSoundTouchDiscoveryAdapter()
+                try:
+                    discovered_devices = await discovery.discover(timeout=cfg.discovery_timeout)
+                    devices.extend(discovered_devices)
+                except Exception as e:
+                    logger.error(f"Discovery failed: {e}")
             
-        except Exception as e:
-            failed += 1
-            logger.error(f"Failed to sync device {discovered.ip}: {e}")
-    
-    return {
-        "discovered": len(devices),
-        "synced": synced,
-        "failed": failed,
-    }
+            manual_ips = cfg.manual_device_ips_list
+            if manual_ips:
+                manual = ManualDiscovery(manual_ips)
+                manual_devices = await manual.discover()
+                devices.extend(manual_devices)
+            
+            # Query each device for detailed info and save to DB
+            synced = 0
+            failed = 0
+            
+            for discovered in devices:
+                try:
+                    client = BoseSoundTouchClientAdapter(discovered.base_url)
+                    info = await client.get_info()
+                    
+                    device = Device(
+                        device_id=info.device_id,
+                        ip=discovered.ip,
+                        name=info.name,
+                        model=info.type,
+                        mac_address=info.mac_address,
+                        firmware_version=info.firmware_version,
+                    )
+                    
+                    await repo.upsert(device)
+                    synced += 1
+                    logger.info(f"Synced device: {info.name} ({info.device_id})")
+                    
+                except Exception as e:
+                    failed += 1
+                    logger.error(f"Failed to sync device {discovered.ip}: {e}")
+            
+            return {
+                "discovered": len(devices),
+                "synced": synced,
+                "failed": failed,
+            }
+        finally:
+            _discovery_in_progress = False
 
 
 @router.get("")

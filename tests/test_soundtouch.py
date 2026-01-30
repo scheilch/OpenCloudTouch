@@ -24,9 +24,14 @@ async def test_get_info_success():
         mock_info.DeviceName = "Living Room"  # Correct: DeviceName not Name
         mock_info.DeviceType = "SoundTouch 30"  # Correct: DeviceType not Type
         mock_info.MacAddress = "AA:BB:CC:DD:EE:FF"
-        mock_info.ModuleType = None
-        mock_info.Variant = None
-        mock_info.VariantMode = None
+        mock_info.ModuleType = "sm2"
+        mock_info.Variant = "spotty"
+        mock_info.VariantMode = "normal"
+        
+        # Mock firmware component
+        mock_component = MagicMock()
+        mock_component.SoftwareVersion = "28.0.3.46454 epdbuild.trunk.hepdswbld02.2023-07-27T14:58:40"
+        mock_info.Components = [mock_component]
         
         mock_network = MagicMock()
         mock_network.MacAddress = "AA:BB:CC:DD:EE:FF"
@@ -43,7 +48,48 @@ async def test_get_info_success():
         assert info.type == "SoundTouch 30"
         assert info.mac_address == "AA:BB:CC:DD:EE:FF"
         assert info.ip_address == "192.168.1.100"
-        assert info.firmware_version == ""  # Correct: Not available in Information model
+        assert info.firmware_version == "28.0.3.46454 epdbuild.trunk.hepdswbld02.2023-07-27T14:58:40"
+        assert info.module_type == "sm2"
+        assert info.variant == "spotty"
+
+
+@pytest.mark.asyncio
+async def test_get_info_firmware_logging(caplog):
+    """Test that firmware details are logged on device initialization."""
+    with patch('backend.adapters.bosesoundtouch_adapter.SoundTouchDevice') as mock_device_class:
+        mock_device = MagicMock()
+        mock_device_class.return_value = mock_device
+        
+        client = BoseSoundTouchClientAdapter("http://192.168.1.100:8090")
+        
+        # Mock device info with firmware
+        mock_info = MagicMock()
+        mock_info.DeviceId = "TEST123"
+        mock_info.DeviceName = "Test Device"
+        mock_info.DeviceType = "SoundTouch 300"
+        mock_info.MacAddress = "11:22:33:44:55:66"
+        mock_info.ModuleType = "sm2"
+        mock_info.Variant = "hermosa"
+        mock_info.VariantMode = "normal"
+        
+        mock_component = MagicMock()
+        mock_component.SoftwareVersion = "28.0.3.46454"
+        mock_info.Components = [mock_component]
+        
+        mock_network = MagicMock()
+        mock_network.IpAddress = "192.168.1.200"
+        mock_info.NetworkInfo = [mock_network]
+        
+        client._client.GetInformation = MagicMock(return_value=mock_info)
+        
+        # Capture logs
+        import logging
+        caplog.set_level(logging.INFO)
+        
+        await client.get_info()
+        
+        # Verify firmware logging
+        assert any("Device Test Device initialized" in record.message for record in caplog.records)
 
 
 @pytest.mark.asyncio

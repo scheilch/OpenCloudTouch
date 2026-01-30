@@ -1,0 +1,109 @@
+/* ============================================
+   DEVICE DETAIL CARD
+   Full-screen card with device info, sources & volume
+   ============================================ */
+
+.device-detail {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-lg) var(--space-md); /* Weniger Padding */
+  height: 100%;
+  background-color: var(--color-bg-light);
+  overflow-y: auto;
+}
+
+.device-icon-container {
+  position: relative;
+  width: 80px; /* Kleiner */
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--color-bg-secondary);
+  border-radius: 50%;
+  margin-top: 0; /* Kein extra margin */
+  flex-shrink: 0;
+}
+
+.device-icon {
+  color: var(--color-text-secondary);
+}
+
+.device-name {
+  font-size: 18px; /* Kleiner */
+  font-weight: var(--font-weight-bold);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  text-align: center;
+  margin: 0;
+  color: var(--color-text-primary);
+}
+
+.device-model {
+  font-size: 12px; /* Kleiner */
+  font-weight: var(--font-weight-normal);
+  color: var(--color-text-secondary);
+  margin: 0;
+  margin-bottom: var(--space-sm); /* Weniger margin */
+}
+
+/* Device Info */
+.device-info {
+  width: 100%;
+  max-width: 500px;
+  margin-top: auto;
+  padding-top: var(--space-xl);
+  border-top: 1px solid var(--color-border);
+  display: grid;
+  grid-template-columns: 1fr 1fr; /* 2 Spalten: IP | Firmware */
+  gap: var(--space-md);
+  flex-shrink: 0;
+}
+
+.device-info-item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  font-size: 14px;
+}
+
+.device-info-item:nth-child(2) {
+  text-align: right; /* Firmware rechtsbündig */
+}
+
+.info-label {
+  color: var(--color-text-secondary);
+  font-weight: var(--font-weight-normal);
+  font-size: 12px;
+}
+
+.info-value {
+  color: var(--color-text-primary);
+  font-weight: var(--font-weight-medium);
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+}
+
+/* Tablet & Desktop */
+@media (min-width: 768px) {
+  .device-detail {
+    padding: var(--space-2xl);
+  }
+  
+  .device-name {
+    font-size: 28px;
+  }
+  
+  .device-icon-container {
+    width: 160px;
+    height: 160px;
+    margin-top: var(--space-xl);
+  }
+  
+  .device-icon {
+    width: 160px;
+    height: 160px;
+  }
+}
