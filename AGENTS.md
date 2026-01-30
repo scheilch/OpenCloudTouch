@@ -390,6 +390,59 @@ Vor jedem Commit prüfen:
 ❌ Nicht-responsive Design  
 ❌ Fehlende Accessibility  
 
+### 9.4 Terminal & Background Prozesse
+❌ **Neues Command in Console mit laufendem Background-Prozess**  
+   - `run_in_terminal` mit `isBackground=true` startet Prozess in Terminal
+   - Terminal-ID wird zurückgegeben (z.B. `a6218b85-c436-402d-8c8a`)
+   - ⚠️ **NIEMALS** neues Command in gleicher Console ausführen!
+   - Nutze `get_terminal_output(id)` um Status zu prüfen
+   - Warte auf `idle` oder `completed` Status
+   
+**Falsches Beispiel** (VERBOTEN):
+```powershell
+# ❌ FALSCH: Kills Background-Prozess!
+run_in_terminal(".\deploy.ps1", isBackground=true)  # → Terminal ID: abc123
+run_in_terminal("Start-Sleep -Seconds 120")         # → Killt deploy.ps1!
+```
+
+**Richtiges Beispiel**:
+```powershell
+# ✅ RICHTIG: Separates Polling
+id = run_in_terminal(".\deploy.ps1", isBackground=true)  # → Terminal ID: abc123
+# Warte 30s ohne neue Commands
+# Dann:
+output = get_terminal_output(id)  # Prüfe Status ohne zu killen
+```
+
+### 9.5 Rate Limit Management (PFLICHT)
+❌ **Große Batch-Operationen ohne Pausen**  
+   - Bei >10 Files oder >20 Tool-Calls: Rate-Limit-Protokoll aktivieren
+   - Ohne Pausen: Risiko von API-Throttling oder Timeout
+   
+**Rate-Limit-Protokoll**:
+```python
+# Batch-Größe: Max. 5 Tool-Calls
+# Pause: 60 Sekunden nach jedem Batch
+# Progress: Status nach jedem Batch ausgeben
+
+# Beispiel:
+Batch 1: [Tool Call 1-5]
+→ run_in_terminal("Start-Sleep -Seconds 60")
+→ "✓ Batch 1/20 done (5 files)"
+
+Batch 2: [Tool Call 6-10]
+→ run_in_terminal("Start-Sleep -Seconds 60")
+→ "✓ Batch 2/20 done (10 files total)"
+```
+
+**Exception**: Read-only Operations (grep_search, read_file) bis zu 10 parallel erlaubt.
+
+**Eskalation bei Erfolg**:
+- Start: 5 Calls + 60s Pause
+- Nach 3 erfolgreichen Batches: 10 Calls + 30s
+- Nach 5 erfolgreichen Batches: 20 Calls + 10s
+- Bei Rate-Limit-Error: Zurück zu 5 Calls + 60s
+
 ---
 
 ## 10. Spezifische Projektregeln

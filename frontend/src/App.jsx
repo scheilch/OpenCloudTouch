@@ -1,41 +1,61 @@
 import { useState, useEffect } from 'react'
 import './App.css'
-import DeviceList from './components/DeviceList'
+import TopBar from './components/TopBar'
+import DeviceCarousel from './components/DeviceCarousel'
 
 function App() {
-  const [health, setHealth] = useState(null)
+  const [devices, setDevices] = useState([])
   const [loading, setLoading] = useState(true)
+  const [isDiscovering, setIsDiscovering] = useState(false)
 
   useEffect(() => {
-    fetch('/health')
-      .then(res => res.json())
-      .then(data => {
-        setHealth(data)
-        setLoading(false)
-      })
-      .catch(err => {
-        console.error('Failed to fetch health:', err)
-        setLoading(false)
-      })
+    loadDevices()
   }, [])
+
+  const loadDevices = async () => {
+    setLoading(true)
+    try {
+      const res = await fetch('/api/devices')
+      if (!res.ok) throw new Error(`HTTP ${res.status}`)
+      
+      const data = await res.json()
+      setDevices(data.devices || [])
+    } catch (err) {
+      console.error('Failed to load devices:', err)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const syncDevices = async () => {
+    setIsDiscovering(true)
+    try {
+      const res = await fetch('/api/devices/sync', { method: 'POST' })
+      if (!res.ok) throw new Error(`HTTP ${res.status}`)
+      await loadDevices()
+    } catch (err) {
+      console.error('Failed to sync devices:', err)
+    } finally {
+      setIsDiscovering(false)
+    }
+  }
 
   return (
     <div className="app">
-      <header className="app-header">
-        <h1>SoundTouchBridge</h1>
-        <p className="subtitle">Open-Source Replacement for Bose SoundTouch Cloud</p>
-        {health && (
-          <p className="version">v{health.version}</p>
-        )}
-      </header>
+      <TopBar 
+        onDiscover={syncDevices} 
+        deviceCount={devices.length}
+        isDiscovering={isDiscovering}
+      />
       
       <main className="app-main">
-        <DeviceList />
+        <DeviceCarousel 
+          devices={devices} 
+          loading={loading}
+          onRefresh={syncDevices}
+          isDiscovering={isDiscovering}
+        />
       </main>
-
-      <footer className="app-footer">
-        <p>Iteration 1 – Device Discovery & Inventory</p>
-      </footer>
     </div>
   )
 }

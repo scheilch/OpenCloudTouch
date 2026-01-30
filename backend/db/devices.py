@@ -22,6 +22,7 @@ class Device:
         model: str,
         mac_address: str,
         firmware_version: str,
+        schema_version: Optional[str] = None,
         last_seen: Optional[datetime] = None,
         id: Optional[int] = None,
     ):
@@ -32,7 +33,25 @@ class Device:
         self.model = model
         self.mac_address = mac_address
         self.firmware_version = firmware_version
+        self.schema_version = schema_version or self._extract_schema_version(firmware_version)
         self.last_seen = last_seen or datetime.now(UTC)
+    
+    @staticmethod
+    def _extract_schema_version(firmware_version: str) -> str:
+        """
+        Extract schema version from firmware version.
+        
+        For SoundTouch, schema version is derived from firmware major.minor.patch.
+        Example: "28.0.3.46454 epdbuild..." -> "28.0.3"
+        """
+        if not firmware_version:
+            return "unknown"
+        
+        # Extract first 3 version components (major.minor.patch)
+        parts = firmware_version.split()[0].split('.')
+        if len(parts) >= 3:
+            return '.'.join(parts[:3])
+        return firmware_version.split()[0] if firmware_version else "unknown"
     
     def to_dict(self) -> dict:
         """Convert to dictionary for API responses."""
@@ -44,6 +63,7 @@ class Device:
             "model": self.model,
             "mac_address": self.mac_address,
             "firmware_version": self.firmware_version,
+            "schema_version": self.schema_version,
             "last_seen": self.last_seen.isoformat() if self.last_seen else None,
         }
 
@@ -71,11 +91,22 @@ class DeviceRepository:
                 model TEXT NOT NULL,
                 mac_address TEXT NOT NULL,
                 firmware_version TEXT NOT NULL,
+                schema_version TEXT,
                 last_seen TIMESTAMP NOT NULL,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         """)
+        
+        # Migration: Add schema_version column if it doesn't exist
+        try:
+            await self._db.execute("SELECT schema_version FROM devices LIMIT 1")
+        except aiosqlite.OperationalError:
+            logger.info("Migrating devices table: Adding schema_version column")
+            await self._db.execute("""
+                ALTER TABLE devices ADD COLUMN schema_version TEXT
+            """)
+            await self._db.commit()
         
         await self._db.execute("""
             CREATE INDEX IF NOT EXISTS idx_device_id ON devices(device_id)
@@ -108,13 +139,14 @@ class DeviceRepository:
             raise RuntimeError("Database not initialized")
         
         cursor = await self._db.execute("""
-            INSERT INTO devices (device_id, ip, name, model, mac_address, firmware_version, last_seen)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO devices (device_id, ip, name, model, mac_address, firmware_version, schema_version, last_seen)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
             ON CONFLICT(device_id) DO UPDATE SET
                 ip = excluded.ip,
                 name = excluded.name,
                 model = excluded.model,
                 firmware_version = excluded.firmware_version,
+                schema_version = excluded.schema_version,
                 last_seen = excluded.last_seen,
                 updated_at = CURRENT_TIMESTAMP
             RETURNING id
@@ -125,6 +157,7 @@ class DeviceRepository:
             device.model,
             device.mac_address,
             device.firmware_version,
+            device.schema_version,
             device.last_seen,
         ))
         
@@ -142,7 +175,7 @@ class DeviceRepository:
             raise RuntimeError("Database not initialized")
         
         cursor = await self._db.execute("""
-            SELECT id, device_id, ip, name, model, mac_address, firmware_version, last_seen
+            SELECT id, device_id, ip, name, model, mac_address, firmware_version, schema_version, last_seen
             FROM devices
             ORDER BY last_seen DESC
         """)
@@ -158,7 +191,8 @@ class DeviceRepository:
                 model=row[4],
                 mac_address=row[5],
                 firmware_version=row[6],
-                last_seen=datetime.fromisoformat(row[7]) if row[7] else None,
+                schema_version=row[7],
+                last_seen=datetime.fromisoformat(row[8]) if row[8] else None,
             )
             for row in rows
         ]
@@ -171,7 +205,7 @@ class DeviceRepository:
             raise RuntimeError("Database not initialized")
         
         cursor = await self._db.execute("""
-            SELECT id, device_id, ip, name, model, mac_address, firmware_version, last_seen
+            SELECT id, device_id, ip, name, model, mac_address, firmware_version, schema_version, last_seen
             FROM devices
             WHERE device_id = ?
         """, (device_id,))
@@ -189,5 +223,19 @@ class DeviceRepository:
             model=row[4],
             mac_address=row[5],
             firmware_version=row[6],
-            last_seen=datetime.fromisoformat(row[7]) if row[7] else None,
+            schema_version=row[7],
+            last_seen=datetime.fromisoformat(row[8]) if row[8] else None,
         )
+    
+    async def delete_all(self) -> int:
+        """Delete all devices from database. Returns number of deleted rows."""
+        if not self._db:
+            raise RuntimeError("Database not initialized")
+        
+        cursor = await self._db.execute("DELETE FROM devices")
+        await self._db.commit()
+        
+        deleted_count = cursor.rowcount
+        logger.debug(f"Deleted all devices from database: {deleted_count} rows")
+        
+        return deleted_count

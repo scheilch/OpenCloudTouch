@@ -33,17 +33,14 @@ class AppConfig(BaseSettings):
     # Discovery
     discovery_enabled: bool = Field(default=True, description="Enable SSDP/UPnP discovery")
     discovery_timeout: int = Field(default=10, description="Discovery timeout (seconds)")
-    manual_device_ips: list[str] = Field(default_factory=list, description="Manual device IPs")
+    manual_device_ips: str = Field(default="", description="Comma-separated list of manual device IPs")
 
-    @field_validator("manual_device_ips", mode="before")
-    @classmethod
-    def parse_manual_ips(cls, v):
-        """Parse manual IPs from string or list."""
-        if isinstance(v, str):
-            if not v:
-                return []
-            return [ip.strip() for ip in v.split(",") if ip.strip()]
-        return v if v else []
+    @property
+    def manual_device_ips_list(self) -> list[str]:
+        """Get manual IPs as list."""
+        if not self.manual_device_ips:
+            return []
+        return [ip.strip() for ip in self.manual_device_ips.split(",") if ip.strip()]
 
     # SoundTouch
     soundtouch_http_port: int = Field(default=8090, description="SoundTouch HTTP API port")
@@ -53,6 +50,24 @@ class AppConfig(BaseSettings):
     station_descriptor_base_url: str = Field(
         default="http://localhost:7777/stations/preset",
         description="Base URL for station descriptors (used in preset URLs)",
+    )
+    
+    # Feature Toggles (9.3.6 - NICE TO HAVE)
+    enable_hdmi_controls: bool = Field(
+        default=True, 
+        description="Enable HDMI/CEC controls for ST300 (can be disabled if causing issues)"
+    )
+    enable_advanced_audio: bool = Field(
+        default=True,
+        description="Enable advanced audio controls (DSP, Tone, Level) for ST300"
+    )
+    enable_zone_management: bool = Field(
+        default=True,
+        description="Enable multi-room zone management"
+    )
+    enable_group_management: bool = Field(
+        default=True,
+        description="Enable group management features"
     )
 
     @field_validator("log_level")
