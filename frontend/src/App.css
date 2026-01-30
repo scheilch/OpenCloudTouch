@@ -1,103 +1,20 @@
+/* ============================================
+   APP LAYOUT
+   ============================================ */
+
 .app {
-  width: 100%;
-  min-height: 80vh;
   display: flex;
   flex-direction: column;
-}
-
-.app-header {
-  text-align: center;
-  margin-bottom: 3rem;
-  padding-bottom: 1.5rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.app-header h1 {
-  font-size: 2.5rem;
-  font-weight: 700;
-  margin-bottom: 0.5rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-.subtitle {
-  color: rgba(255, 255, 255, 0.6);
-  font-size: 1rem;
-  margin: 0;
-}
-
-.version {
-  color: rgba(255, 255, 255, 0.4);
-  font-size: 0.85rem;
-  margin: 0.5rem 0 0 0;
+  min-height: 100vh;
+  background-color: var(--color-bg-light);
 }
 
 .app-main {
-  margin-bottom: 3rem;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding-top: var(--topbar-height);
 }
-
-.status-card,
-.info-card {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 12px;
-  padding: 2rem;
-}
-
-.status-card h2,
-.info-card h3 {
-  margin-bottom: 1.5rem;
-  color: rgba(255, 255, 255, 0.9);
-}
-
-.health-info p {
-  margin: 0.5rem 0;
-  font-size: 1rem;
-}
-
-.status-ok {
-  color: #4ade80;
-  font-weight: 600;
-}
-
-.status-error {
-  color: #f87171;
-  font-weight: 600;
-}
-
-.info-card ul {
-  list-style: none;
-  padding: 0;
-}
-
-.info-card li {
-  padding: 0.5rem 0;
-  font-size: 1rem;
-  color: rgba(255, 255, 255, 0.8);
-}
-
-.app-footer {
-  text-align: center;
-  padding-top: 2rem;
-  margin-top: auto;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-  color: rgba(255, 255, 255, 0.5);
-}
-
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
-  
-  .app-header h1 {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
   
   .subtitle {
     color: rgba(0, 0, 0, 0.6);

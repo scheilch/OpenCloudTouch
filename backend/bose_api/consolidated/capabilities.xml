@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- AGENT: Consolidated schema with model differences -->
-<!-- Base schema: ST30_Wohnzimmer (SoundTouch 30 Series III) -->
-<!-- Differences: -->
-<!--   ST10_Kueche (SoundTouch 10): Schema differs -->
-<!--   ST300_TV (SoundTouch 300): Schema differs -->
-<!-- Note: Detailed diff analysis needed for this endpoint -->
-
-<capabilities deviceID="B92C7D383488"><networkConfig><dualMode>true</dualMode><wsapiproxy>true</wsapiproxy><allInterfacesSupported /><wlanInterfaces /><security /></networkConfig><dspCapabilities><dspMonoStereo available="false" /></dspCapabilities><lightswitch>false</lightswitch><clockDisplay>true</clockDisplay><capability name="systemtimeout" url="/systemtimeout" info="" /><capability name="rebroadcastlatencymode" url="/rebroadcastlatencymode" info="" /><lrStereoCapable>false</lrStereoCapable><bcoresetCapable>false</bcoresetCapable><disablePowerSaving>true</disablePowerSaving></capabilities>
