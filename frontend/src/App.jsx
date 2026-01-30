@@ -1,12 +1,26 @@
 import { useState, useEffect } from 'react'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import './App.css'
 import TopBar from './components/TopBar'
 import DeviceCarousel from './components/DeviceCarousel'
+import RadioSearch from './components/RadioSearch'
+
+// Create React Query client
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+      retry: 2,
+      staleTime: 5 * 60 * 1000, // 5 minutes
+    },
+  },
+})
 
 function App() {
   const [devices, setDevices] = useState([])
   const [loading, setLoading] = useState(true)
   const [isDiscovering, setIsDiscovering] = useState(false)
+  const [currentView, setCurrentView] = useState('devices') // 'devices' or 'radio'
 
   useEffect(() => {
     loadDevices()
@@ -41,22 +55,44 @@ function App() {
   }
 
   return (
-    <div className="app">
-      <TopBar 
-        onDiscover={syncDevices} 
-        deviceCount={devices.length}
-        isDiscovering={isDiscovering}
-      />
-      
-      <main className="app-main">
-        <DeviceCarousel 
-          devices={devices} 
-          loading={loading}
-          onRefresh={syncDevices}
+    <QueryClientProvider client={queryClient}>
+      <div className="app">
+        <TopBar 
+          onDiscover={syncDevices} 
+          deviceCount={devices.length}
           isDiscovering={isDiscovering}
         />
-      </main>
-    </div>
+        
+        {/* Navigation Tabs */}
+        <nav className="app-nav">
+          <button
+            onClick={() => setCurrentView('devices')}
+            className={currentView === 'devices' ? 'active' : ''}
+          >
+            Geräte
+          </button>
+          <button
+            onClick={() => setCurrentView('radio')}
+            className={currentView === 'radio' ? 'active' : ''}
+          >
+            Radio
+          </button>
+        </nav>
+        
+        <main className="app-main">
+          {currentView === 'devices' ? (
+            <DeviceCarousel 
+              devices={devices} 
+              loading={loading}
+              onRefresh={syncDevices}
+              isDiscovering={isDiscovering}
+            />
+          ) : (
+            <RadioSearch />
+          )}
+        </main>
+      </div>
+    </QueryClientProvider>
   )
 }
 

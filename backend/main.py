@@ -14,6 +14,7 @@ from fastapi.staticfiles import StaticFiles
 from backend.config import init_config, get_config
 from backend.db import DeviceRepository
 from backend.api import devices_router
+from backend.api.radio import router as radio_router
 from backend.logging_config import setup_logging
 
 
@@ -75,6 +76,7 @@ app.add_middleware(
 
 # Include API routers
 app.include_router(devices_router)
+app.include_router(radio_router)
 
 
 # Health endpoint
