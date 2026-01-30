@@ -138,11 +138,31 @@ Frontend läuft auf: http://localhost:3000 (proxied zu Backend auf Port 8000)
 ### Tests
 
 ```bash
-# Im Projekt-Root
-pytest
+# Backend: All tests with coverage
+cd backend
+pytest -v --cov=backend --cov-report=html
 
-# Mit Coverage
-pytest --cov=backend --cov-report=html
+# Backend: Specific test file
+pytest tests/test_radiobrowser_adapter.py -v
+
+# Frontend: All tests
+cd frontend
+npm test
+
+# Frontend: Watch mode
+npm test -- --watch
+
+# Frontend: Coverage
+npm test -- --coverage
+
+# E2E Demos
+python e2e/demo_iteration1.py         # Device Discovery
+python e2e/demo_iteration2.py         # RadioBrowser API (Mock)
+python e2e/demo_iteration2.py --real  # RadioBrowser API (Real)
+
+# Coverage Report (Backend)
+open htmlcov/index.html  # macOS/Linux
+start htmlcov/index.html # Windows
 ```
 
 ---
@@ -223,12 +243,25 @@ Fokus: **Knopf drücken → Sender spielt → Anzeige**
 - SQLite Device Repository
 - GET/POST `/api/devices` Endpoints
 - Frontend: Device List UI
-- Tests (Discovery, Client, Repository)
+- **Tests**: 109 Backend Tests, E2E Demo Script
 
-### 🔜 Iteration 2: RadioBrowser Adapter
-- RadioBrowser API Client
-- GET `/api/radio/search` Endpoint
-- UI: Stationssuche
+### ✅ Iteration 2: RadioBrowser API Integration (FERTIG)
+- RadioBrowser API Adapter (108 Zeilen, async httpx, Retry-Logik)
+- Search Endpoints: `/api/radio/search`, `/api/radio/station/{uuid}`
+- Search Types: name, country, tag (limit-Parameter)
+- Frontend: RadioSearch Component (React Query)
+  - Debouncing (300ms), Loading/Error/Empty States
+  - Skeleton Screens, ARIA Labels, Keyboard Navigation
+  - Mobile-First Design (48px Touch Targets, WCAG 2.1 AA)
+- **Tests**: 150 Backend Tests (83% Coverage) + 22 Frontend Tests (100% RadioSearch Coverage)
+- **Refactoring**: Provider abstraction (radio_provider.py) vorbereitet für zukünftige Erweiterungen
+
+### ⏳ Iteration 2.5: Testing Backlog (Geplant)
+- Frontend Component Tests (DeviceCarousel, BurgerMenu, TopBar)
+- Integration Tests (Firmware Roundtrip, Concurrent Discovery)
+- E2E Tests (Playwright: Discovery Flow, Carousel Navigation)
+- Visual Regression Tests
+- **Ziel**: Frontend Coverage ≥ 80% für alle Iteration 1 Komponenten
 
 ### 🔜 Iteration 3: Preset Mapping
 - SQLite Schema (devices, presets, mappings)
