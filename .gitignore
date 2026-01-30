@@ -31,6 +31,9 @@ data/
 *.db
 *.db-journal
 
+# Frontend assets (screenshots, videos, etc.)
+frontend/assets/
+
 # Distribution / packaging
 .Python
 build/
