@@ -185,7 +185,7 @@ except Exception:
 ### 4.2 Adapter Pattern
 Alle externen Systeme werden gewrappt:
 ```python
-# backend/adapters/bosesoundtouch_adapter.py
+# backend/src/soundtouch_bridge/devices/adapter.py
 class BoseSoundTouchDiscoveryAdapter(DeviceDiscovery):
     """Wraps SSDP discovery for SoundTouch devices."""
     
@@ -196,7 +196,7 @@ class BoseSoundTouchDiscoveryAdapter(DeviceDiscovery):
 ### 4.3 Repository Pattern
 Datenzugriff nur über Repositories:
 ```python
-# backend/db/devices.py
+# backend/src/soundtouch_bridge/devices/repository.py
 class DeviceRepository:
     async def upsert(self, device: Device) -> None:
         """Insert or update device."""
