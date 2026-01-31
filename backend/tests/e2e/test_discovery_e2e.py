@@ -12,6 +12,7 @@ import sys
 import pytest
 
 
+@pytest.mark.integration
 async def test_ssdp_discovery():
     """Test SSDP Discovery (currently broken)."""
     print("\n=== Test 1: SSDP Discovery ===")
@@ -27,6 +28,7 @@ async def test_ssdp_discovery():
     return len(devices) > 0
 
 
+@pytest.mark.integration
 async def test_adapter_discovery():
     """Test BoseSoundTouchDiscoveryAdapter (our abstraction layer)."""
     print("\n=== Test 2: Adapter Discovery (BoseSoundTouchDiscoveryAdapter) ===")
@@ -50,6 +52,7 @@ async def test_adapter_discovery():
     return len(devices) > 0
 
 
+@pytest.mark.integration
 async def test_manual_discovery():
     """Test Manual IP Discovery (fallback)."""
     print("\n=== Test 3: Manual IP Discovery ===")
@@ -71,6 +74,7 @@ async def test_manual_discovery():
     return len(devices) > 0
 
 
+@pytest.mark.integration
 async def test_api_sync():
     """Test full /api/devices/sync flow."""
     print("\n=== Test 4: API Sync Flow ===")

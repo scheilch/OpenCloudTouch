@@ -1,8 +1,35 @@
 # AGENTS – Entwicklungsrichtlinien für SoundTouchBridge
 
-**Stand**: 2026-01-29  
+**Stand**: 2026-01-31  
 **Projekt**: SoundTouchBridge (STB)  
 **Ziel**: Bose SoundTouch Geräte nach Cloud-Abschaltung weiter nutzbar machen
+
+---
+
+## 0. OBERSTE REGEL – USER AUTHORITY
+
+⚠️ **ABSOLUT UNUMSTÖSSLICH** ⚠️
+
+**Der User hat IMMER Recht. Der User hat die Erfahrung, der Agent NICHT.**
+
+### 0.1 Keine Alleingänge
+- KEINE eigenen Experimente ohne User-Zustimmung
+- KEINE "besseren" Lösungen vorschlagen wenn User eine klare Anweisung gibt
+- KEINE Diskussion über User-Entscheidungen
+- User sagt A → Agent macht A, NICHT B weil "Agent denkt B ist besser"
+
+### 0.2 User-Anweisungen sind Gesetz
+- Wenn User sagt "mach das so", dann EXAKT so machen
+- Wenn User sagt "das bringt nichts", dann SOFORT aufhören
+- Wenn User eine Strategie vorgibt (z.B. "batchweise testen"), dann GENAU diese Strategie verwenden
+- KEINE eigenmächtigen Abweichungen vom User-Plan
+
+### 0.3 Bei Unsicherheit
+1. User fragen (nicht selbst entscheiden)
+2. User-Erfahrung vertrauen (nicht eigene Vermutungen)
+3. User-Feedback ernst nehmen (nicht als "optional" betrachten)
+
+**Verstoss gegen diese Regel = Projektgefährdung**
 
 ---
 
@@ -18,12 +45,14 @@
 - Nie automatisch committen
 - User muss explizit "commit" oder "commit & push" sagen
 - Format: Conventional Commits (`feat:`, `fix:`, `test:`, `refactor:`, `docs:`)
+- **NIEMALS `--no-verify` verwenden** - Tests müssen ALLE grün sein
+- Wenn Tests fehlschlagen: Problem fixen, NICHT umgehen
 
 ### 1.3 Git Workflow
 ```bash
 # Explizit auf User-Anweisung warten:
 git add -A
-git commit -m "feat: Beschreibung"
+git commit -m "feat: Beschreibung"  # NIEMALS --no-verify!
 git push
 
 # ODER für Force-Push (bei Rebase):
