@@ -8,7 +8,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent / "backend"))
 
-from backend.adapters.radiobrowser_adapter import RadioBrowserAdapter
+from backend.radio.providers.radiobrowser import RadioBrowserAdapter
 import httpx
 
 
