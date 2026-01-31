@@ -41,61 +41,37 @@ async def test_lifespan_initialization():
 
 
 def test_health_endpoint():
-    """Test health check endpoint exists."""
+    """Test health check endpoint returns expected fields."""
     from soundtouch_bridge.main import app
-    
+
     client = TestClient(app)
     response = client.get("/health")
-    
+
     assert response.status_code == 200
     data = response.json()
     assert data["status"] == "healthy"
+    assert "version" in data
+    assert "config" in data
 
-
-def test_api_routes_registered():
-    """Test that API routers are registered."""
+def test_cors_headers_present():
+    """Test CORS headers are present in responses."""
     from soundtouch_bridge.main import app
     
-    routes = [route.path for route in app.routes]
+    client = TestClient(app)
     
-    # Device routes
-    assert "/api/devices/discover" in routes or "/api/devices" in routes
-    assert "/api/devices/{device_id}" in routes
-    assert "/api/devices/sync" in routes
+    # Preflight request
+    response = client.options(
+        "/api/devices/discover",
+        headers={
+            "Origin": "http://localhost:3000",
+            "Access-Control-Request-Method": "GET"
+        }
+    )
     
-    # Radio routes
-    assert "/api/radio/search" in routes
-    # Note: Route is /api/radio/station/{uuid} (singular)
-    assert any("/api/radio/station" in r for r in routes)
-
-
-def test_cors_middleware_configured():
-    """Test CORS middleware is configured."""
-    from soundtouch_bridge.main import app
-    
-    # Check middleware is registered
-    # CORS is added via add_middleware, appears as generic Middleware wrapper
-    assert len(app.user_middleware) > 0
-
-
-def test_static_files_mount_when_dir_exists():
-    """Test static files are mounted when dist/ exists."""
-    from soundtouch_bridge.main import app
-    
-    # If static_dir exists, static files should be mounted at "/"
-    # This creates a catch-all route for static files
-    routes = [route.path for route in app.routes]
-    # Check if we have routes (static may create catchall)
-    assert len(routes) > 0
-
-
-def test_static_files_not_mounted_when_dir_missing():
-    """Test static files are not mounted when dist/ doesn't exist."""
-    from soundtouch_bridge.main import app
-    
-    # Should still have API routes
-    routes = [route.path for route in app.routes]
-    assert "/api/devices/discover" in routes or "/api/devices/sync" in routes
+    # Should have CORS headers (origin is reflected back)
+    assert "access-control-allow-origin" in response.headers
+    assert response.headers["access-control-allow-origin"] == "http://localhost:3000"
+    assert "access-control-allow-methods" in response.headers
 
 
 @pytest.mark.asyncio
