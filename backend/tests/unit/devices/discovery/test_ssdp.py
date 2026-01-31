@@ -1,6 +1,7 @@
 """
 Tests for SSDP Discovery
 """
+import asyncio
 import pytest
 from unittest.mock import AsyncMock, patch, MagicMock
 import socket
@@ -187,6 +188,79 @@ def test_xml_namespace_parsing_regression():
     
     model_name = discovery._find_xml_text(root, ".//modelName")
     assert model_name == "SoundTouch 10"
+
+
+@pytest.mark.asyncio
+async def test_concurrent_discovery_requests():
+    """Test that multiple concurrent discovery requests don't interfere.
+    
+    Edge case: User triggers discovery multiple times rapidly (UI spam-click).
+    Expected: All requests complete successfully without resource leaks.
+    
+    Regression protection: Concurrent socket operations should not deadlock.
+    """
+    discovery = SSDPDiscovery(timeout=2)
+    
+    # Mock successful discovery
+    mock_device_info = {
+        'AA:BB:CC:11:22:33': {
+            'ip': '192.168.1.100',
+            'mac': 'AA:BB:CC:11:22:33',
+            'name': 'Living Room',
+            'model': 'SoundTouch 10'
+        }
+    }
+    
+    with patch.object(discovery, '_ssdp_msearch', return_value=['http://192.168.1.100:8090/info']):
+        with patch.object(discovery, '_fetch_device_descriptions', return_value=mock_device_info):
+            # Run 5 concurrent discovery requests
+            tasks = [discovery.discover() for _ in range(5)]
+            results = await asyncio.gather(*tasks)
+            
+            # All should succeed
+            assert len(results) == 5
+            for result in results:
+                assert len(result) == 1
+                assert 'AA:BB:CC:11:22:33' in result
+
+
+@pytest.mark.asyncio
+async def test_concurrent_discovery_mixed_success_failure():
+    """Test concurrent discovery with mixed success/failure scenarios.
+    
+    Edge case: Network flakiness during concurrent requests.
+    Expected: Failed requests return empty dict, successful ones return devices.
+    """
+    discovery = SSDPDiscovery(timeout=2)
+    
+    mock_device_info = {
+        'AA:BB:CC:11:22:33': {
+            'ip': '192.168.1.100',
+            'mac': 'AA:BB:CC:11:22:33',
+            'name': 'Living Room',
+            'model': 'SoundTouch 10'
+        }
+    }
+    
+    # Mock: alternating success/failure
+    call_count = 0
+    def side_effect():
+        nonlocal call_count
+        call_count += 1
+        if call_count % 2 == 0:
+            raise Exception("Network timeout")
+        return ['http://192.168.1.100:8090/info']
+    
+    with patch.object(discovery, '_ssdp_msearch', side_effect=side_effect):
+        with patch.object(discovery, '_fetch_device_descriptions', return_value=mock_device_info):
+            tasks = [discovery.discover() for _ in range(6)]
+            results = await asyncio.gather(*tasks)
+            
+            # Should have 3 successes, 3 empty results (failures)
+            successes = [r for r in results if r]
+            failures = [r for r in results if not r]
+            assert len(successes) == 3
+            assert len(failures) == 3
 
 
 def test_xml_without_namespace_still_works():

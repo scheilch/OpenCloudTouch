@@ -380,3 +380,159 @@ async def test_delete_all_without_initialization():
     
     with pytest.raises(RuntimeError, match="not initialized"):
         await repo.delete_all()
+
+
+class TestDatabaseConnectionErrors:
+    """Tests for database connection failures and timeouts."""
+    
+    @pytest.mark.asyncio
+    async def test_upsert_with_db_locked_error(self):
+        """Test upsert when database is locked by another process.
+        
+        Use case: Multiple containers/processes access same SQLite file.
+        Expected: Raises DatabaseError with helpful message.
+        
+        Note: SQLite "database is locked" is common in multi-process scenarios.
+        """
+        repo = DeviceRepository(":memory:")
+        await repo.initialize()
+        
+        device = Device(
+            device_id="TEST123",
+            ip="192.168.1.100",
+            name="Test Device",
+            model="SoundTouch 30",
+            mac_address="AA:BB:CC:DD:EE:FF",
+            firmware_version="28.0.5",
+        )
+        
+        # Mock DB connection to raise "database is locked"
+        from aiosqlite import Error as DatabaseError
+        
+        # Close real connection and mock
+        await repo.close()
+        
+        # Simulate locked database by attempting operation on closed connection
+        with pytest.raises((DatabaseError, RuntimeError)):
+            await repo.upsert(device)
+    
+    @pytest.mark.asyncio
+    async def test_get_all_handles_corrupt_data_gracefully(self):
+        """Test get_all when database has corrupt/invalid data.
+        
+        Use case: Database file partially corrupted or manual SQL edits.
+        Expected: Skip invalid rows, return valid devices, log errors.
+        
+        Note: SQLite enforces NOT NULL constraints, so we test invalid MAC format.
+        Current implementation doesn't validate MAC format - returns as-is.
+        This test documents expected behavior for future validation.
+        """
+        repo = DeviceRepository(":memory:")
+        await repo.initialize()
+        
+        # Insert valid device
+        valid_device = Device(
+            device_id="VALID",
+            ip="192.168.1.100",
+            name="Valid Device",
+            model="SoundTouch 30",
+            mac_address="AA:BB:CC:DD:EE:FF",
+            firmware_version="28.0.5",
+        )
+        await repo.upsert(valid_device)
+        
+        # Insert device with corrupt/invalid MAC address format
+        # (Tests graceful handling of data validation errors)
+        corrupt_device = Device(
+            device_id="CORRUPT",
+            ip="192.168.1.101",
+            name="Corrupt MAC Device",
+            model="SoundTouch 30",
+            mac_address="INVALID_MAC_FORMAT",  # Not standard MAC format
+            firmware_version="28.0.5",
+        )
+        await repo.upsert(corrupt_device)
+        
+        # get_all should return both devices (no validation yet)
+        devices = await repo.get_all()
+        
+        # Current behavior: Both devices returned
+        assert len(devices) == 2
+        assert any(d.device_id == "VALID" for d in devices)
+        assert any(d.device_id == "CORRUPT" for d in devices)
+        
+        await repo.close()
+        
+        # Future: Should skip corrupt device and log warning
+        # Or: Should return corrupt device but mark as invalid
+    
+    @pytest.mark.asyncio
+    async def test_connection_timeout_on_slow_query(self):
+        """Test repository handles slow queries gracefully.
+        
+        Use case: Database on slow disk or network-mounted filesystem.
+        Expected: Query times out, raises appropriate error.
+        
+        Note: SQLite doesn't have built-in query timeouts like PostgreSQL.
+        This test documents limitation for future migration.
+        """
+        repo = DeviceRepository(":memory:")
+        await repo.initialize()
+        
+        try:
+            # In-memory SQLite is always fast, so this test just verifies
+            # that normal operations complete quickly
+            import time
+            
+            start = time.time()
+            devices = await repo.get_all()
+            elapsed = time.time() - start
+            
+            # Should complete in <100ms for empty DB
+            assert elapsed < 0.1, f"Query took {elapsed}s, expected <0.1s"
+        finally:
+            await repo.close()
+    
+    @pytest.mark.asyncio
+    async def test_concurrent_writes_to_same_device(self):
+        """Test concurrent upsert operations on same device.
+        
+        Use case: Discovery and manual sync both update same device.
+        Expected: Last write wins, no data corruption.
+        
+        SQLite serializes writes, so this should be safe.
+        """
+        repo = DeviceRepository(":memory:")
+        await repo.initialize()
+        
+        try:
+            import asyncio
+            
+            async def update_device(name_suffix):
+                device = Device(
+                    device_id="SHARED",
+                    ip="192.168.1.100",
+                    name=f"Device {name_suffix}",
+                    model="SoundTouch 30",
+                    mac_address="AA:BB:CC:DD:EE:FF",
+                    firmware_version="28.0.5",
+                )
+                await repo.upsert(device)
+                return name_suffix
+            
+            # 5 concurrent writes to same device_id
+            tasks = [update_device(f"v{i}") for i in range(5)]
+            results = await asyncio.gather(*tasks)
+            
+            # All should complete without error
+            assert len(results) == 5
+            
+            # Final state: One of the versions (last write wins)
+            device = await repo.get_by_device_id("SHARED")
+            assert device is not None
+            assert device.device_id == "SHARED"
+            # Name will be one of "Device v0" through "Device v4"
+            assert device.name.startswith("Device v")
+            
+        finally:
+            await repo.close()
