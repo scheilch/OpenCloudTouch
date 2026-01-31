@@ -283,3 +283,100 @@ async def test_device_schema_version_persisted(repo):
     assert found is not None
     assert found.schema_version == "28.0.3"
     assert found.firmware_version == "28.0.3.46454 epdbuild.trunk"
+
+
+@pytest.mark.asyncio
+async def test_delete_all(repo):
+    """Test delete_all removes all devices and returns count."""
+    # Insert multiple devices
+    device1 = Device(
+        device_id="DEV1",
+        ip="192.168.1.100",
+        name="Device 1",
+        model="SoundTouch 30",
+        mac_address="AA:BB:CC:DD:EE:01",
+        firmware_version="28.0.3"
+    )
+    device2 = Device(
+        device_id="DEV2",
+        ip="192.168.1.101",
+        name="Device 2",
+        model="SoundTouch 10",
+        mac_address="AA:BB:CC:DD:EE:02",
+        firmware_version="28.0.3"
+    )
+    
+    await repo.upsert(device1)
+    await repo.upsert(device2)
+    
+    # Verify devices exist
+    all_devices = await repo.get_all()
+    assert len(all_devices) == 2
+    
+    # Delete all
+    deleted_count = await repo.delete_all()
+    assert deleted_count == 2
+    
+    # Verify empty
+    all_devices = await repo.get_all()
+    assert len(all_devices) == 0
+
+
+@pytest.mark.asyncio
+async def test_repository_close():
+    """Test repository close method."""
+    repo = DeviceRepository(":memory:")
+    await repo.initialize()
+    
+    # Close should not raise
+    await repo.close()
+    
+    # Operations after close should fail
+    with pytest.raises(RuntimeError, match="not initialized"):
+        await repo.get_all()
+
+
+@pytest.mark.asyncio
+async def test_upsert_without_initialization():
+    """Test upsert fails when DB not initialized."""
+    repo = DeviceRepository(":memory:")
+    # Don't call initialize()
+    
+    device = Device(
+        device_id="TEST",
+        ip="192.168.1.100",
+        name="Test",
+        model="SoundTouch 30",
+        mac_address="AA:BB:CC:DD:EE:FF",
+        firmware_version="28.0.3"
+    )
+    
+    with pytest.raises(RuntimeError, match="not initialized"):
+        await repo.upsert(device)
+
+
+@pytest.mark.asyncio
+async def test_get_all_without_initialization():
+    """Test get_all fails when DB not initialized."""
+    repo = DeviceRepository(":memory:")
+    
+    with pytest.raises(RuntimeError, match="not initialized"):
+        await repo.get_all()
+
+
+@pytest.mark.asyncio
+async def test_get_by_device_id_without_initialization():
+    """Test get_by_device_id fails when DB not initialized."""
+    repo = DeviceRepository(":memory:")
+    
+    with pytest.raises(RuntimeError, match="not initialized"):
+        await repo.get_by_device_id("TEST")
+
+
+@pytest.mark.asyncio
+async def test_delete_all_without_initialization():
+    """Test delete_all fails when DB not initialized."""
+    repo = DeviceRepository(":memory:")
+    
+    with pytest.raises(RuntimeError, match="not initialized"):
+        await repo.delete_all()

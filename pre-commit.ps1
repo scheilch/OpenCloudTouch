@@ -27,7 +27,7 @@ try {
     & ..\.venv\Scripts\python.exe -m pytest tests/ `
         --cov=soundtouch_bridge `
         --cov-report=term-missing `
-        --cov-fail-under=75 `
+        --cov-fail-under=80 `
         --quiet
     
     $exitCode = $LASTEXITCODE
