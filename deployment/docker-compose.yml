@@ -3,8 +3,8 @@ version: '3.8'
 services:
   soundtouch-bridge:
     build:
-      context: .
-      dockerfile: Dockerfile
+      context: ..
+      dockerfile: backend/Dockerfile
     container_name: soundtouch-bridge
     network_mode: host
     volumes:
