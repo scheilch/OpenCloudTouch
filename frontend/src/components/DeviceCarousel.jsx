@@ -177,7 +177,7 @@ function DeviceCarousel({ devices, loading, onRefresh, isDiscovering = false }) 
       {/* Device Card */}
       <div className="carousel-container">
         <div 
-          className="device-card-wrapper"
+          className={`carousel-track ${isDragging ? 'carousel-track--dragging' : ''}`}
           style={{
             transform: isDragging ? `translateX(${dragOffset}px)` : 'translateX(0)',
             transition: isDragging ? 'none' : 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
