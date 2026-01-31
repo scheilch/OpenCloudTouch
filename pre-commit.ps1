@@ -25,7 +25,6 @@ Write-Host ""
 try {
     Set-Location backend
     & ..\.venv\Scripts\python.exe -m pytest tests/ `
-        -m "not integration" `
         --cov=soundtouch_bridge `
         --cov-report=term-missing `
         --cov-fail-under=80 `

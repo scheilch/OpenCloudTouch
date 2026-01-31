@@ -45,9 +45,10 @@ jobs:
       - name: Run tests with coverage
         run: |
           cd backend
-          pytest -m "not integration" --cov=soundtouch_bridge --cov-report=xml --cov-report=term-missing --cov-fail-under=80
+          pytest --cov=soundtouch_bridge --cov-report=xml --cov-report=term-missing --cov-fail-under=80
         env:
           PYTHONPATH: ${{ github.workspace }}
+          STB_HAS_DEVICES: "false"  # No real devices in CI
       
       - name: Upload coverage reports
         uses: codecov/codecov-action@v4
