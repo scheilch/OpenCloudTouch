@@ -1,0 +1,129 @@
+# Deployment Scripts
+
+Alle Deployment-bezogenen Dateien für SoundTouchBridge Container-Deployment.
+
+## 📁 Files
+
+- **docker-compose.yml**: Docker Compose Konfiguration für Development
+- **Dockerfile**: siehe `backend/Dockerfile` (wird von Compose referenziert)
+- **deploy-to-server.ps1**: NAS Server Deployment-Script (SSH-basiert)
+- **export-image.ps1**: Container Image Build & Export (Podman)
+- **run-container.ps1**: Lokaler Container Start (Podman)
+
+## 🚀 Usage
+
+### Local Development
+
+```bash
+# Docker Compose starten
+cd deployment/
+docker-compose up --build
+
+# ODER: Podman lokal
+.\run-container.ps1 -Port 7777 -ManualIPs "192.168.1.100"
+```
+
+### NAS Server Deployment
+
+```bash
+cd deployment/
+.\deploy-to-server.ps1
+```
+
+**Voraussetzungen**:
+- PowerShell 7+
+- SSH-Zugriff zu NAS Server Host (user@targethost)
+- Podman (für export-image.ps1)
+- Docker (für docker-compose)
+
+## 📝 Build Context
+
+Alle Scripts verwenden folgende Pfade (relativ zu `deployment/`):
+
+```
+deployment/
+├── docker-compose.yml      → context: .., dockerfile: backend/Dockerfile
+├── export-image.ps1        → podman build -f ../backend/Dockerfile ..
+├── run-container.ps1       → podman build -f ../backend/Dockerfile ..
+└── deploy-to-server.ps1   → ruft export-image.ps1 auf
+```
+
+**Build Context**: `..` (Parent directory = Repository Root)  
+**Dockerfile**: `../backend/Dockerfile`
+
+## 🔧 Konfiguration
+
+### Environment Variables
+
+```bash
+# SSDP Discovery
+STB_DISCOVERY_TIMEOUT=10
+
+# Manual Device IPs (wenn SSDP nicht funktioniert)
+STB_MANUAL_DEVICE_IPS="192.168.1.100,192.168.1.101"
+
+# Logging
+STB_LOG_LEVEL=INFO
+
+# Database
+STB_DATABASE_URL=sqlite+aiosqlite:///data/devices.db
+```
+
+### Ports
+
+- **Backend API**: 7777 (default)
+- **Frontend**: Embedded in Backend (bei Multi-stage Build)
+
+### Volumes
+
+- **data/**: SQLite DB, Config, Logs
+- **config.yaml**: Optional (überschreibt Env Vars)
+
+## 🧪 Testing
+
+```bash
+# Image bauen (ohne starten)
+.\export-image.ps1
+
+# Container starten (mit Build)
+.\run-container.ps1
+
+# Container starten (ohne Build, existing image)
+.\run-container.ps1 -NoBuild
+```
+
+## 🛠️ Troubleshooting
+
+### Build Fehler
+
+```bash
+# Podman: Build mit --no-cache
+.\export-image.ps1 -NoCache
+
+# Docker Compose: Clean rebuild
+docker-compose build --no-cache
+```
+
+### SSDP Discovery funktioniert nicht
+
+Windows Container können kein SSDP:
+```bash
+# Manual IPs verwenden
+.\run-container.ps1 -ManualIPs "192.168.1.100,192.168.1.101"
+```
+
+### NAS Server SSH Fehler
+
+```bash
+# SSH Verbindung testen
+ssh user@targethost "docker version"
+
+# Podman Container prüfen
+ssh user@targethost "docker ps -a | grep soundtouch"
+```
+
+## 📄 Related Docs
+
+- [Main README](../README.md): Projektübersicht
+- [Backend README](../backend/README.md): Backend-spezifische Docs
+- [SERVER-DEPLOY.md](../SERVER-DEPLOY.md): NAS Server Deployment Guide
