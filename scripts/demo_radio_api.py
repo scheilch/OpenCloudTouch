@@ -6,9 +6,10 @@ import asyncio
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).parent))
+# Add backend/src to path for soundtouch_bridge imports
+sys.path.insert(0, str(Path(__file__).parent.parent / "backend" / "src"))
 
-from backend.radio.providers.radiobrowser import RadioBrowserAdapter
+from soundtouch_bridge.radio.providers.radiobrowser import RadioBrowserAdapter
 
 
 async def main():
