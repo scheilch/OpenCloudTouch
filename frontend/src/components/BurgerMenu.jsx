@@ -43,6 +43,7 @@ function BurgerMenu({ isOpen, onClose, onDiscover, deviceCount = 0, isDiscoverin
       
       <nav 
         className={`burger-menu ${isOpen ? 'burger-menu--open' : ''}`}
+        role="navigation"
         aria-label="Hauptnavigation"
       >
         <div className="burger-header">
