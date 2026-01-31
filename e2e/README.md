@@ -41,9 +41,37 @@ python e2e/demo_iteration2.py --real
 - Query-Parameter: `q`, `search_type` (name/country/tag), `limit`
 - Error Handling (Timeout, Connection, HTTP Errors)
 
-**Status**: Abgeschlossen (150 Tests, 83.29% Coverage)
+**Status**: Abgeschlossen (150 Backend Tests, 83.29% Coverage)
 
-**API Examples**:
+## Iteration 2.5: Testing & Quality Assurance ✅
+
+**Component Tests hinzugefügt** (TDD Approach):
+- `frontend/src/components/DeviceCarousel.test.jsx` - 29 Tests
+- `frontend/src/components/TopBar.test.jsx` - 24 Tests
+- `frontend/src/components/BurgerMenu.test.jsx` - 59 Tests
+
+**Test-Ergebnisse**:
+- **109/111 Frontend Tests PASSED** (98.2%)
+- **2 Tests SKIPPED** (Touch Events - JSDOM Limitation, funktioniert im Browser)
+- **Coverage**: Loading States, Empty States, Navigation, Mouse Drag, Keyboard, Accessibility
+
+**Run Tests**:
+```bash
+# Frontend Tests
+cd frontend
+npm test
+
+# Backend Tests
+pytest -v --cov=backend --cov-report=html
+
+# Coverage Report
+open htmlcov/index.html  # macOS/Linux
+start htmlcov/index.html # Windows
+```
+
+**Status**: Abgeschlossen (150 Backend + 109 Frontend = 259 Tests total)
+
+## Iteration 3: Preset Mapping (Geplant)
 ```bash
 # Search by name
 curl "http://localhost:7777/api/radio/search?q=relax&search_type=name&limit=5"
