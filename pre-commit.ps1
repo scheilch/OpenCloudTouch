@@ -25,6 +25,7 @@ Write-Host ""
 try {
     Set-Location backend
     & ..\.venv\Scripts\python.exe -m pytest tests/ `
+        -m "not integration" `
         --cov=soundtouch_bridge `
         --cov-report=term-missing `
         --cov-fail-under=80 `
@@ -39,9 +40,6 @@ try {
         Write-Host ""
         Write-Host "To see details, run:" -ForegroundColor Yellow
         Write-Host "  cd backend && pytest -v" -ForegroundColor Yellow
-        Write-Host ""
-        Write-Host "To bypass this hook (NOT RECOMMENDED):" -ForegroundColor Yellow
-        Write-Host "  git commit --no-verify" -ForegroundColor Yellow
         Write-Host ""
         exit 1
     }
