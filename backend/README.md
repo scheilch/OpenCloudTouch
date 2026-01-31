@@ -1,32 +1,39 @@
 # SoundTouchBridge Backend
 
-Python 3.11+ backend mit FastAPI.
+FastAPI-basierter REST-API-Server für Bose SoundTouch Geräte.
 
-## Installation (lokal)
+## Installation
 
 ```bash
 cd backend
-python -m venv venv
-# Windows:
-venv\Scripts\activate
-# Linux/Mac:
-source venv/bin/activate
-
-pip install -r requirements-dev.txt
+pip install -e .[dev]
 ```
 
 ## Ausführen
 
 ```bash
-python main.py
+# Als Modul
+python -m soundtouch_bridge
+
+# Mit Uvicorn direkt
+uvicorn soundtouch_bridge.main:app --reload
 ```
-
-API läuft auf: http://localhost:8000
-
-OpenAPI Docs: http://localhost:8000/docs
 
 ## Tests
 
 ```bash
+cd backend
 pytest
+pytest --cov=soundtouch_bridge --cov-report=html
 ```
+
+## Struktur
+
+- `src/soundtouch_bridge/` - Hauptpaket
+  - `core/` - Shared Infrastructure (Config, Logging, Exceptions)
+  - `devices/` - Device Management & Discovery
+  - `radio/` - Radio Station Search
+- `tests/` - Test Suite
+  - `unit/` - Unit Tests
+  - `integration/` - Integration Tests
+  - `e2e/` - End-to-End Tests
