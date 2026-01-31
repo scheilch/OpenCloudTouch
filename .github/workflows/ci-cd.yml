@@ -44,7 +44,8 @@ jobs:
       
       - name: Run tests with coverage
         run: |
-          pytest
+          cd backend
+          pytest -m "not integration" --cov=soundtouch_bridge --cov-report=xml --cov-report=term-missing --cov-fail-under=80
         env:
           PYTHONPATH: ${{ github.workspace }}
       
@@ -52,7 +53,7 @@ jobs:
         uses: codecov/codecov-action@v4
         if: success()
         with:
-          files: ./coverage.xml
+          files: ./backend/coverage.xml
           fail_ci_if_error: false
           token: ${{ secrets.CODECOV_TOKEN }}
 
