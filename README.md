@@ -110,14 +110,48 @@ Discovery (SSDP/UPnP) und lokale Gerätekommunikation funktionieren damit am sta
 
 ---
 
+## � Projekt-Struktur
+
+```
+soundtouch-bridge/
+├── backend/                    # Python Backend (FastAPI)
+│   ├── src/soundtouch_bridge/ # Main package (pip-installable)
+│   │   ├── core/              # Config, Logging, Exceptions
+│   │   ├── devices/           # Device discovery, client, API
+│   │   ├── radio/             # Radio providers, API
+│   │   └── main.py            # FastAPI app
+│   ├── tests/                 # Backend tests
+│   │   ├── unit/              # Unit tests (core, devices, radio)
+│   │   ├── integration/       # API integration tests
+│   │   └── e2e/               # End-to-end tests
+│   ├── pyproject.toml         # Python packaging (PEP 517/518)
+│   ├── pytest.ini             # Test configuration
+│   └── Dockerfile             # Backend container image
+├── frontend/                  # React Frontend (Vite)
+│   ├── src/                   # React components, hooks, services
+│   ├── tests/                 # Frontend tests
+│   └── package.json           # NPM dependencies
+├── deployment/                # Deployment scripts
+│   ├── docker-compose.yml     # Docker Compose config
+│   ├── deploy-to-server.ps1  # NAS Server deployment
+│   └── README.md              # Deployment guide
+├── scripts/                   # User utility scripts
+│   ├── test-all.ps1           # Full test suite
+│   ├── demo_radio_api.py      # Radio API demo
+│   └── README.md              # Scripts documentation
+└── docs/                      # Project documentation
+```
+
+---
+
 ## 🛠️ Lokale Entwicklung
 
 ### Backend
 
 ```bash
 cd backend
-python -m venv venv
-venv\Scripts\activate  # Windows
+python -m venv .venv
+.venv\Scripts\activate  # Windows
 # source venv/bin/activate  # Linux/Mac
 pip install -r requirements-dev.txt
 python main.py
