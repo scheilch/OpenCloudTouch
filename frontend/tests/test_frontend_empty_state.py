@@ -6,12 +6,17 @@ Bug: Empty state "Erneut suchen" button called loadDevices() instead of syncDevi
 Fixed: 2026-01-29 - Changed onRefresh callback to syncDevices.
 """
 import pytest
+import sys
+from pathlib import Path
 from unittest.mock import AsyncMock, patch
 from fastapi.testclient import TestClient
 
-from backend.main import app
-from backend.db.devices import DeviceRepository, Device
-from backend.api.devices import get_device_repo
+# Add backend/src to path for soundtouch_bridge imports
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "backend" / "src"))
+
+from soundtouch_bridge.main import app
+from soundtouch_bridge.devices.repository import DeviceRepository, Device
+from soundtouch_bridge.devices.api.routes import get_device_repo
 
 
 @pytest.fixture
