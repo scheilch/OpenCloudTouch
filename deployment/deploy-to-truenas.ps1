@@ -80,7 +80,7 @@ try {
     $deployScript = @"
 #!/bin/bash
 set -e
-ClearDatabase="$ClearDatabase"
+ClearDatabase=$ClearDatabase
 
 echo "[>] Checking Docker access..."
 if ! $dockerCmd version &>/dev/null; then
@@ -103,9 +103,9 @@ $dockerCmd rm $ContainerName 2>/dev/null || true
 echo "[>] Creating data directory..."
 mkdir -p $DataPath 2>/dev/null || sudo mkdir -p $DataPath
 
-if [ "$ClearDatabase" = "true" ]; then
+if [ "\$ClearDatabase" = "True" ]; then
     echo "[>] Clearing database..."
-    rm -f $DataPath/soundtouch.db 2>/dev/null || sudo rm -f $DataPath/soundtouch.db
+    rm -f $DataPath/ct.db 2>/dev/null || sudo rm -f $DataPath/ct.db
     echo "[OK] Database cleared"
 fi
 
