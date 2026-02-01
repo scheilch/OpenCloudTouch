@@ -54,8 +54,25 @@ try {
                 exit 1
             }
             Write-Success "Podman Machine started"
+            Start-Sleep -Seconds 3  # Wait for socket to be ready
         } else {
-            Write-Success "Podman Machine is running"
+            Write-Host "    Podman Machine reports running, verifying connection..." -ForegroundColor Gray
+            # Verify actual connection
+            $testConn = podman info 2>$null
+            if ($LASTEXITCODE -ne 0) {
+                Write-Host "    Connection failed, restarting Podman Machine..." -ForegroundColor Yellow
+                podman machine stop 2>$null
+                Start-Sleep -Seconds 2
+                podman machine start
+                if ($LASTEXITCODE -ne 0) {
+                    Write-ErrorMsg "Failed to restart Podman Machine!"
+                    exit 1
+                }
+                Start-Sleep -Seconds 3
+                Write-Success "Podman Machine restarted"
+            } else {
+                Write-Success "Podman Machine is running"
+            }
         }
     } else {
         Write-Host "    Podman Machine not found (using native Podman)" -ForegroundColor Gray
