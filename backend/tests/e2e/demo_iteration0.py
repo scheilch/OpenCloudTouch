@@ -10,6 +10,7 @@ Zeigt die Grundfunktionalität des Systems:
 Usage:
     python e2e/demo_iteration0.py
 """
+
 import asyncio
 import httpx
 import sys
@@ -23,7 +24,7 @@ async def demo_iteration0():
     print()
 
     base_url = "http://localhost:7777"
-    
+
     async with httpx.AsyncClient() as client:
         # 1. Health Check
         print("[1/1] Testing /health endpoint...")
@@ -31,13 +32,13 @@ async def demo_iteration0():
             response = await client.get(f"{base_url}/health", timeout=5.0)
             response.raise_for_status()
             data = response.json()
-            
+
             print(f"  ✓ Status: {data['status']}")
             print(f"  ✓ Version: {data['version']}")
             print(f"  ✓ Discovery: {data['config']['discovery_enabled']}")
             print(f"  ✓ Database: {data['config']['db_path']}")
             print()
-            
+
         except httpx.RequestError as e:
             print(f"  ✗ Connection failed: {e}")
             print()
@@ -46,7 +47,7 @@ async def demo_iteration0():
             print("  or")
             print("  cd backend && python main.py")
             return False
-        
+
         except httpx.HTTPStatusError as e:
             print(f"  ✗ HTTP error: {e}")
             return False
@@ -60,7 +61,7 @@ async def demo_iteration0():
     print("  - GET /api/devices endpoint")
     print("  - Device detail caching")
     print()
-    
+
     return True
 
 

@@ -1,4 +1,5 @@
 """Tests for main application module (startup, lifecycle)."""
+
 import pytest
 from unittest.mock import AsyncMock, MagicMock, patch
 from fastapi.testclient import TestClient
@@ -9,12 +10,15 @@ async def test_lifespan_initialization():
     """Test lifespan context manager initializes config and DB."""
     from cloudtouch.main import lifespan, app
     from cloudtouch.core.config import AppConfig
-    
-    with patch("cloudtouch.main.init_config") as mock_init_config, \
-         patch("cloudtouch.main.setup_logging") as mock_setup_logging, \
-         patch("cloudtouch.main.get_config") as mock_get_config, \
-         patch("cloudtouch.main.DeviceRepository") as mock_repo_class:
-        
+
+    with patch("cloudtouch.main.init_config") as mock_init_config, patch(
+        "cloudtouch.main.setup_logging"
+    ) as mock_setup_logging, patch(
+        "cloudtouch.main.get_config"
+    ) as mock_get_config, patch(
+        "cloudtouch.main.DeviceRepository"
+    ) as mock_repo_class:
+
         # Mock config
         mock_config = MagicMock(spec=AppConfig)
         mock_config.host = "0.0.0.0"
@@ -22,20 +26,20 @@ async def test_lifespan_initialization():
         mock_config.db_path = ":memory:"
         mock_config.discovery_enabled = True
         mock_get_config.return_value = mock_config
-        
+
         # Mock repository
         mock_repo = AsyncMock()
         mock_repo.initialize = AsyncMock()
         mock_repo.close = AsyncMock()
         mock_repo_class.return_value = mock_repo
-        
+
         # Run lifespan
         async with lifespan(app):
             # Verify startup
             mock_init_config.assert_called_once()
             mock_setup_logging.assert_called_once()
             mock_repo.initialize.assert_called_once()
-        
+
         # Verify shutdown
         mock_repo.close.assert_called_once()
 
@@ -53,21 +57,22 @@ def test_health_endpoint():
     assert "version" in data
     assert "config" in data
 
+
 def test_cors_headers_present():
     """Test CORS headers are present in responses."""
     from cloudtouch.main import app
-    
+
     client = TestClient(app)
-    
+
     # Preflight request
     response = client.options(
         "/api/devices/discover",
         headers={
             "Origin": "http://localhost:3000",
-            "Access-Control-Request-Method": "GET"
-        }
+            "Access-Control-Request-Method": "GET",
+        },
     )
-    
+
     # Should have CORS headers (origin is reflected back)
     assert "access-control-allow-origin" in response.headers
     assert response.headers["access-control-allow-origin"] == "http://localhost:3000"
@@ -78,25 +83,26 @@ def test_cors_headers_present():
 async def test_lifespan_error_handling():
     """Test lifespan handles errors gracefully."""
     from cloudtouch.main import lifespan, app
-    
-    with patch("cloudtouch.main.init_config") as mock_init_config, \
-         patch("cloudtouch.main.setup_logging"), \
-         patch("cloudtouch.main.get_config") as mock_get_config, \
-         patch("cloudtouch.main.DeviceRepository") as mock_repo_class:
-        
+
+    with patch("cloudtouch.main.init_config"), patch(
+        "cloudtouch.main.setup_logging"
+    ), patch("cloudtouch.main.get_config") as mock_get_config, patch(
+        "cloudtouch.main.DeviceRepository"
+    ) as mock_repo_class:
+
         mock_config = MagicMock()
         mock_config.host = "0.0.0.0"
         mock_config.port = 7777
         mock_config.db_path = ":memory:"
         mock_config.discovery_enabled = True
         mock_get_config.return_value = mock_config
-        
+
         # Mock repo that fails to initialize
         mock_repo = AsyncMock()
         mock_repo.initialize = AsyncMock(side_effect=Exception("DB connection failed"))
         mock_repo.close = AsyncMock()
         mock_repo_class.return_value = mock_repo
-        
+
         # Should raise exception
         with pytest.raises(Exception, match="DB connection failed"):
             async with lifespan(app):

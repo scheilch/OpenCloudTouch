@@ -7,6 +7,7 @@ Solution: Use native bosesoundtouchapi Zeroconf discovery OR manual IPs.
 
 This test MUST run against real devices to catch this regression.
 """
+
 import asyncio
 import sys
 import pytest
@@ -16,7 +17,7 @@ import os
 DEVICES_AVAILABLE = os.getenv("STB_HAS_DEVICES", "false").lower() == "true"
 skip_if_no_devices = pytest.mark.skipif(
     not DEVICES_AVAILABLE,
-    reason="Requires real SoundTouch devices. Set STB_HAS_DEVICES=true to enable."
+    reason="Requires real SoundTouch devices. Set STB_HAS_DEVICES=true to enable.",
 )
 
 
@@ -26,14 +27,14 @@ async def test_ssdp_discovery():
     """Test SSDP Discovery (currently broken)."""
     print("\n=== Test 1: SSDP Discovery ===")
     from cloudtouch.devices.discovery.ssdp import SSDPDiscovery
-    
+
     ssdp = SSDPDiscovery(timeout=10)
     devices = await ssdp.discover()
-    
+
     print(f"SSDP found {len(devices)} Bose devices")
     for mac, info in devices.items():
         print(f"  - {info['name']} @ {info['ip']}")
-    
+
     return len(devices) > 0
 
 
@@ -43,22 +44,22 @@ async def test_adapter_discovery():
     """Test BoseSoundTouchDiscoveryAdapter (our abstraction layer)."""
     print("\n=== Test 2: Adapter Discovery (BoseSoundTouchDiscoveryAdapter) ===")
     from cloudtouch.devices.adapter import BoseSoundTouchDiscoveryAdapter
-    
+
     print("Discovering via SSDP adapter...")
     adapter = BoseSoundTouchDiscoveryAdapter()
     devices = await adapter.discover(timeout=10)
-    
+
     print(f"Adapter found {len(devices)} devices")
     for device in devices:
         print(f"  - {device.name} @ {device.ip}:{device.port}")
-    
+
     # Verify structure
     if devices:
-        assert hasattr(devices[0], 'ip')
-        assert hasattr(devices[0], 'port')
-        assert hasattr(devices[0], 'name')
+        assert hasattr(devices[0], "ip")
+        assert hasattr(devices[0], "port")
+        assert hasattr(devices[0], "name")
         print("✓ DiscoveredDevice structure valid")
-    
+
     return len(devices) > 0
 
 
@@ -68,20 +69,20 @@ async def test_manual_discovery():
     """Test Manual IP Discovery (fallback)."""
     print("\n=== Test 3: Manual IP Discovery ===")
     from cloudtouch.devices.discovery.manual import ManualDiscovery
-    
+
     manual_ips = [
         "192.0.2.36",  # ST30
         "192.0.2.32",  # ST10
-        "192.0.2.27"   # ST300
+        "192.0.2.27",  # ST300
     ]
-    
+
     manual = ManualDiscovery(manual_ips)
     devices = await manual.discover()
-    
+
     print(f"Manual discovery found {len(devices)} devices")
     for d in devices:
         print(f"  - {d.name} @ {d.ip}")
-    
+
     return len(devices) > 0
 
 
@@ -90,30 +91,30 @@ async def main():
     print("=" * 60)
     print("DISCOVERY E2E TEST - Production Issue Reproduction")
     print("=" * 60)
-    
+
     results = {}
-    
+
     # Test 1: SSDP (currently broken)
     try:
-        results['ssdp'] = await test_ssdp_discovery()
+        results["ssdp"] = await test_ssdp_discovery()
     except Exception as e:
         print(f"SSDP Discovery FAILED: {e}")
-        results['ssdp'] = False
-    
+        results["ssdp"] = False
+
     # Test 2: Adapter Discovery
     try:
-        results['adapter'] = await test_adapter_discovery()
+        results["adapter"] = await test_adapter_discovery()
     except Exception as e:
         print(f"Adapter Discovery FAILED: {e}")
-        results['adapter'] = False
-    
+        results["adapter"] = False
+
     # Test 3: Manual IPs (fallback)
     try:
-        results['manual'] = await test_manual_discovery()
+        results["manual"] = await test_manual_discovery()
     except Exception as e:
         print(f"Manual Discovery FAILED: {e}")
-        results['manual'] = False
-    
+        results["manual"] = False
+
     # Summary
     print("\n" + "=" * 60)
     print("TEST SUMMARY:")
@@ -121,7 +122,7 @@ async def main():
     for test_name, passed in results.items():
         status = "✅ PASS" if passed else "❌ FAIL"
         print(f"{status} - {test_name}")
-    
+
     # Exit code
     if any(results.values()):
         print("\n✅ At least one discovery method works")

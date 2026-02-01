@@ -2,6 +2,7 @@
 Zentrale Konfiguration für SoundTouchBridge.
 Nutzt pydantic-settings für ENV + YAML Validierung.
 """
+
 from pathlib import Path
 from typing import Optional
 
@@ -31,9 +32,15 @@ class AppConfig(BaseSettings):
     db_path: str = Field(default="/data/stb.db", description="SQLite database path")
 
     # Discovery
-    discovery_enabled: bool = Field(default=True, description="Enable SSDP/UPnP discovery")
-    discovery_timeout: int = Field(default=10, description="Discovery timeout (seconds)")
-    manual_device_ips: str = Field(default="", description="Comma-separated list of manual device IPs")
+    discovery_enabled: bool = Field(
+        default=True, description="Enable SSDP/UPnP discovery"
+    )
+    discovery_timeout: int = Field(
+        default=10, description="Discovery timeout (seconds)"
+    )
+    manual_device_ips: str = Field(
+        default="", description="Comma-separated list of manual device IPs"
+    )
 
     @property
     def manual_device_ips_list(self) -> list[str]:
@@ -43,31 +50,33 @@ class AppConfig(BaseSettings):
         return [ip.strip() for ip in self.manual_device_ips.split(",") if ip.strip()]
 
     # SoundTouch
-    soundtouch_http_port: int = Field(default=8090, description="SoundTouch HTTP API port")
-    soundtouch_ws_port: int = Field(default=8080, description="SoundTouch WebSocket port")
+    soundtouch_http_port: int = Field(
+        default=8090, description="SoundTouch HTTP API port"
+    )
+    soundtouch_ws_port: int = Field(
+        default=8080, description="SoundTouch WebSocket port"
+    )
 
     # Station Descriptor
     station_descriptor_base_url: str = Field(
         default="http://localhost:7777/stations/preset",
         description="Base URL for station descriptors (used in preset URLs)",
     )
-    
+
     # Feature Toggles (9.3.6 - NICE TO HAVE)
     enable_hdmi_controls: bool = Field(
-        default=True, 
-        description="Enable HDMI/CEC controls for ST300 (can be disabled if causing issues)"
+        default=True,
+        description="Enable HDMI/CEC controls for ST300 (can be disabled if causing issues)",
     )
     enable_advanced_audio: bool = Field(
         default=True,
-        description="Enable advanced audio controls (DSP, Tone, Level) for ST300"
+        description="Enable advanced audio controls (DSP, Tone, Level) for ST300",
     )
     enable_zone_management: bool = Field(
-        default=True,
-        description="Enable multi-room zone management"
+        default=True, description="Enable multi-room zone management"
     )
     enable_group_management: bool = Field(
-        default=True,
-        description="Enable group management features"
+        default=True, description="Enable group management features"
     )
 
     @field_validator("log_level")
@@ -78,7 +87,7 @@ class AppConfig(BaseSettings):
         if v_upper not in allowed:
             raise ValueError(f"log_level must be one of {allowed}, got {v}")
         return v_upper
-    
+
     @field_validator("log_format")
     @classmethod
     def validate_log_format(cls, v: str) -> str:
@@ -87,9 +96,6 @@ class AppConfig(BaseSettings):
         if v_lower not in allowed:
             raise ValueError(f"log_format must be one of {allowed}, got {v}")
         return v_lower
-        if v_upper not in allowed:
-            raise ValueError(f"log_level must be one of {allowed}")
-        return v_upper
 
     @classmethod
     def load_from_yaml(cls, yaml_path: Path) -> "AppConfig":
