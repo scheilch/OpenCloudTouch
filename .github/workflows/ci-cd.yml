@@ -45,10 +45,10 @@ jobs:
       - name: Run tests with coverage
         run: |
           cd backend
-          pytest --cov=soundtouch_bridge --cov-report=xml --cov-report=term-missing --cov-fail-under=80
+          pytest --cov=cloudtouch --cov-report=xml --cov-report=term-missing --cov-fail-under=80
         env:
           PYTHONPATH: ${{ github.workspace }}
-          STB_HAS_DEVICES: "false"  # No real devices in CI
+          CT_HAS_DEVICES: "false"  # No real devices in CI
       
       - name: Upload coverage reports
         uses: codecov/codecov-action@v4
@@ -100,7 +100,8 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
-          context: .
+          context: ./backend
+          file: ./backend/Dockerfile
           platforms: linux/amd64,linux/arm64
           push: true
           tags: ${{ steps.meta.outputs.tags }}

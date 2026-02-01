@@ -5,7 +5,7 @@ Allows users to specify device IPs manually when SSDP/UPnP doesn't work
 import logging
 from typing import List
 
-from soundtouch_bridge.discovery import DeviceDiscovery, DiscoveredDevice
+from cloudtouch.discovery import DeviceDiscovery, DiscoveredDevice
 
 logger = logging.getLogger(__name__)
 

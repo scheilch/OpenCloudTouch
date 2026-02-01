@@ -7,10 +7,10 @@ from typing import List
 
 from bosesoundtouchapi import SoundTouchClient as BoseClient, SoundTouchDevice
 
-from soundtouch_bridge.discovery import DeviceDiscovery, DiscoveredDevice
-from soundtouch_bridge.devices.client import SoundTouchClient, DeviceInfo, NowPlayingInfo
-from soundtouch_bridge.core.exceptions import DiscoveryError, DeviceConnectionError
-from soundtouch_bridge.devices.discovery.ssdp import SSDPDiscovery
+from cloudtouch.discovery import DeviceDiscovery, DiscoveredDevice
+from cloudtouch.devices.client import SoundTouchClient, DeviceInfo, NowPlayingInfo
+from cloudtouch.core.exceptions import DiscoveryError, DeviceConnectionError
+from cloudtouch.devices.discovery.ssdp import SSDPDiscovery
 
 logger = logging.getLogger(__name__)
 

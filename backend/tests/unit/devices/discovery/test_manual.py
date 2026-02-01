@@ -5,8 +5,8 @@ Manual discovery allows users to specify device IPs when SSDP doesn't work.
 """
 import pytest
 
-from soundtouch_bridge.devices.discovery.manual import ManualDiscovery
-from soundtouch_bridge.discovery import DiscoveredDevice
+from cloudtouch.devices.discovery.manual import ManualDiscovery
+from cloudtouch.discovery import DiscoveredDevice
 
 
 @pytest.mark.asyncio

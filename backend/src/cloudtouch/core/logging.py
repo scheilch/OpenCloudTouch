@@ -8,7 +8,7 @@ import sys
 from datetime import datetime
 from typing import Any, Dict
 
-from soundtouch_bridge.core.config import get_config
+from cloudtouch.core.config import get_config
 
 
 class StructuredFormatter(logging.Formatter):

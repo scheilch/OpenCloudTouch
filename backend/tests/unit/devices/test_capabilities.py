@@ -8,7 +8,7 @@ from unittest.mock import AsyncMock, MagicMock, PropertyMock, patch
 from bosesoundtouchapi import SoundTouchClient, SoundTouchError
 from bosesoundtouchapi.models import Capabilities, Information, SourceList, SourceItem, SupportedUrls, SupportedUrl
 
-from soundtouch_bridge.devices.capabilities import (
+from cloudtouch.devices.capabilities import (
     DeviceCapabilities,
     get_device_capabilities,
     safe_api_call,

@@ -1,7 +1,7 @@
-# AGENTS – Entwicklungsrichtlinien für SoundTouchBridge
+# AGENTS – Entwicklungsrichtlinien für CloudTouch
 
 **Stand**: 2026-01-31  
-**Projekt**: SoundTouchBridge (STB)  
+**Projekt**: CloudTouch (CT)  
 **Ziel**: Bose SoundTouch Geräte nach Cloud-Abschaltung weiter nutzbar machen
 
 ---
@@ -214,7 +214,7 @@ except Exception:
 ### 4.2 Adapter Pattern
 Alle externen Systeme werden gewrappt:
 ```python
-# backend/src/soundtouch_bridge/devices/adapter.py
+# backend/src/cloudtouch/devices/adapter.py
 class BoseSoundTouchDiscoveryAdapter(DeviceDiscovery):
     """Wraps SSDP discovery for SoundTouch devices."""
     
@@ -225,7 +225,7 @@ class BoseSoundTouchDiscoveryAdapter(DeviceDiscovery):
 ### 4.3 Repository Pattern
 Datenzugriff nur über Repositories:
 ```python
-# backend/src/soundtouch_bridge/devices/repository.py
+# backend/src/cloudtouch/devices/repository.py
 class DeviceRepository:
     async def upsert(self, device: Device) -> None:
         """Insert or update device."""
@@ -250,7 +250,7 @@ async def sync_devices(repo: DeviceRepository = Depends(get_device_repo)):
 ## 5. Clean UX Prinzipien
 
 ### 5.1 Laien-Fokus
-STB muss von **technischen Laien** bedienbar sein:
+CT muss von **technischen Laien** bedienbar sein:
 - ✅ Automatische Discovery (keine IP-Konfiguration)
 - ✅ Verständliche Fehlermeldungen
 - ✅ Progressive Disclosure (Experten-Features versteckt)
@@ -504,15 +504,15 @@ Die vollständige API-Referenz befindet sich in:
 
 ### 10.1 SSDP Discovery
 - Namespace-agnostisches XML Parsing (`local-name()`)
-- Timeout: 10s (konfigurierbar via `STB_DISCOVERY_TIMEOUT`)
+- Timeout: 10s (konfigurierbar via `CT_DISCOVERY_TIMEOUT`)
 - Filter: Nur Geräte mit `manufacturer=Bose Corporation`
-- Fallback: Manuelle IPs via `STB_MANUAL_DEVICE_IPS`
+- Fallback: Manuelle IPs via `CT_MANUAL_DEVICE_IPS`
 
 ### 10.2 Konfiguration
 ```python
 # Alle Config-Werte über Pydantic BaseSettings
 class AppConfig(BaseSettings):
-    model_config = SettingsConfigDict(env_prefix="STB_")
+    model_config = SettingsConfigDict(env_prefix="CT_")
     
     manual_device_ips: list[str] = Field(default_factory=list)
     
@@ -575,13 +575,13 @@ logger.info("Device discovered", extra={
 pytest -v --cov=backend --cov-report=html
 
 # Backend starten (debug mode)
-STB_LOG_LEVEL=DEBUG uvicorn backend.main:app --reload
+CT_LOG_LEVEL=DEBUG uvicorn backend.main:app --reload
 
 # Container lokal bauen
-docker build -t soundtouch-bridge:latest .
+docker build -t cloudtouch:latest .
 
 # Container lokal starten
-docker run --rm -it --network host -e STB_LOG_LEVEL=DEBUG soundtouch-bridge:latest
+docker run --rm -it --network host -e CT_LOG_LEVEL=DEBUG cloudtouch:latest
 ```
 
 ### 12.2 NAS Server Deployment
@@ -590,13 +590,13 @@ docker run --rm -it --network host -e STB_LOG_LEVEL=DEBUG soundtouch-bridge:late
 .\deploy-to-server.ps1
 
 # Container Logs anzeigen
-ssh user@targethost "docker logs soundtouch-bridge -f"
+ssh user@targethost "docker logs cloudtouch -f"
 
 # Container Shell
-ssh user@targethost "docker exec -it soundtouch-bridge /bin/bash"
+ssh user@targethost "docker exec -it cloudtouch /bin/bash"
 
 # SSDP Discovery testen
-ssh user@targethost "docker exec soundtouch-bridge python -m backend.adapters.ssdp_discovery"
+ssh user@targethost "docker exec cloudtouch python -m backend.adapters.ssdp_discovery"
 ```
 
 ---

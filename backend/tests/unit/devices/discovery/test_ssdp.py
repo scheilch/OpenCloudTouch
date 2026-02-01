@@ -7,7 +7,7 @@ from unittest.mock import AsyncMock, patch, MagicMock
 import socket
 from xml.etree import ElementTree
 
-from soundtouch_bridge.devices.discovery.ssdp import SSDPDiscovery
+from cloudtouch.devices.discovery.ssdp import SSDPDiscovery
 
 
 @pytest.mark.asyncio

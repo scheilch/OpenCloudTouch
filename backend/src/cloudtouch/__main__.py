@@ -1,5 +1,5 @@
 """Entry point for running soundtouch_bridge as module."""
-from soundtouch_bridge.main import app
+from cloudtouch.main import app
 import uvicorn
 
 if __name__ == "__main__":
