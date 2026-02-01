@@ -2,11 +2,15 @@
 # Export container image for deployment to NAS Server
 # Creates a portable .tar file that can be imported on any Docker/Podman host
 
+param(
+    [switch]$SkipBuild,
+    [switch]$NoCache,
+    [switch]$Verbose
+)
+
 # Configuration
-$Tag = "soundtouch-bridge:latest"
-$OutputFile = "soundtouch-bridge-image.tar"
-$SkipBuild = $false
-$NoCache = $true  # Force rebuild
+$Tag = "cloudtouch:latest"
+$OutputFile = "cloudtouch-image.tar"
 
 function Write-Step {
     param([string]$Message)
@@ -40,12 +44,27 @@ try {
     # Build image
     if (-not $SkipBuild) {
         Write-Step "Building container image..."
-        $buildCmd = "podman build -f ../backend/Dockerfile -t $Tag"
+        
+        # Ensure we're in project root
+        $projectRoot = Split-Path $PSScriptRoot -Parent
+        Push-Location $projectRoot
+        
+        $buildCmd = "podman build -f ./Dockerfile -t $Tag"
         if ($NoCache) {
             $buildCmd += " --no-cache"
+            Write-Host "    Using --no-cache (full rebuild)" -ForegroundColor Gray
         }
-        $buildCmd += " .."
+        if ($Verbose) {
+            $buildCmd += " --progress=plain"
+            Write-Host "    Verbose build output enabled" -ForegroundColor Gray
+        }
+        $buildCmd += " ."
+        Write-Host "    Working directory: $projectRoot" -ForegroundColor Gray
+        Write-Host "    Command: $buildCmd" -ForegroundColor Gray
         Invoke-Expression $buildCmd
+        
+        Pop-Location
+        
         if ($LASTEXITCODE -ne 0) {
             Write-ErrorMsg "Build failed!"
             exit 1

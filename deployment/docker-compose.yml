@@ -4,7 +4,7 @@ services:
   cloudtouch:
     build:
       context: ..
-      dockerfile: backend/Dockerfile
+      dockerfile: Dockerfile
     container_name: cloudtouch
     network_mode: host
     volumes:
