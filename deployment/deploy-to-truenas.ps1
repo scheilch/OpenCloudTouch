@@ -7,7 +7,8 @@ param(
     [switch]$SkipBuild,
     [switch]$NoCache,
     [switch]$UseSudo,
-    [switch]$ClearDatabase = $true
+    [switch]$ClearDatabase = $true,
+    [switch]$Verbose
 )
 
 # Configuration - adjust these values if needed
@@ -43,7 +44,9 @@ try {
 
     # Step 1: Build and export locally
     Write-Step "Building and exporting image..."
-    & "$PSScriptRoot\export-image.ps1"
+    $exportArgs = @()
+    if ($Verbose) { $exportArgs += "-Verbose" }
+    & "$PSScriptRoot\export-image.ps1" @exportArgs
     if ($LASTEXITCODE -ne 0) {
         Write-ErrorMsg "Export failed!"
         exit 1
