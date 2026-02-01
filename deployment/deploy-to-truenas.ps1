@@ -13,9 +13,9 @@ param(
 # Configuration - adjust these values if needed
 $TrueNasHost = "hera"
 $TrueNasUser = "siggiaze"
-$Tag = "soundtouch-bridge:latest"
-$ContainerName = "soundtouch-bridge"
-$DataPath = "/mnt/Docker/soundtouch-bridge/data"
+$Tag = "cloudtouch:latest"
+$ContainerName = "cloudtouch"
+$DataPath = "/mnt/Docker/cloudtouch/data"
 
 function Write-Step {
     param([string]$Message)
@@ -39,7 +39,7 @@ try {
     Write-Host "Target: $TrueNasUser@$TrueNasHost" -ForegroundColor White
     Write-Host ""
 
-    $imageTar = "soundtouch-bridge-image.tar"
+    $imageTar = "cloudtouch-image.tar"
 
     # Step 1: Build and export locally
     Write-Step "Building and exporting image..."
@@ -65,10 +65,10 @@ try {
     $dockerCmd = if ($UseSudo) { "sudo docker" } else { "docker" }
     
     # Build docker run command
-    $runCmd = "$dockerCmd run -d --name $ContainerName --restart unless-stopped --network host -v ${DataPath}:/data -e STB_LOG_LEVEL=DEBUG -e STB_DISCOVERY_ENABLED=true"
+    $runCmd = "$dockerCmd run -d --name $ContainerName --restart unless-stopped --network host -v ${DataPath}:/data -e CT_LOG_LEVEL=DEBUG -e CT_DISCOVERY_ENABLED=true"
     
     if ($ManualIPs) {
-        $runCmd += " -e STB_MANUAL_DEVICE_IPS='$ManualIPs'"
+        $runCmd += " -e CT_MANUAL_DEVICE_IPS='$ManualIPs'"
         Write-Host "    Using manual device IPs + SSDP discovery: $ManualIPs" -ForegroundColor Gray
     } else {
         Write-Host "    SSDP/mDNS discovery enabled" -ForegroundColor Gray

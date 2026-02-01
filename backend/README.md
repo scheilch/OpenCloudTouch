@@ -1,4 +1,4 @@
-# SoundTouchBridge Backend
+# CloudTouch Backend
 
 FastAPI-basierter REST-API-Server für Bose SoundTouch Geräte.
 
@@ -13,10 +13,10 @@ pip install -e .[dev]
 
 ```bash
 # Als Modul
-python -m soundtouch_bridge
+python -m cloudtouch
 
 # Mit Uvicorn direkt
-uvicorn soundtouch_bridge.main:app --reload
+uvicorn cloudtouch.main:app --reload
 ```
 
 ## Tests
@@ -24,12 +24,12 @@ uvicorn soundtouch_bridge.main:app --reload
 ```bash
 cd backend
 pytest
-pytest --cov=soundtouch_bridge --cov-report=html
+pytest --cov=cloudtouch --cov-report=html
 ```
 
 ## Struktur
 
-- `src/soundtouch_bridge/` - Hauptpaket
+- `src/cloudtouch/` - Hauptpaket
   - `core/` - Shared Infrastructure (Config, Logging, Exceptions)
   - `devices/` - Device Management & Discovery
   - `radio/` - Radio Station Search

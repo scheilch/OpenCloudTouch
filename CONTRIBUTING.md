@@ -1,13 +1,13 @@
-# Contributing to SoundTouchBridge
+# Contributing to CloudTouch
 
-Danke für dein Interesse an **SoundTouchBridge**! 🎉  
+Danke für dein Interesse an **CloudTouch**! 🎉  
 Beiträge jeder Art sind willkommen – Code, Tests, Dokumentation, Ideen und Feedback.
 
 ---
 
 ## 🎯 Projektziele (bitte unbedingt beachten)
 
-SoundTouchBridge ist als **Open-Source-Produkt** für **nicht versierte Nutzer** gedacht.
+CloudTouch ist als **Open-Source-Produkt** für **nicht versierte Nutzer** gedacht.
 Bitte richte deinen Beitrag an diesen Prinzipien aus:
 
 - **Laienfreundlichkeit**

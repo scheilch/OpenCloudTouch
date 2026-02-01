@@ -4,9 +4,9 @@ Tests for BoseSoundTouch Adapter
 import pytest
 from unittest.mock import AsyncMock, patch
 
-from soundtouch_bridge.devices.adapter import BoseSoundTouchDiscoveryAdapter
-from soundtouch_bridge.discovery import DiscoveredDevice
-from soundtouch_bridge.core.exceptions import DiscoveryError
+from cloudtouch.devices.adapter import BoseSoundTouchDiscoveryAdapter
+from cloudtouch.discovery import DiscoveredDevice
+from cloudtouch.core.exceptions import DiscoveryError
 
 
 @pytest.mark.asyncio
@@ -20,7 +20,7 @@ async def test_discovery_success():
         'AA:BB:CC:11:22:44': {'ip': '192.168.1.101', 'mac': 'AA:BB:CC:11:22:44', 'name': 'Kitchen'},
     }
     
-    with patch('soundtouch_bridge.devices.adapter.SSDPDiscovery') as mock_ssdp_class:
+    with patch('cloudtouch.devices.adapter.SSDPDiscovery') as mock_ssdp_class:
         mock_ssdp_instance = AsyncMock()
         mock_ssdp_instance.discover.return_value = mock_devices
         mock_ssdp_class.return_value = mock_ssdp_instance
@@ -44,7 +44,7 @@ async def test_discovery_no_devices():
     """Test discovery when no devices are found."""
     discovery = BoseSoundTouchDiscoveryAdapter()
     
-    with patch('soundtouch_bridge.devices.adapter.SSDPDiscovery') as mock_ssdp_class:
+    with patch('cloudtouch.devices.adapter.SSDPDiscovery') as mock_ssdp_class:
         mock_ssdp_instance = AsyncMock()
         mock_ssdp_instance.discover.return_value = {}
         mock_ssdp_class.return_value = mock_ssdp_instance
@@ -60,7 +60,7 @@ async def test_discovery_error():
     """Test discovery when an error occurs."""
     discovery = BoseSoundTouchDiscoveryAdapter()
     
-    with patch('soundtouch_bridge.devices.adapter.SSDPDiscovery') as mock_ssdp_class:
+    with patch('cloudtouch.devices.adapter.SSDPDiscovery') as mock_ssdp_class:
         mock_ssdp_instance = AsyncMock()
         mock_ssdp_instance.discover.side_effect = Exception("Network error")
         mock_ssdp_class.return_value = mock_ssdp_instance
@@ -82,7 +82,7 @@ async def test_discovery_address_parsing():
         'AA:BB:CC:11:22:33': {'ip': '192.168.1.100', 'name': 'Test Device'}
     }
     
-    with patch('soundtouch_bridge.devices.adapter.SSDPDiscovery') as mock_ssdp_class:
+    with patch('cloudtouch.devices.adapter.SSDPDiscovery') as mock_ssdp_class:
         mock_ssdp_instance = AsyncMock()
         mock_ssdp_instance.discover.return_value = mock_devices
         mock_ssdp_class.return_value = mock_ssdp_instance
@@ -104,7 +104,7 @@ async def test_discovery_lazy_loading():
         'AA:BB:CC:11:22:33': {'ip': '192.168.1.100', 'name': 'Test Device'}
     }
     
-    with patch('soundtouch_bridge.devices.adapter.SSDPDiscovery') as mock_ssdp_class:
+    with patch('cloudtouch.devices.adapter.SSDPDiscovery') as mock_ssdp_class:
         mock_ssdp_instance = AsyncMock()
         mock_ssdp_instance.discover.return_value = mock_devices
         mock_ssdp_class.return_value = mock_ssdp_instance
@@ -142,7 +142,7 @@ async def test_discovery_duplicate_detection_same_device_different_sources():
         }
     }
     
-    with patch('soundtouch_bridge.devices.adapter.SSDPDiscovery') as mock_ssdp_class:
+    with patch('cloudtouch.devices.adapter.SSDPDiscovery') as mock_ssdp_class:
         mock_ssdp_instance = AsyncMock()
         mock_ssdp_instance.discover.return_value = mock_ssdp_devices
         mock_ssdp_class.return_value = mock_ssdp_instance
@@ -181,7 +181,7 @@ async def test_discovery_ipv6_addresses_in_ssdp_response():
         }
     }
     
-    with patch('soundtouch_bridge.devices.adapter.SSDPDiscovery') as mock_ssdp_class:
+    with patch('cloudtouch.devices.adapter.SSDPDiscovery') as mock_ssdp_class:
         mock_ssdp_instance = AsyncMock()
         mock_ssdp_instance.discover.return_value = mock_devices
         mock_ssdp_class.return_value = mock_ssdp_instance

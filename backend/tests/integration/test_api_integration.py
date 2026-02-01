@@ -3,17 +3,17 @@ import pytest
 from unittest.mock import AsyncMock, patch
 from httpx import ASGITransport, AsyncClient
 
-from soundtouch_bridge.main import app
-from soundtouch_bridge.db import Device, DeviceRepository
-from soundtouch_bridge.discovery import DiscoveredDevice
-from soundtouch_bridge.devices.client import DeviceInfo
-from soundtouch_bridge.devices.api.routes import get_device_repo
+from cloudtouch.main import app
+from cloudtouch.db import Device, DeviceRepository
+from cloudtouch.discovery import DiscoveredDevice
+from cloudtouch.devices.client import DeviceInfo
+from cloudtouch.devices.api.routes import get_device_repo
 
 
 @pytest.fixture
 def mock_config():
     """Mock configuration."""
-    with patch('soundtouch_bridge.devices.api.routes.get_config') as mock:
+    with patch('cloudtouch.devices.api.routes.get_config') as mock:
         mock_cfg = AsyncMock()
         mock_cfg.discovery_enabled = True
         mock_cfg.discovery_timeout = 5
@@ -30,7 +30,7 @@ async def test_discover_endpoint_success(mock_config):
         DiscoveredDevice(ip="192.168.1.101", port=8090, name="Kitchen")
     ]
     
-    with patch('soundtouch_bridge.devices.api.routes.BoseSoundTouchDiscoveryAdapter') as mock_adapter:
+    with patch('cloudtouch.devices.api.routes.BoseSoundTouchDiscoveryAdapter') as mock_adapter:
         mock_instance = AsyncMock()
         mock_instance.discover.return_value = discovered
         mock_adapter.return_value = mock_instance
@@ -56,7 +56,7 @@ async def test_discover_endpoint_with_manual_ips(mock_config):
         DiscoveredDevice(ip="192.168.1.200", port=8090, name="Manual Device")
     ]
     
-    with patch('soundtouch_bridge.devices.api.routes.ManualDiscovery') as mock_manual:
+    with patch('cloudtouch.devices.api.routes.ManualDiscovery') as mock_manual:
         mock_instance = AsyncMock()
         mock_instance.discover.return_value = manual_discovered
         mock_manual.return_value = mock_instance
@@ -74,7 +74,7 @@ async def test_discover_endpoint_with_manual_ips(mock_config):
 @pytest.mark.asyncio
 async def test_discover_endpoint_no_devices(mock_config):
     """Test discovery when no devices are found."""
-    with patch('soundtouch_bridge.devices.api.routes.BoseSoundTouchDiscoveryAdapter') as mock_adapter:
+    with patch('cloudtouch.devices.api.routes.BoseSoundTouchDiscoveryAdapter') as mock_adapter:
         mock_instance = AsyncMock()
         mock_instance.discover.return_value = []
         mock_adapter.return_value = mock_instance
@@ -92,7 +92,7 @@ async def test_discover_endpoint_no_devices(mock_config):
 @pytest.mark.asyncio
 async def test_discover_endpoint_discovery_error(mock_config):
     """Test discovery endpoint when discovery fails."""
-    with patch('soundtouch_bridge.devices.api.routes.BoseSoundTouchDiscoveryAdapter') as mock_adapter:
+    with patch('cloudtouch.devices.api.routes.BoseSoundTouchDiscoveryAdapter') as mock_adapter:
         mock_instance = AsyncMock()
         mock_instance.discover.side_effect = Exception("Network error")
         mock_adapter.return_value = mock_instance
@@ -130,8 +130,8 @@ async def test_sync_devices_success(mock_config):
     async def get_mock_repo():
         return mock_repo
     
-    with patch('soundtouch_bridge.devices.api.routes.BoseSoundTouchDiscoveryAdapter') as mock_disco, \
-         patch('soundtouch_bridge.devices.api.routes.BoseSoundTouchClientAdapter') as mock_client:
+    with patch('cloudtouch.devices.api.routes.BoseSoundTouchDiscoveryAdapter') as mock_disco, \
+         patch('cloudtouch.devices.api.routes.BoseSoundTouchClientAdapter') as mock_client:
         
         # Mock discovery
         mock_disco_instance = AsyncMock()
@@ -183,8 +183,8 @@ async def test_sync_devices_partial_failure(mock_config):
     async def get_mock_repo():
         return mock_repo
     
-    with patch('soundtouch_bridge.devices.api.routes.BoseSoundTouchDiscoveryAdapter') as mock_disco, \
-         patch('soundtouch_bridge.devices.api.routes.BoseSoundTouchClientAdapter') as mock_client:
+    with patch('cloudtouch.devices.api.routes.BoseSoundTouchDiscoveryAdapter') as mock_disco, \
+         patch('cloudtouch.devices.api.routes.BoseSoundTouchClientAdapter') as mock_client:
         
         mock_disco_instance = AsyncMock()
         mock_disco_instance.discover.return_value = discovered

@@ -4,7 +4,7 @@ Unit tests for configuration module
 import pytest
 from pathlib import Path
 
-from soundtouch_bridge.core.config import AppConfig, init_config
+from cloudtouch.core.config import AppConfig, init_config
 
 
 def test_config_defaults():
@@ -147,14 +147,14 @@ def test_config_yaml_nonexistent():
 
 def test_get_config_not_initialized():
     """Test get_config raises error when not initialized."""
-    import soundtouch_bridge.core.config
+    import cloudtouch.core.config
     
     # Temporarily set config to None
-    original = soundtouch_bridge.core.config.config
-    soundtouch_bridge.core.config.config = None
+    original = cloudtouch.core.config.config
+    cloudtouch.core.config.config = None
     
     try:
         with pytest.raises(RuntimeError, match="Config not initialized"):
-            soundtouch_bridge.core.config.get_config()
+            cloudtouch.core.config.get_config()
     finally:
-        soundtouch_bridge.core.config.config = original
+        cloudtouch.core.config.config = original

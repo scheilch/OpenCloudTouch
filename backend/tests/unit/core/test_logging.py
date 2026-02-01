@@ -7,7 +7,7 @@ from pathlib import Path
 
 import pytest
 
-from soundtouch_bridge.core.logging import (
+from cloudtouch.core.logging import (
     StructuredFormatter,
     ContextFormatter,
     setup_logging,
@@ -156,13 +156,13 @@ class TestLoggingSetup:
         Assert: Root logger configured with INFO level
         """
         # Arrange
-        from soundtouch_bridge.core.config import AppConfig
+        from cloudtouch.core.config import AppConfig
         mock_config = AppConfig(
             log_level="INFO",
             log_format="text",
             log_file=None
         )
-        monkeypatch.setattr("soundtouch_bridge.core.logging.get_config", lambda: mock_config)
+        monkeypatch.setattr("cloudtouch.core.logging.get_config", lambda: mock_config)
         
         # Act
         setup_logging()
@@ -180,13 +180,13 @@ class TestLoggingSetup:
         Assert: Console handler uses StructuredFormatter
         """
         # Arrange
-        from soundtouch_bridge.core.config import AppConfig
+        from cloudtouch.core.config import AppConfig
         mock_config = AppConfig(
             log_level="DEBUG",
             log_format="json",
             log_file=None
         )
-        monkeypatch.setattr("soundtouch_bridge.core.logging.get_config", lambda: mock_config)
+        monkeypatch.setattr("cloudtouch.core.logging.get_config", lambda: mock_config)
         
         # Act
         setup_logging()
@@ -206,13 +206,13 @@ class TestLoggingSetup:
         # Arrange
         log_file = tmp_path / "test.log"
         
-        from soundtouch_bridge.core.config import AppConfig
+        from cloudtouch.core.config import AppConfig
         mock_config = AppConfig(
             log_level="WARNING",
             log_format="text",
             log_file=str(log_file)
         )
-        monkeypatch.setattr("soundtouch_bridge.core.logging.get_config", lambda: mock_config)
+        monkeypatch.setattr("cloudtouch.core.logging.get_config", lambda: mock_config)
         
         # Act
         setup_logging()
@@ -232,13 +232,13 @@ class TestLoggingSetup:
         Assert: Third-party loggers set to WARNING
         """
         # Arrange
-        from soundtouch_bridge.core.config import AppConfig
+        from cloudtouch.core.config import AppConfig
         mock_config = AppConfig(
             log_level="DEBUG",
             log_format="text",
             log_file=None
         )
-        monkeypatch.setattr("soundtouch_bridge.core.logging.get_config", lambda: mock_config)
+        monkeypatch.setattr("cloudtouch.core.logging.get_config", lambda: mock_config)
         
         # Act
         setup_logging()

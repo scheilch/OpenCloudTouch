@@ -7,13 +7,13 @@ from fastapi.testclient import TestClient
 @pytest.mark.asyncio
 async def test_lifespan_initialization():
     """Test lifespan context manager initializes config and DB."""
-    from soundtouch_bridge.main import lifespan, app
-    from soundtouch_bridge.core.config import AppConfig
+    from cloudtouch.main import lifespan, app
+    from cloudtouch.core.config import AppConfig
     
-    with patch("soundtouch_bridge.main.init_config") as mock_init_config, \
-         patch("soundtouch_bridge.main.setup_logging") as mock_setup_logging, \
-         patch("soundtouch_bridge.main.get_config") as mock_get_config, \
-         patch("soundtouch_bridge.main.DeviceRepository") as mock_repo_class:
+    with patch("cloudtouch.main.init_config") as mock_init_config, \
+         patch("cloudtouch.main.setup_logging") as mock_setup_logging, \
+         patch("cloudtouch.main.get_config") as mock_get_config, \
+         patch("cloudtouch.main.DeviceRepository") as mock_repo_class:
         
         # Mock config
         mock_config = MagicMock(spec=AppConfig)
@@ -42,7 +42,7 @@ async def test_lifespan_initialization():
 
 def test_health_endpoint():
     """Test health check endpoint returns expected fields."""
-    from soundtouch_bridge.main import app
+    from cloudtouch.main import app
 
     client = TestClient(app)
     response = client.get("/health")
@@ -55,7 +55,7 @@ def test_health_endpoint():
 
 def test_cors_headers_present():
     """Test CORS headers are present in responses."""
-    from soundtouch_bridge.main import app
+    from cloudtouch.main import app
     
     client = TestClient(app)
     
@@ -77,12 +77,12 @@ def test_cors_headers_present():
 @pytest.mark.asyncio
 async def test_lifespan_error_handling():
     """Test lifespan handles errors gracefully."""
-    from soundtouch_bridge.main import lifespan, app
+    from cloudtouch.main import lifespan, app
     
-    with patch("soundtouch_bridge.main.init_config") as mock_init_config, \
-         patch("soundtouch_bridge.main.setup_logging"), \
-         patch("soundtouch_bridge.main.get_config") as mock_get_config, \
-         patch("soundtouch_bridge.main.DeviceRepository") as mock_repo_class:
+    with patch("cloudtouch.main.init_config") as mock_init_config, \
+         patch("cloudtouch.main.setup_logging"), \
+         patch("cloudtouch.main.get_config") as mock_get_config, \
+         patch("cloudtouch.main.DeviceRepository") as mock_repo_class:
         
         mock_config = MagicMock()
         mock_config.host = "0.0.0.0"

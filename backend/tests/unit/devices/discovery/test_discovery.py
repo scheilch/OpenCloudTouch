@@ -3,8 +3,8 @@ Tests for Device Discovery
 """
 import pytest
 
-from soundtouch_bridge.discovery import DiscoveredDevice
-from soundtouch_bridge.devices.discovery.manual import ManualDiscovery
+from cloudtouch.discovery import DiscoveredDevice
+from cloudtouch.devices.discovery.manual import ManualDiscovery
 
 
 @pytest.mark.asyncio

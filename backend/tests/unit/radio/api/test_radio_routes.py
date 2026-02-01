@@ -8,9 +8,9 @@ import pytest
 from fastapi.testclient import TestClient
 from unittest.mock import AsyncMock, patch, MagicMock
 
-from soundtouch_bridge.main import app
-from soundtouch_bridge.radio.providers.radiobrowser import RadioStation, RadioBrowserError
-from soundtouch_bridge.radio.api.routes import get_radiobrowser_adapter
+from cloudtouch.main import app
+from cloudtouch.radio.providers.radiobrowser import RadioStation, RadioBrowserError
+from cloudtouch.radio.api.routes import get_radiobrowser_adapter
 
 
 @pytest.fixture
@@ -327,7 +327,7 @@ class TestRadioAPIErrorHandling:
         Use case: RadioBrowser API is slow/unresponsive.
         Expected: User sees timeout error, not 500 Internal Server Error.
         """
-        from soundtouch_bridge.radio.providers.radiobrowser import RadioBrowserTimeoutError
+        from cloudtouch.radio.providers.radiobrowser import RadioBrowserTimeoutError
         
         mock_adapter.search_by_name.side_effect = RadioBrowserTimeoutError("API timeout after 10s")
         
@@ -348,7 +348,7 @@ class TestRadioAPIErrorHandling:
         
         Regression: Network errors should be distinguishable from code bugs.
         """
-        from soundtouch_bridge.radio.providers.radiobrowser import RadioBrowserConnectionError
+        from cloudtouch.radio.providers.radiobrowser import RadioBrowserConnectionError
         
         mock_adapter.search_by_name.side_effect = RadioBrowserConnectionError("Cannot connect to api.radio-browser.info")
         
@@ -368,7 +368,7 @@ class TestRadioAPIErrorHandling:
         first, so timeout returns 500 instead of 504.
         This test documents actual behavior, not ideal behavior.
         """
-        from soundtouch_bridge.radio.providers.radiobrowser import RadioBrowserTimeoutError
+        from cloudtouch.radio.providers.radiobrowser import RadioBrowserTimeoutError
         
         mock_adapter.get_station_by_uuid.side_effect = RadioBrowserTimeoutError("API timeout")
         
@@ -389,7 +389,7 @@ class TestRadioAPIErrorHandling:
         first, so connection error returns 500 instead of 503.
         This test documents actual behavior, not ideal behavior.
         """
-        from soundtouch_bridge.radio.providers.radiobrowser import RadioBrowserConnectionError
+        from cloudtouch.radio.providers.radiobrowser import RadioBrowserConnectionError
         
         mock_adapter.get_station_by_uuid.side_effect = RadioBrowserConnectionError("Network error")
         

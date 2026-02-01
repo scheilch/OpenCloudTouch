@@ -11,10 +11,11 @@ __pycache__/
 # TRUENAS-DEPLOY.md - personal deployment guide
 docs/
 TRUENAS-DEPLOY.md
+/prototypes
 
 # Docker / Container artifacts
 *.tar
-soundtouch-bridge-image.tar
+cloudtouch-image.tar
 
 # Local data directory
 data/

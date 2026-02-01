@@ -5,7 +5,7 @@ Tests the RadioProvider interface and RadioStation dataclass.
 Validates that concrete implementations must implement all abstract methods.
 """
 import pytest
-from soundtouch_bridge.radio.provider import (
+from cloudtouch.radio.provider import (
     RadioProvider,
     RadioStation,
     RadioProviderError,

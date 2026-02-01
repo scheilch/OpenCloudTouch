@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1
 
 # ============================================================
-# Multi-stage build for SoundTouchBridge
+# Multi-stage build for CloudTouch
 # Supports amd64 and arm64
 # ============================================================
 
@@ -10,10 +10,10 @@ FROM node:20-alpine AS frontend-builder
 
 WORKDIR /app/frontend
 
-COPY frontend/package*.json ./
+COPY ../frontend/package*.json ./
 RUN npm ci
 
-COPY frontend/ ./
+COPY ../frontend/ ./
 RUN npm run build
 
 # Stage 2: Build Backend + Runtime
@@ -32,7 +32,7 @@ COPY backend/requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy backend source (as package)
-COPY backend/src/soundtouch_bridge ./soundtouch_bridge
+COPY backend/src/cloudtouch ./cloudtouch
 
 # Copy frontend build from previous stage
 COPY --from=frontend-builder /app/frontend/dist ./frontend/dist
@@ -48,17 +48,17 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
 EXPOSE 7777
 
 # Run as non-root user
-RUN useradd -m -u 1000 stb && chown -R stb:stb /app /data
-USER stb
+RUN useradd -m -u 1000 ct && chown -R ct:ct /app /data
+USER ct
 
 # Environment defaults
-ENV STB_HOST=0.0.0.0
-ENV STB_PORT=7777
-ENV STB_DB_PATH=/data/stb.db
-ENV STB_LOG_LEVEL=INFO
+ENV CT_HOST=0.0.0.0
+ENV CT_PORT=7777
+ENV CT_DB_PATH=/data/ct.db
+ENV CT_LOG_LEVEL=INFO
 
 # Set Python path for package
 ENV PYTHONPATH=/app
 
 # Start application using module entry point
-CMD ["python", "-m", "soundtouch_bridge"]
+CMD ["python", "-m", "cloudtouch"]

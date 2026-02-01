@@ -12,9 +12,9 @@ import pytest
 from unittest.mock import AsyncMock, patch
 from fastapi.testclient import TestClient
 
-from soundtouch_bridge.main import app
-from soundtouch_bridge.devices.repository import Device, DeviceRepository
-from soundtouch_bridge.devices.api.routes import get_device_repo
+from cloudtouch.main import app
+from cloudtouch.devices.repository import Device, DeviceRepository
+from cloudtouch.devices.api.routes import get_device_repo
 
 
 @pytest.fixture
@@ -151,8 +151,8 @@ class TestSyncEndpoint:
         Bug: Multiple simultaneous discovery requests cause race condition.
         Fixed: 2026-01-29 - _discovery_in_progress flag + asyncio.Lock.
         """
-        from soundtouch_bridge.devices.api.routes import _discovery_lock, _discovery_in_progress
-        import soundtouch_bridge.devices.api.routes as devices_module
+        from cloudtouch.devices.api.routes import _discovery_lock, _discovery_in_progress
+        import cloudtouch.devices.api.routes as devices_module
         
         # Reset state
         devices_module._discovery_in_progress = False
@@ -176,8 +176,8 @@ class TestSyncEndpoint:
         Bug: If discovery raises exception, lock might remain acquired.
         Fixed: 2026-01-29 - try-finally block resets _discovery_in_progress.
         """
-        from soundtouch_bridge.devices.api.routes import _discovery_lock
-        import soundtouch_bridge.devices.api.routes as devices_module
+        from cloudtouch.devices.api.routes import _discovery_lock
+        import cloudtouch.devices.api.routes as devices_module
         
         # Reset global state
         devices_module._discovery_in_progress = False
@@ -211,7 +211,7 @@ class TestSyncEndpoint:
     
     def test_sync_endpoint_returns_409_when_in_progress(self, client, mock_repo):
         """Test POST /api/devices/sync returns 409 if discovery already running."""
-        import soundtouch_bridge.devices.api.routes as devices_module
+        import cloudtouch.devices.api.routes as devices_module
         
         # Set discovery in progress
         devices_module._discovery_in_progress = True
@@ -236,14 +236,14 @@ class TestDiscoverEndpoint:
         Use case: User clicks 'Search Devices' in UI, SSDP finds devices.
         Expected: Returns list of discovered devices (not yet in DB).
         """
-        from soundtouch_bridge.discovery import DiscoveredDevice
+        from cloudtouch.discovery import DiscoveredDevice
         
         mock_discovered = [
             DiscoveredDevice(ip="192.168.1.100", port=8090, name="Living Room"),
             DiscoveredDevice(ip="192.168.1.101", port=8090, name="Kitchen"),
         ]
         
-        with patch('soundtouch_bridge.devices.api.routes.BoseSoundTouchDiscoveryAdapter') as mock_adapter:
+        with patch('cloudtouch.devices.api.routes.BoseSoundTouchDiscoveryAdapter') as mock_adapter:
             mock_instance = AsyncMock()
             mock_instance.discover.return_value = mock_discovered
             mock_adapter.return_value = mock_instance
@@ -264,7 +264,7 @@ class TestDiscoverEndpoint:
         Use case: User on isolated network or devices offline.
         Expected: Returns empty list, not an error (valid state).
         """
-        with patch('soundtouch_bridge.devices.api.routes.BoseSoundTouchDiscoveryAdapter') as mock_adapter:
+        with patch('cloudtouch.devices.api.routes.BoseSoundTouchDiscoveryAdapter') as mock_adapter:
             mock_instance = AsyncMock()
             mock_instance.discover.return_value = []
             mock_adapter.return_value = mock_instance
@@ -282,10 +282,10 @@ class TestDiscoverEndpoint:
         Use case: User has configured fallback IPs for devices with static IPs.
         Expected: Returns combined results from both sources.
         """
-        from soundtouch_bridge.discovery import DiscoveredDevice
+        from cloudtouch.discovery import DiscoveredDevice
         
         # Mock config with manual IPs
-        with patch('soundtouch_bridge.devices.api.routes.get_config') as mock_cfg:
+        with patch('cloudtouch.devices.api.routes.get_config') as mock_cfg:
             mock_cfg.return_value.manual_device_ips_list = ["192.168.1.200", "192.168.1.201"]
             mock_cfg.return_value.discovery_enabled = True
             mock_cfg.return_value.discovery_timeout = 10
@@ -299,12 +299,12 @@ class TestDiscoverEndpoint:
                 DiscoveredDevice(ip="192.168.1.201", port=8090),
             ]
             
-            with patch('soundtouch_bridge.devices.api.routes.BoseSoundTouchDiscoveryAdapter') as mock_ssdp:
+            with patch('cloudtouch.devices.api.routes.BoseSoundTouchDiscoveryAdapter') as mock_ssdp:
                 mock_ssdp_inst = AsyncMock()
                 mock_ssdp_inst.discover.return_value = [ssdp_device]
                 mock_ssdp.return_value = mock_ssdp_inst
                 
-                with patch('soundtouch_bridge.devices.api.routes.ManualDiscovery') as mock_manual:
+                with patch('cloudtouch.devices.api.routes.ManualDiscovery') as mock_manual:
                     mock_manual_inst = AsyncMock()
                     mock_manual_inst.discover.return_value = manual_devices
                     mock_manual.return_value = mock_manual_inst
@@ -325,23 +325,23 @@ class TestDiscoverEndpoint:
         
         Regression: SSDP exceptions should not crash entire discovery.
         """
-        from soundtouch_bridge.discovery import DiscoveredDevice
+        from cloudtouch.discovery import DiscoveredDevice
         
         manual_devices = [DiscoveredDevice(ip="192.168.1.200", port=8090, name="Fallback")]
         
-        with patch('soundtouch_bridge.devices.api.routes.get_config') as mock_cfg:
+        with patch('cloudtouch.devices.api.routes.get_config') as mock_cfg:
             mock_cfg.return_value.manual_device_ips_list = ["192.168.1.200"]
             mock_cfg.return_value.discovery_enabled = True
             mock_cfg.return_value.discovery_timeout = 10
             
             # SSDP raises exception
-            with patch('soundtouch_bridge.devices.api.routes.BoseSoundTouchDiscoveryAdapter') as mock_ssdp:
+            with patch('cloudtouch.devices.api.routes.BoseSoundTouchDiscoveryAdapter') as mock_ssdp:
                 mock_ssdp_inst = AsyncMock()
                 mock_ssdp_inst.discover.side_effect = Exception("Network error")
                 mock_ssdp.return_value = mock_ssdp_inst
                 
                 # Manual discovery works
-                with patch('soundtouch_bridge.devices.api.routes.ManualDiscovery') as mock_manual:
+                with patch('cloudtouch.devices.api.routes.ManualDiscovery') as mock_manual:
                     mock_manual_inst = AsyncMock()
                     mock_manual_inst.discover.return_value = manual_devices
                     mock_manual.return_value = mock_manual_inst
@@ -360,15 +360,15 @@ class TestDiscoverEndpoint:
         Use case: Admin disables auto-discovery, only uses manual IPs.
         Expected: SSDP skipped, only manual IPs discovered.
         """
-        from soundtouch_bridge.discovery import DiscoveredDevice
+        from cloudtouch.discovery import DiscoveredDevice
         
         manual_devices = [DiscoveredDevice(ip="192.168.1.200", port=8090)]
         
-        with patch('soundtouch_bridge.devices.api.routes.get_config') as mock_cfg:
+        with patch('cloudtouch.devices.api.routes.get_config') as mock_cfg:
             mock_cfg.return_value.discovery_enabled = False  # Disabled!
             mock_cfg.return_value.manual_device_ips_list = ["192.168.1.200"]
             
-            with patch('soundtouch_bridge.devices.api.routes.ManualDiscovery') as mock_manual:
+            with patch('cloudtouch.devices.api.routes.ManualDiscovery') as mock_manual:
                 mock_manual_inst = AsyncMock()
                 mock_manual_inst.discover.return_value = manual_devices
                 mock_manual.return_value = mock_manual_inst
@@ -419,7 +419,7 @@ class TestSyncDatabaseErrors:
         
         Regression: Ensures DB errors don't crash the application silently.
         """
-        from soundtouch_bridge.devices.repository import DeviceRepository, Device
+        from cloudtouch.devices.repository import DeviceRepository, Device
         
         repo = DeviceRepository(":memory:")
         await repo.initialize()
@@ -463,7 +463,7 @@ class TestSyncDatabaseErrors:
         
         Design verification: SQLite UPSERT pattern works correctly.
         """
-        from soundtouch_bridge.devices.repository import DeviceRepository, Device
+        from cloudtouch.devices.repository import DeviceRepository, Device
         
         repo = DeviceRepository(":memory:")
         await repo.initialize()
@@ -517,7 +517,7 @@ class TestSyncDatabaseErrors:
         
         Regression: Ensures error handling doesn't stop entire batch operation.
         """
-        from soundtouch_bridge.devices.repository import DeviceRepository, Device
+        from cloudtouch.devices.repository import DeviceRepository, Device
         
         repo = DeviceRepository(":memory:")
         await repo.initialize()
