@@ -69,9 +69,17 @@ export default function EmptyState({ onDiscover }) {
               <li>Firewall-Regeln könnten die Geräteerkennung blockieren</li>
               <li>Starte die Geräte und CloudTouch neu</li>
               <li>
+                Füge Geräte-IPs manuell in den{' '}
                 <Link to="/settings" className="settings-link">
-                  Füge Geräte-IPs manuell hinzu
+                  <svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor" style={{ verticalAlign: 'middle', marginRight: '2px' }}>
+                    <path d="M10 2a8 8 0 100 16 8 8 0 000-16zm1 11H9v-2h2v2zm0-4H9V5h2v4z"/>
+                  </svg>
+                  Einstellungen
+                  <svg width="12" height="12" viewBox="0 0 20 20" fill="currentColor" style={{ verticalAlign: 'middle', marginLeft: '2px' }}>
+                    <path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z"/>
+                  </svg>
                 </Link>
+                {' '}hinzu
               </li>
             </ul>
           </details>

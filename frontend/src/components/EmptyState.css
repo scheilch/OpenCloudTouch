@@ -211,13 +211,24 @@
 
 /* Settings Link in Help Section */
 .settings-link {
-  color: var(--color-primary);
+  color: #3b82f6;
   text-decoration: none;
-  font-weight: var(--font-weight-medium);
-  transition: color 0.2s;
+  font-weight: var(--font-weight-bold);
+  transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 4px;
+  border-radius: 4px;
+  background-color: rgba(59, 130, 246, 0.1);
 }
 
 .settings-link:hover {
-  color: var(--color-primary-dark);
-  text-decoration: underline;
+  color: #2563eb;
+  background-color: rgba(59, 130, 246, 0.2);
+  text-decoration: none;
+  transform: translateX(2px);
+}
+
+.settings-link svg {
+  flex-shrink: 0;
 }
