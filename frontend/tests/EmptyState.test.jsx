@@ -1,0 +1,29 @@
+import { describe, it, expect } from 'vitest'
+import { render, screen } from '@testing-library/react'
+import { BrowserRouter } from 'react-router-dom'
+import EmptyState from '../src/components/EmptyState'
+
+describe('EmptyState Component', () => {
+  it('renders welcome message', () => {
+    render(<EmptyState onDiscover={() => {}} />)
+    expect(screen.getByText(/Willkommen bei CloudTouch/i)).toBeInTheDocument()
+  })
+
+  it('renders setup steps', () => {
+    render(<EmptyState onDiscover={() => {}} />)
+    expect(screen.getByText(/Geräte einschalten/i)).toBeInTheDocument()
+    expect(screen.getByText(/Geräte suchen/i)).toBeInTheDocument()
+    expect(screen.getByText(/Presets verwalten/i)).toBeInTheDocument()
+  })
+
+  it('renders discover button', () => {
+    render(<EmptyState onDiscover={() => {}} />)
+    const button = screen.getByRole('button', { name: /Jetzt Geräte suchen/i })
+    expect(button).toBeInTheDocument()
+  })
+
+  it('renders help section', () => {
+    render(<EmptyState onDiscover={() => {}} />)
+    expect(screen.getByText(/Keine Geräte gefunden?/i)).toBeInTheDocument()
+  })
+})
