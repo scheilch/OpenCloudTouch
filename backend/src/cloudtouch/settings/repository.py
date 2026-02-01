@@ -1,0 +1,135 @@
+"""Settings repository for managing manual device IPs and application settings."""
+
+import logging
+from datetime import UTC, datetime
+from pathlib import Path
+from typing import Optional
+
+import aiosqlite
+
+logger = logging.getLogger(__name__)
+
+
+class SettingsRepository:
+    """Repository for managing settings in SQLite database."""
+
+    def __init__(self, db_path: Path):
+        """
+        Initialize settings repository.
+
+        Args:
+            db_path: Path to SQLite database file
+        """
+        self.db_path = db_path
+        self._db: Optional[aiosqlite.Connection] = None
+
+    async def initialize(self) -> None:
+        """Initialize database and create tables."""
+        # Ensure directory exists
+        self.db_path.parent.mkdir(parents=True, exist_ok=True)
+
+        self._db = await aiosqlite.connect(str(self.db_path))
+
+        await self._db.execute(
+            """
+            CREATE TABLE IF NOT EXISTS manual_device_ips (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                ip_address TEXT UNIQUE NOT NULL,
+                created_at TEXT NOT NULL
+            )
+        """
+        )
+
+        await self._db.execute(
+            """
+            CREATE INDEX IF NOT EXISTS idx_ip_address ON manual_device_ips(ip_address)
+        """
+        )
+
+        await self._db.commit()
+        logger.info("Settings database initialized")
+
+    async def close(self) -> None:
+        """Close database connection."""
+        if self._db:
+            await self._db.close()
+            self._db = None
+
+    async def add_manual_ip(self, ip: str) -> None:
+        """
+        Add a manual device IP address.
+
+        Args:
+            ip: IP address to add
+
+        Raises:
+            ValueError: If IP address is invalid or already exists
+        """
+        if not self._db:
+            raise RuntimeError("Database not initialized")
+
+        # Basic IP validation
+        parts = ip.split(".")
+        if len(parts) != 4:
+            raise ValueError(f"Invalid IP address format: {ip}")
+
+        try:
+            for part in parts:
+                if not 0 <= int(part) <= 255:
+                    raise ValueError(f"Invalid IP address: {ip}")
+        except ValueError:
+            raise ValueError(f"Invalid IP address: {ip}")
+
+        try:
+            await self._db.execute(
+                """
+                INSERT INTO manual_device_ips (ip_address, created_at)
+                VALUES (?, ?)
+            """,
+                (ip, datetime.now(UTC).isoformat()),
+            )
+            await self._db.commit()
+            logger.info(f"Added manual IP: {ip}")
+        except aiosqlite.IntegrityError as e:
+            raise ValueError(f"IP address already exists: {ip}") from e
+
+    async def remove_manual_ip(self, ip: str) -> None:
+        """
+        Remove a manual device IP address.
+
+        Args:
+            ip: IP address to remove
+        """
+        if not self._db:
+            raise RuntimeError("Database not initialized")
+
+        cursor = await self._db.execute(
+            """
+            DELETE FROM manual_device_ips WHERE ip_address = ?
+        """,
+            (ip,),
+        )
+        await self._db.commit()
+
+        if cursor.rowcount == 0:
+            logger.warning(f"Manual IP not found for removal: {ip}")
+        else:
+            logger.info(f"Removed manual IP: {ip}")
+
+    async def get_manual_ips(self) -> list[str]:
+        """
+        Get all manual device IP addresses.
+
+        Returns:
+            List of IP addresses
+        """
+        if not self._db:
+            raise RuntimeError("Database not initialized")
+
+        cursor = await self._db.execute(
+            """
+            SELECT ip_address FROM manual_device_ips ORDER BY created_at ASC
+        """
+        )
+        rows = await cursor.fetchall()
+        return [row[0] for row in rows]
