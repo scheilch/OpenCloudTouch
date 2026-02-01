@@ -53,12 +53,34 @@ async def _discover_via_ssdp(cfg: AppConfig) -> List[DiscoveredDevice]:
 
 
 async def _discover_via_manual_ips(cfg: AppConfig) -> List[DiscoveredDevice]:
-    """Discover devices via manually configured IP addresses."""
-    if not cfg.manual_device_ips_list:
+    """
+    Discover devices via manually configured IP addresses.
+    
+    Merges IPs from:
+    - Database (manual_device_ips table)
+    - Environment variable (CT_MANUAL_DEVICE_IPS)
+    """
+    # Get IPs from database
+    from cloudtouch.main import settings_repo
+    
+    db_ips = []
+    if settings_repo:
+        try:
+            db_ips = await settings_repo.get_manual_ips()
+        except Exception as e:
+            logger.error(f"Failed to get manual IPs from database: {e}")
+    
+    # Get IPs from environment variable
+    env_ips = cfg.manual_device_ips_list or []
+    
+    # Merge and deduplicate
+    all_ips = list(set(db_ips + env_ips))
+    
+    if not all_ips:
         return []
 
-    logger.info(f"Using manual device IPs: {cfg.manual_device_ips_list}")
-    manual = ManualDiscovery(cfg.manual_device_ips_list)
+    logger.info(f"Using manual device IPs: {all_ips} (DB: {len(db_ips)}, ENV: {len(env_ips)})")
+    manual = ManualDiscovery(all_ips)
     try:
         devices = await manual.discover()
         logger.info(f"Manual discovery found {len(devices)} device(s)")
