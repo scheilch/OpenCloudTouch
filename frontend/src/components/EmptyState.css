@@ -208,3 +208,16 @@
     justify-content: center;
   }
 }
+
+/* Settings Link in Help Section */
+.settings-link {
+  color: var(--color-primary);
+  text-decoration: none;
+  font-weight: var(--font-weight-medium);
+  transition: color 0.2s;
+}
+
+.settings-link:hover {
+  color: var(--color-primary-dark);
+  text-decoration: underline;
+}

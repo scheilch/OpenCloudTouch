@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import './EmptyState.css';
 
 /**
@@ -67,7 +68,11 @@ export default function EmptyState({ onDiscover }) {
               <li>Prüfe ob die Geräte im gleichen WLAN sind wie CloudTouch</li>
               <li>Firewall-Regeln könnten die Geräteerkennung blockieren</li>
               <li>Starte die Geräte und CloudTouch neu</li>
-              <li>Verwende manuelle IP-Konfiguration in den Einstellungen</li>
+              <li>
+                <Link to="/settings" className="settings-link">
+                  Füge Geräte-IPs manuell hinzu
+                </Link>
+              </li>
             </ul>
           </details>
         </div>

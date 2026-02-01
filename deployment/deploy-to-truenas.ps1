@@ -45,6 +45,7 @@ try {
     # Step 1: Build and export locally
     Write-Step "Building and exporting image..."
     $exportArgs = @()
+    if ($NoCache) { $exportArgs += "-NoCache" }
     if ($Verbose) { $exportArgs += "-Verbose" }
     & "$PSScriptRoot\export-image.ps1" @exportArgs
     if ($LASTEXITCODE -ne 0) {

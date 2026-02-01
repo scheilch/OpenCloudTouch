@@ -14,19 +14,22 @@ from fastapi.staticfiles import StaticFiles
 
 from cloudtouch.core.config import init_config, get_config
 from cloudtouch.db import DeviceRepository
+from cloudtouch.settings.repository import SettingsRepository
 from cloudtouch.api import devices_router
 from cloudtouch.radio.api.routes import router as radio_router
+from cloudtouch.settings.routes import router as settings_router
 from cloudtouch.core.logging import setup_logging
 
 
 # Global instances
 device_repo: DeviceRepository = None
+settings_repo: SettingsRepository = None
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Application lifespan: startup and shutdown."""
-    global device_repo
+    global device_repo, settings_repo
 
     # Initialize configuration
     init_config()
@@ -45,12 +48,23 @@ async def lifespan(app: FastAPI):
     await device_repo.initialize()
     logger.info("Device repository initialized")
 
+    # Initialize settings repository (convert str to Path if needed)
+    from pathlib import Path
+    db_path = Path(cfg.db_path) if isinstance(cfg.db_path, str) else cfg.db_path
+    settings_repo = SettingsRepository(db_path)
+    await settings_repo.initialize()
+    logger.info("Settings repository initialized")
+
     yield
 
     # Shutdown
     if device_repo:
         await device_repo.close()
         logger.info("Device repository closed")
+
+    if settings_repo:
+        await settings_repo.close()
+        logger.info("Settings repository closed")
 
     logger.info("SoundTouchBridge shutting down")
 
@@ -78,6 +92,7 @@ app.add_middleware(
 # Include API routers
 app.include_router(devices_router)
 app.include_router(radio_router)
+app.include_router(settings_router)
 
 
 # Health endpoint
