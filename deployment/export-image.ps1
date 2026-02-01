@@ -50,11 +50,36 @@ try {
             Write-Host "    Podman Machine is stopped, starting..." -ForegroundColor Yellow
             podman machine start
             if ($LASTEXITCODE -ne 0) {
-                Write-ErrorMsg "Failed to start Podman Machine!"
-                exit 1
+                Write-Host "    First start attempt failed, retrying..." -ForegroundColor Yellow
+                Start-Sleep -Seconds 5
+                podman machine start
+                if ($LASTEXITCODE -ne 0) {
+                    Write-ErrorMsg "Failed to start Podman Machine after 2 attempts!"
+                    exit 1
+                }
             }
             Write-Success "Podman Machine started"
-            Start-Sleep -Seconds 3  # Wait for socket to be ready
+            Write-Host "    Waiting for Podman socket to be ready..." -ForegroundColor Gray
+            Start-Sleep -Seconds 10  # Increased wait for WSL bootstrap
+            
+            # Verify connection after start
+            $retries = 3
+            $connected = $false
+            for ($i = 1; $i -le $retries; $i++) {
+                $testConn = podman info 2>$null
+                if ($LASTEXITCODE -eq 0) {
+                    $connected = $true
+                    break
+                }
+                if ($i -lt $retries) {
+                    Write-Host "    Connection attempt $i/$retries failed, retrying..." -ForegroundColor Yellow
+                    Start-Sleep -Seconds 5
+                }
+            }
+            if (-not $connected) {
+                Write-ErrorMsg "Podman Machine started but connection verification failed!"
+                exit 1
+            }
         } else {
             Write-Host "    Podman Machine reports running, verifying connection..." -ForegroundColor Gray
             # Verify actual connection
@@ -68,7 +93,7 @@ try {
                     Write-ErrorMsg "Failed to restart Podman Machine!"
                     exit 1
                 }
-                Start-Sleep -Seconds 3
+                Start-Sleep -Seconds 10
                 Write-Success "Podman Machine restarted"
             } else {
                 Write-Success "Podman Machine is running"
