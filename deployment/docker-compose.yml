@@ -10,14 +10,14 @@ services:
     volumes:
       - ct-data:/data
     environment:
-      - STB_HOST=0.0.0.0
-      - STB_PORT=7777
-      - STB_DB_PATH=/data/stb.db
-      - STB_LOG_LEVEL=INFO
-      - STB_DISCOVERY_ENABLED=true
-      - STB_DISCOVERY_TIMEOUT=10
+      - CT_HOST=0.0.0.0
+      - CT_PORT=7777
+      - CT_DB_PATH=/data/ct.db
+      - CT_LOG_LEVEL=INFO
+      - CT_DISCOVERY_ENABLED=true
+      - CT_DISCOVERY_TIMEOUT=10
       # Station descriptor URL - adjust if running on different host
-      - STB_STATION_DESCRIPTOR_BASE_URL=http://localhost:7777/stations/preset
+      - CT_STATION_DESCRIPTOR_BASE_URL=http://localhost:7777/stations/preset
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:7777/health')"]

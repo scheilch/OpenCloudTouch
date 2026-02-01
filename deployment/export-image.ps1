@@ -36,10 +36,30 @@ try {
     Write-Step "Checking Podman installation..."
     $podmanVersion = podman --version 2>$null
     if (-not $podmanVersion) {
-        Write-ErrorMsg "Podman not found!"
+        Write-ErrorMsg "Podman not found! Install from https://podman.io"
         exit 1
     }
     Write-Success "Podman found: $podmanVersion"
+    
+    # Check if Podman Machine is running (Windows/macOS)
+    Write-Step "Checking Podman Machine status..."
+    $machineStatus = podman machine inspect --format='{{.State}}' 2>$null
+    if ($LASTEXITCODE -eq 0) {
+        # Machine exists
+        if ($machineStatus -ne "running") {
+            Write-Host "    Podman Machine is stopped, starting..." -ForegroundColor Yellow
+            podman machine start
+            if ($LASTEXITCODE -ne 0) {
+                Write-ErrorMsg "Failed to start Podman Machine!"
+                exit 1
+            }
+            Write-Success "Podman Machine started"
+        } else {
+            Write-Success "Podman Machine is running"
+        }
+    } else {
+        Write-Host "    Podman Machine not found (using native Podman)" -ForegroundColor Gray
+    }
 
     # Build image
     if (-not $SkipBuild) {
