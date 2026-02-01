@@ -1,6 +1,7 @@
 """
 Unit tests for SoundTouchBridge main application
 """
+
 import pytest
 from fastapi.testclient import TestClient
 
@@ -35,7 +36,7 @@ def test_health_endpoint_structure(client):
     """Test /health endpoint returns proper JSON structure."""
     response = client.get("/health")
     data = response.json()
-    
+
     # Validate types
     assert isinstance(data["status"], str)
     assert isinstance(data["version"], str)

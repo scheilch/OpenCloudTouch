@@ -7,7 +7,14 @@ import warnings
 
 
 # Suppress specific deprecation warnings
-warnings.filterwarnings("ignore", category=DeprecationWarning, message=".*datetime.datetime.utcnow.*")
-warnings.filterwarnings("ignore", category=DeprecationWarning, message=".*The 'app' shortcut is now deprecated.*")
-warnings.filterwarnings("ignore", category=DeprecationWarning, message=".*default datetime adapter.*")
-
+warnings.filterwarnings(
+    "ignore", category=DeprecationWarning, message=".*datetime.datetime.utcnow.*"
+)
+warnings.filterwarnings(
+    "ignore",
+    category=DeprecationWarning,
+    message=".*The 'app' shortcut is now deprecated.*",
+)
+warnings.filterwarnings(
+    "ignore", category=DeprecationWarning, message=".*default datetime adapter.*"
+)
