@@ -1,0 +1,72 @@
+/* Radio Presets Page */
+.radio-presets-page {
+  padding-bottom: var(--space-2xl);
+}
+
+/* Device Card */
+.device-card {
+  background-color: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-xl);
+  padding: var(--space-lg);
+  box-shadow: var(--shadow-lg);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.device-card-header {
+  text-align: center;
+  padding-bottom: var(--space-md);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.device-name {
+  font-size: 24px;
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+  margin-bottom: var(--space-xs);
+}
+
+.device-model {
+  font-size: 14px;
+  color: var(--color-text-secondary);
+}
+
+/* Presets Section */
+.presets-section {
+  margin-top: var(--space-2xl);
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.section-title {
+  font-size: 20px;
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+  margin-bottom: var(--space-lg);
+  text-align: center;
+}
+
+.presets-grid {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .device-card {
+    padding: var(--space-md);
+  }
+
+  .device-name {
+    font-size: 20px;
+  }
+
+  .section-title {
+    font-size: 18px;
+  }
+}

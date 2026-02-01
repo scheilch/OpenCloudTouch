@@ -1,0 +1,75 @@
+/* Top Navigation - Spotify-Style */
+.nav {
+  padding: var(--space-md);
+  background-color: var(--color-bg-darker);
+}
+
+.nav-container {
+  display: flex;
+  gap: var(--space-sm);
+  max-width: 1200px;
+  margin: 0 auto;
+  overflow-x: auto;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE/Edge */
+}
+
+.nav-container::-webkit-scrollbar {
+  display: none; /* Chrome/Safari */
+}
+
+.nav-link {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-xs);
+  padding: var(--space-sm) var(--space-md);
+  border-radius: var(--border-radius-lg);
+  background-color: transparent;
+  color: var(--color-text-secondary);
+  font-size: 12px;
+  font-weight: var(--font-weight-medium);
+  white-space: nowrap;
+  transition: all 0.2s ease;
+  min-width: 80px;
+}
+
+.nav-link:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+  color: var(--color-text-primary);
+}
+
+.nav-link.active {
+  background-color: var(--color-accent);
+  color: white;
+}
+
+.nav-icon {
+  font-size: 20px;
+}
+
+.nav-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .nav {
+    padding: var(--space-sm);
+  }
+
+  .nav-link {
+    min-width: 60px;
+    padding: var(--space-sm);
+  }
+
+  .nav-icon {
+    font-size: 18px;
+  }
+
+  .nav-label {
+    font-size: 10px;
+  }
+}

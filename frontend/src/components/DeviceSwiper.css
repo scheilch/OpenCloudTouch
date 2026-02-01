@@ -1,0 +1,137 @@
+/* Device Swiper - Horizontal Card Navigation */
+.device-swiper {
+  position: relative;
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
+  padding: var(--space-xl) 0;
+}
+
+/* Swiper Container */
+.swiper-container {
+  position: relative;
+  width: 100%;
+  height: var(--card-height);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  perspective: 1000px;
+}
+
+.swiper-card {
+  position: absolute;
+  width: var(--card-width);
+  max-width: 90%;
+  height: 100%;
+  cursor: grab;
+  user-select: none;
+  touch-action: pan-y;
+}
+
+.swiper-card:active {
+  cursor: grabbing;
+}
+
+/* Navigation Arrows */
+.swipe-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 48px;
+  height: 48px;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  color: var(--color-text-primary);
+  font-size: 32px;
+  font-weight: var(--font-weight-bold);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(10px);
+}
+
+.swipe-arrow:hover:not(:disabled) {
+  background-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-50%) scale(1.1);
+}
+
+.swipe-arrow:disabled {
+  opacity: 0.2;
+  cursor: not-allowed;
+}
+
+.swipe-arrow-left {
+  left: var(--space-md);
+}
+
+.swipe-arrow-right {
+  right: var(--space-md);
+}
+
+/* Dots Indicator */
+.swiper-dots {
+  display: flex;
+  justify-content: center;
+  gap: var(--space-sm);
+  margin-top: var(--space-lg);
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: var(--color-border);
+  transition: all 0.3s ease;
+  padding: 0;
+  min-width: auto;
+  min-height: auto;
+}
+
+.dot:hover {
+  background-color: var(--color-text-secondary);
+  transform: scale(1.2);
+}
+
+.dot.active {
+  width: 24px;
+  border-radius: 4px;
+  background-color: var(--color-accent);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .device-swiper {
+    padding: var(--space-lg) 0;
+  }
+
+  .swiper-container {
+    --card-height: 320px;
+  }
+
+  .swipe-arrow {
+    width: 40px;
+    height: 40px;
+    font-size: 28px;
+  }
+
+  .swipe-arrow-left {
+    left: var(--space-sm);
+  }
+
+  .swipe-arrow-right {
+    right: var(--space-sm);
+  }
+}
+
+@media (max-width: 480px) {
+  .swipe-arrow {
+    background-color: rgba(255, 255, 255, 0.05);
+  }
+
+  .swiper-container {
+    --card-height: 280px;
+  }
+}

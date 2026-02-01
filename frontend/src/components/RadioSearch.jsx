@@ -1,158 +1,72 @@
-import { useState, useEffect, useRef } from 'react'
-import { useQuery } from '@tanstack/react-query'
-import styles from './RadioSearch.module.css'
+import { useState } from 'react'
+import './RadioSearch.css'
 
-/**
- * RadioSearch Component
- * 
- * Allows users to search for radio stations using RadioBrowser API.
- * Features: Debouncing, Loading/Error/Empty States, Accessibility
- */
-function RadioSearch() {
-  const [searchTerm, setSearchTerm] = useState('')
-  const [debouncedSearch, setDebouncedSearch] = useState('')
-  const debounceTimeoutRef = useRef(null)
+export default function RadioSearch({ onStationSelect, isOpen, onClose }) {
+  const [query, setQuery] = useState('')
+  const [results, setResults] = useState([])
+  const [loading, setLoading] = useState(false)
 
-  // Debounce search input (300ms)
-  useEffect(() => {
-    if (debounceTimeoutRef.current) {
-      clearTimeout(debounceTimeoutRef.current)
+  const handleSearch = async (searchQuery) => {
+    setQuery(searchQuery)
+    if (!searchQuery.trim()) {
+      setResults([])
+      return
     }
 
-    debounceTimeoutRef.current = setTimeout(() => {
-      setDebouncedSearch(searchTerm)
+    setLoading(true)
+    // Simulate API search
+    setTimeout(() => {
+      const mockResults = [
+        { stationuuid: '1', name: 'Absolut relax', country: 'Germany' },
+        { stationuuid: '2', name: 'Bayern 1', country: 'Germany' },
+        { stationuuid: '3', name: '1LIVE', country: 'Germany' }
+      ].filter(s => s.name.toLowerCase().includes(searchQuery.toLowerCase()))
+      setResults(mockResults)
+      setLoading(false)
     }, 300)
-
-    return () => {
-      if (debounceTimeoutRef.current) {
-        clearTimeout(debounceTimeoutRef.current)
-      }
-    }
-  }, [searchTerm])
-
-  // Fetch radio stations with React Query
-  const { data, isLoading, error, refetch } = useQuery({
-    queryKey: ['radioSearch', debouncedSearch],
-    queryFn: async () => {
-      if (!debouncedSearch) return { stations: [], total: 0 }
-
-      const response = await fetch(
-        `/api/radio/search?q=${encodeURIComponent(debouncedSearch)}&limit=20`
-      )
-      
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}`)
-      }
-      
-      return response.json()
-    },
-    enabled: debouncedSearch.length > 0,
-    staleTime: 5 * 60 * 1000, // 5 minutes cache
-  })
-
-  const handleInputChange = (e) => {
-    setSearchTerm(e.target.value)
   }
 
-  const handleRetry = () => {
-    refetch()
+  const handleSelect = (station) => {
+    onStationSelect(station)
+    setQuery('')
+    setResults([])
+    onClose?.()
   }
 
-  const stations = data?.stations || []
-  const total = data?.total || 0
+  if (!isOpen) return null
 
   return (
-    <div className={styles.container} role="search">
-      <div className={styles.searchBox}>
-        <label htmlFor="radio-search-input" className={styles.visuallyHidden}>
-          Radio Suchen
-        </label>
-        <input
-          id="radio-search-input"
-          type="text"
-          value={searchTerm}
-          onChange={handleInputChange}
-          placeholder="Sender nach Name suchen..."
-          aria-label="Radio Suchen"
-          className={styles.searchInput}
-        />
+    <div className="radio-search-overlay" onClick={onClose}>
+      <div className="radio-search-modal" onClick={e => e.stopPropagation()}>
+        <div className="search-header">
+          <input
+            type="search"
+            className="search-input"
+            placeholder="Sender suchen..."
+            value={query}
+            onChange={(e) => handleSearch(e.target.value)}
+            autoFocus
+          />
+          <button className="search-close" onClick={onClose}>✕</button>
+        </div>
+
+        <div className="search-results">
+          {loading && <div className="search-loading">Suche...</div>}
+          {!loading && results.length === 0 && query && (
+            <div className="search-empty">Keine Sender gefunden</div>
+          )}
+          {results.map(station => (
+            <button
+              key={station.stationuuid}
+              className="search-result-item"
+              onClick={() => handleSelect(station)}
+            >
+              <div className="result-name">{station.name}</div>
+              <div className="result-country">{station.country}</div>
+            </button>
+          ))}
+        </div>
       </div>
-
-      {/* Loading State */}
-      {isLoading && (
-        <div className={styles.loadingContainer} role="status" aria-live="polite">
-          <p className={styles.loadingText}>Lade Sender...</p>
-          <div className={styles.skeletonList}>
-            {[1, 2, 3].map((i) => (
-              <div key={i} className={styles.skeletonCard} role="status" aria-label="Laden">
-                <div className={styles.skeletonTitle}></div>
-                <div className={styles.skeletonText}></div>
-                <div className={styles.skeletonText}></div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Error State */}
-      {error && !isLoading && (
-        <div className={styles.errorContainer} role="alert">
-          <p className={styles.errorMessage}>
-            Fehler beim Laden der Sender. Bitte überprüfen Sie Ihre Netzwerkverbindung.
-          </p>
-          <button onClick={handleRetry} className={styles.retryButton}>
-            Erneut versuchen
-          </button>
-        </div>
-      )}
-
-      {/* Empty State - No search term */}
-      {!searchTerm && !isLoading && !error && (
-        <div className={styles.emptyState}>
-          <p className={styles.emptyMessage}>
-            Geben Sie einen Suchbegriff ein, um Radiosender zu finden.
-          </p>
-        </div>
-      )}
-
-      {/* Empty State - No results */}
-      {debouncedSearch && !isLoading && !error && stations.length === 0 && (
-        <div className={styles.emptyState}>
-          <p className={styles.emptyMessage}>
-            Keine Sender gefunden für "{debouncedSearch}"
-          </p>
-        </div>
-      )}
-
-      {/* Results */}
-      {!isLoading && !error && stations.length > 0 && (
-        <div className={styles.resultsContainer}>
-          <p className={styles.resultCount}>
-            {total} Sender gefunden
-          </p>
-          <div className={styles.stationList}>
-            {stations.map((station) => (
-              <div key={station.stationuuid} className={styles.stationCard}>
-                <h3 className={styles.stationName}>{station.name}</h3>
-                <div className={styles.stationDetails}>
-                  <span className={styles.stationCountry}>{station.country}</span>
-                  <span className={styles.stationCodec}>{station.codec}</span>
-                </div>
-                <a
-                  href={station.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={styles.stationUrl}
-                >
-                  Stream-URL
-                </a>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
     </div>
   )
 }
-
-export default RadioSearch
