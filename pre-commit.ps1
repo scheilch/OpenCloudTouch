@@ -25,7 +25,7 @@ Write-Host ""
 try {
     Set-Location backend
     & ..\.venv\Scripts\python.exe -m pytest tests/ `
-        --cov=soundtouch_bridge `
+        --cov=cloudtouch `
         --cov-report=term-missing `
         --cov-fail-under=80 `
         --quiet

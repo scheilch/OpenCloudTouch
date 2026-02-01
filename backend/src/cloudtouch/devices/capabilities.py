@@ -11,8 +11,8 @@ from typing import List, Set
 from bosesoundtouchapi import SoundTouchClient, SoundTouchError
 from bosesoundtouchapi.uri import SoundTouchNodes
 
-from soundtouch_bridge.core.exceptions import DeviceNotFoundError
-from soundtouch_bridge.core.logging import get_logger
+from cloudtouch.core.exceptions import DeviceNotFoundError
+from cloudtouch.core.logging import get_logger
 
 
 logger = get_logger(__name__)

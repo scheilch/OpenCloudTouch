@@ -11,10 +11,11 @@ __pycache__/
 # SERVER-DEPLOY.md - personal deployment guide
 docs/
 SERVER-DEPLOY.md
+/prototypes
 
 # Docker / Container artifacts
 *.tar
-soundtouch-bridge-image.tar
+cloudtouch-image.tar
 
 # Local data directory
 data/

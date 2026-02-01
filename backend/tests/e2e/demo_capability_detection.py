@@ -29,7 +29,7 @@ from typing import Optional
 # Add backend to path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from soundtouch_bridge.devices.capabilities import (
+from cloudtouch.devices.capabilities import (
     DeviceCapabilities,
     get_device_capabilities,
     safe_api_call,

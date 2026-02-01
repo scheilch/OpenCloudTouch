@@ -8,11 +8,11 @@ from typing import List, Dict, Any
 
 from fastapi import APIRouter, HTTPException, Depends
 
-from soundtouch_bridge.discovery import DiscoveredDevice
-from soundtouch_bridge.devices.adapter import BoseSoundTouchDiscoveryAdapter, BoseSoundTouchClientAdapter
-from soundtouch_bridge.devices.discovery.manual import ManualDiscovery
-from soundtouch_bridge.devices.repository import Device, DeviceRepository
-from soundtouch_bridge.core.config import get_config, AppConfig
+from cloudtouch.discovery import DiscoveredDevice
+from cloudtouch.devices.adapter import BoseSoundTouchDiscoveryAdapter, BoseSoundTouchClientAdapter
+from cloudtouch.devices.discovery.manual import ManualDiscovery
+from cloudtouch.devices.repository import Device, DeviceRepository
+from cloudtouch.core.config import get_config, AppConfig
 
 logger = logging.getLogger(__name__)
 
@@ -26,7 +26,7 @@ _discovery_in_progress = False
 # Dependency injection
 async def get_device_repo() -> DeviceRepository:
     """Get device repository instance."""
-    from soundtouch_bridge.main import device_repo
+    from cloudtouch.main import device_repo
     return device_repo
 
 
@@ -243,7 +243,7 @@ async def get_device_capabilities_endpoint(
             "advanced": {...}
         }
     """
-    from soundtouch_bridge.devices.capabilities import (
+    from cloudtouch.devices.capabilities import (
         get_device_capabilities,
         get_feature_flags_for_ui
     )

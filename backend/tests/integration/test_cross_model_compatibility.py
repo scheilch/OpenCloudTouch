@@ -12,7 +12,7 @@ Endpoint Matrix:
 import pytest
 from unittest.mock import MagicMock, AsyncMock, patch
 
-from soundtouch_bridge.devices.capabilities import (
+from cloudtouch.devices.capabilities import (
     get_device_capabilities,
     DeviceCapabilities,
     get_feature_flags_for_ui,

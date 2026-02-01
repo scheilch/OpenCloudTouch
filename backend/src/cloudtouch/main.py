@@ -11,11 +11,11 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 
-from soundtouch_bridge.core.config import init_config, get_config
-from soundtouch_bridge.db import DeviceRepository
-from soundtouch_bridge.api import devices_router
-from soundtouch_bridge.radio.api.routes import router as radio_router
-from soundtouch_bridge.core.logging import setup_logging
+from cloudtouch.core.config import init_config, get_config
+from cloudtouch.db import DeviceRepository
+from cloudtouch.api import devices_router
+from cloudtouch.radio.api.routes import router as radio_router
+from cloudtouch.core.logging import setup_logging
 
 
 # Global instances

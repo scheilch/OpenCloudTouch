@@ -25,7 +25,7 @@ skip_if_no_devices = pytest.mark.skipif(
 async def test_ssdp_discovery():
     """Test SSDP Discovery (currently broken)."""
     print("\n=== Test 1: SSDP Discovery ===")
-    from soundtouch_bridge.devices.discovery.ssdp import SSDPDiscovery
+    from cloudtouch.devices.discovery.ssdp import SSDPDiscovery
     
     ssdp = SSDPDiscovery(timeout=10)
     devices = await ssdp.discover()
@@ -42,7 +42,7 @@ async def test_ssdp_discovery():
 async def test_adapter_discovery():
     """Test BoseSoundTouchDiscoveryAdapter (our abstraction layer)."""
     print("\n=== Test 2: Adapter Discovery (BoseSoundTouchDiscoveryAdapter) ===")
-    from soundtouch_bridge.devices.adapter import BoseSoundTouchDiscoveryAdapter
+    from cloudtouch.devices.adapter import BoseSoundTouchDiscoveryAdapter
     
     print("Discovering via SSDP adapter...")
     adapter = BoseSoundTouchDiscoveryAdapter()
@@ -67,7 +67,7 @@ async def test_adapter_discovery():
 async def test_manual_discovery():
     """Test Manual IP Discovery (fallback)."""
     print("\n=== Test 3: Manual IP Discovery ===")
-    from soundtouch_bridge.devices.discovery.manual import ManualDiscovery
+    from cloudtouch.devices.discovery.manual import ManualDiscovery
     
     manual_ips = [
         "192.0.2.36",  # ST30

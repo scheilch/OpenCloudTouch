@@ -8,7 +8,7 @@ import pytest
 from unittest.mock import AsyncMock, patch, MagicMock
 import httpx
 
-from soundtouch_bridge.radio.providers.radiobrowser import (
+from cloudtouch.radio.providers.radiobrowser import (
     RadioBrowserAdapter,
     RadioStation,
     RadioBrowserError,

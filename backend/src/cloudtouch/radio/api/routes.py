@@ -9,7 +9,7 @@ from typing import List, Literal
 from pydantic import BaseModel, Field
 from enum import Enum
 
-from soundtouch_bridge.radio.providers.radiobrowser import (
+from cloudtouch.radio.providers.radiobrowser import (
     RadioBrowserAdapter,
     RadioStation,
     RadioBrowserError,

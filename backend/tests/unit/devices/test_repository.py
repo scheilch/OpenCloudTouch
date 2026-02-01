@@ -5,7 +5,7 @@ import pytest
 import tempfile
 from pathlib import Path
 
-from soundtouch_bridge.db import Device, DeviceRepository
+from cloudtouch.db import Device, DeviceRepository
 
 
 @pytest.fixture
