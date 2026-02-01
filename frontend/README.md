@@ -1,82 +1,113 @@
-# SoundTouchBridge Frontend
+# CloudTouch Frontend
 
-React + Vite SPA für die SoundTouchBridge Web-UI.
+Modern React SPA für die lokale Steuerung von Bose SoundTouch Geräten.
 
-## 📂 Structure
+## Features
+
+- **Swipeable Device Cards**: Intuitive Geräteauswahl mit Wischgesten
+- **Empty State**: Benutzerführung beim ersten App-Start
+- **Radio Presets**: Radiosender auf Preset-Tasten (1-6) verwalten
+- **Local Control**: Lautstärke, Quellen, Playback-Steuerung
+- **MultiRoom**: Zonen-Management für synchrone Wiedergabe
+- **Firmware**: Geräte-Informationen und Firmware-Status
+- **Settings**: Gerätekonfiguration und Discovery-Einstellungen
+- **Licenses**: Open-Source Lizenzen aller verwendeten Bibliotheken
+
+## Tech Stack
+
+- **React** 18.2.0 - UI Framework
+- **React Router** 6.20.0 - Client-side Routing
+- **Framer Motion** 10.16.16 - Animations
+- **Vite** 5.0.8 - Build Tool
+- **Vitest** 1.0.4 - Testing Framework
+
+## Development
+
+```bash
+# Install dependencies
+npm install
+
+# Start dev server
+npm run dev
+
+# Build for production
+npm run build
+
+# Preview production build
+npm run preview
+
+# Run tests
+npm test
+
+# Run tests with UI
+npm run test:ui
+
+# Generate coverage report
+npm run test:coverage
+```
+
+## Project Structure
 
 ```
 frontend/
-├── src/               # React source code
-│   ├── components/    # UI components
-│   ├── hooks/         # Custom React hooks
-│   ├── services/      # API services
-│   └── App.jsx        # Main app component
-├── tests/             # Frontend tests
-│   └── test_frontend_empty_state.py  # Regression tests
-├── index.html         # Entry HTML
-├── package.json       # Dependencies
-├── vite.config.js     # Vite configuration
-└── vitest.config.js   # Test configuration
+├── src/
+│   ├── components/       # Reusable components
+│   │   ├── EmptyState.jsx
+│   │   ├── DeviceSwiper.jsx
+│   │   └── Navigation.jsx
+│   ├── pages/            # Page components
+│   │   ├── RadioPresets.jsx
+│   │   ├── LocalControl.jsx
+│   │   ├── MultiRoom.jsx
+│   │   ├── Firmware.jsx
+│   │   ├── Settings.jsx
+│   │   └── Licenses.jsx
+│   ├── hooks/            # Custom React hooks
+│   │   └── useDevices.js
+│   ├── App.jsx           # Main app component
+│   └── main.jsx          # Entry point
+├── tests/                # Test files
+│   ├── setup.js
+│   ├── App.test.jsx
+│   ├── EmptyState.test.jsx
+│   └── Licenses.test.jsx
+└── public/               # Static assets
 ```
 
-## 🚀 Installation
+## API Integration
 
-```bash
-cd frontend
-npm install
-```
+Das Frontend kommuniziert mit dem CloudTouch Backend über folgende Endpoints:
 
-## 🔧 Development
+- `GET /api/devices` - Liste aller Geräte
+- `POST /api/devices/discover` - Gerätesuche triggern
+- `GET /api/devices/{id}` - Gerätedetails
+- `GET /api/devices/{id}/presets` - Presets eines Geräts
+- `PUT /api/devices/{id}/presets/{num}` - Preset setzen
+- `GET /api/radio/search` - Radiosender suchen
 
-```bash
-npm run dev
-```
+## Migration von Original-Frontend
 
-UI läuft auf: http://localhost:3000
+Das Original-Frontend wurde nach `frontend-archive/frontend-original/` verschoben.
+Die Swipe-Variante aus `prototypes/soundtouch-spa-swipe/` ist jetzt das produktive Frontend.
 
-API-Calls werden zu http://localhost:8000 proxied (siehe vite.config.js).
+### Wichtigste Änderungen:
 
-## 📦 Build
+1. **Empty State** beim ersten Start (keine Geräte gefunden)
+2. **API-Integration** mit Backend
+3. **Licenses-Seite** für Open-Source Compliance
+4. **Device Prop Passing** für konsistente Datenhaltung
+5. **Test-Setup** mit Vitest und Testing Library
 
-```bash
-npm run build
-```
+## Browser Support
 
-Build-Output: `dist/`
+- Chrome/Edge (latest)
+- Firefox (latest)
+- Safari (latest)
 
-## 🧪 Tests
+## License
 
-Frontend tests befinden sich in `tests/`:
+MIT License - siehe [Licenses](/licenses) Page in der App
 
-```bash
-# Python backend integration tests
-cd ..
-python -m pytest frontend/tests/ -v
-```
+---
 
-**Note**: `test_frontend_empty_state.py` ist ein Backend-Integration-Test,
-der das Frontend-Verhalten über die API testet.
-
-## 🏗️ Docker Multi-stage Build
-
-Frontend wird im Docker Build kompiliert:
-
-```dockerfile
-# Stage 1: Frontend build (siehe ../backend/Dockerfile)
-FROM node:20-alpine AS frontend-builder
-WORKDIR /app/frontend
-COPY frontend/package*.json ./
-RUN npm ci
-COPY frontend/ ./
-RUN npm run build
-
-# Stage 2: Backend + Frontend assets
-FROM python:3.11-slim
-COPY --from=frontend-builder /app/frontend/dist /app/static
-```
-
-## 📚 Related Docs
-
-- [Main README](../README.md)
-- [Backend README](../backend/README.md)
-- [Deployment README](../deployment/README.md)
+**CloudTouch** - Lokale Steuerung für Bose SoundTouch
