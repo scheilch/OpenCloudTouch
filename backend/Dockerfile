@@ -1,0 +1,64 @@
+# syntax=docker/dockerfile:1
+
+# ============================================================
+# Multi-stage build for CloudTouch
+# Supports amd64 and arm64
+# ============================================================
+
+# Stage 1: Build Frontend
+FROM node:20-alpine AS frontend-builder
+
+WORKDIR /app/frontend
+
+COPY frontend/package*.json ./
+RUN npm ci
+
+COPY frontend/ ./
+RUN npm run build
+
+# Stage 2: Build Backend + Runtime
+FROM python:3.11-slim AS backend
+
+# Install system dependencies
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+    gcc \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+# Install Python dependencies
+COPY backend/requirements.txt ./
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy backend source (as package)
+COPY backend/src/cloudtouch ./cloudtouch
+
+# Copy frontend build from previous stage
+COPY --from=frontend-builder /app/frontend/dist ./frontend/dist
+
+# Create data directory
+RUN mkdir -p /data
+
+# Healthcheck
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+  CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:7777/health')" || exit 1
+
+# Expose port
+EXPOSE 7777
+
+# Run as non-root user
+RUN useradd -m -u 1000 ct && chown -R ct:ct /app /data
+USER ct
+
+# Environment defaults
+ENV CT_HOST=0.0.0.0
+ENV CT_PORT=7777
+ENV CT_DB_PATH=/data/ct.db
+ENV CT_LOG_LEVEL=INFO
+
+# Set Python path for package
+ENV PYTHONPATH=/app
+
+# Start application using module entry point
+CMD ["python", "-m", "cloudtouch"]

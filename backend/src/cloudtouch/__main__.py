@@ -1,4 +1,5 @@
 """Entry point for running soundtouch_bridge as module."""
+
 from cloudtouch.main import app
 import uvicorn
 

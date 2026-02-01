@@ -2,6 +2,7 @@
 SoundTouchBridge - Main FastAPI Application
 Iteration 0: Basic setup with /health endpoint
 """
+
 import logging
 from contextlib import asynccontextmanager
 from pathlib import Path
@@ -26,31 +27,31 @@ device_repo: DeviceRepository = None
 async def lifespan(app: FastAPI):
     """Application lifespan: startup and shutdown."""
     global device_repo
-    
+
     # Initialize configuration
     init_config()
-    
+
     # Setup structured logging
     setup_logging()
-    
+
     logger = logging.getLogger(__name__)
     cfg = get_config()
     logger.info(f"SoundTouchBridge starting on {cfg.host}:{cfg.port}")
     logger.info(f"Database: {cfg.db_path}")
     logger.info(f"Discovery enabled: {cfg.discovery_enabled}")
-    
+
     # Initialize database
     device_repo = DeviceRepository(cfg.db_path)
     await device_repo.initialize()
     logger.info("Device repository initialized")
-    
+
     yield
-    
+
     # Shutdown
     if device_repo:
         await device_repo.close()
         logger.info("Device repository closed")
-    
+
     logger.info("SoundTouchBridge shutting down")
 
 
@@ -98,8 +99,6 @@ async def health_check():
 
 
 # Static files (frontend)
-from pathlib import Path
-from fastapi.staticfiles import StaticFiles
 
 static_dir = Path(__file__).parent.parent / "frontend" / "dist"
 if static_dir.exists():

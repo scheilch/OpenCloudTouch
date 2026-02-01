@@ -5,8 +5,8 @@ Provides REST API for searching and retrieving radio stations.
 """
 
 from fastapi import APIRouter, Query, HTTPException, Depends
-from typing import List, Literal
-from pydantic import BaseModel, Field
+from typing import List
+from pydantic import BaseModel
 from enum import Enum
 
 from cloudtouch.radio.providers.radiobrowser import (
@@ -25,6 +25,7 @@ router = APIRouter(prefix="/api/radio", tags=["radio"])
 # Request/Response Models
 class RadioStationResponse(BaseModel):
     """Radio station response model."""
+
     uuid: str
     name: str
     url: str
@@ -44,7 +45,7 @@ class RadioStationResponse(BaseModel):
     lastcheckok: bool | None = None
     clickcount: int | None = None
     clicktrend: int | None = None
-    
+
     @classmethod
     def from_station(cls, station: RadioStation) -> "RadioStationResponse":
         """Convert RadioStation to response model."""
@@ -73,11 +74,13 @@ class RadioStationResponse(BaseModel):
 
 class RadioSearchResponse(BaseModel):
     """Search results response."""
+
     stations: List[RadioStationResponse]
 
 
 class SearchType(str, Enum):
     """Search type enum."""
+
     NAME = "name"
     COUNTRY = "country"
     TAG = "tag"
@@ -93,13 +96,15 @@ def get_radiobrowser_adapter() -> RadioBrowserAdapter:
 @router.get("/search", response_model=RadioSearchResponse)
 async def search_stations(
     q: str = Query(..., min_length=1, description="Search query"),
-    search_type: SearchType = Query(SearchType.NAME, description="Search type: name, country, or tag"),
+    search_type: SearchType = Query(
+        SearchType.NAME, description="Search type: name, country, or tag"
+    ),
     limit: int = Query(10, ge=1, le=100, description="Maximum number of results"),
-    adapter: RadioBrowserAdapter = Depends(get_radiobrowser_adapter)
+    adapter: RadioBrowserAdapter = Depends(get_radiobrowser_adapter),
 ):
     """
     Search radio stations.
-    
+
     - **q**: Search query (required, min 1 character)
     - **search_type**: Type of search - name, country, or tag (default: name)
     - **limit**: Maximum results (1-100, default: 10)
@@ -113,17 +118,21 @@ async def search_stations(
         elif search_type == SearchType.TAG:
             stations = await adapter.search_by_tag(q, limit=limit)
         else:
-            raise HTTPException(status_code=422, detail=f"Invalid search type: {search_type}")
-        
+            raise HTTPException(
+                status_code=422, detail=f"Invalid search type: {search_type}"
+            )
+
         # Convert to response model
         return RadioSearchResponse(
             stations=[RadioStationResponse.from_station(s) for s in stations]
         )
-    
+
     except RadioBrowserTimeoutError as e:
         raise HTTPException(status_code=504, detail=f"RadioBrowser API timeout: {e}")
     except RadioBrowserConnectionError as e:
-        raise HTTPException(status_code=503, detail=f"Cannot connect to RadioBrowser API: {e}")
+        raise HTTPException(
+            status_code=503, detail=f"Cannot connect to RadioBrowser API: {e}"
+        )
     except RadioBrowserError as e:
         raise HTTPException(status_code=500, detail=f"RadioBrowser API error: {e}")
     except Exception as e:
@@ -132,18 +141,17 @@ async def search_stations(
 
 @router.get("/station/{uuid}", response_model=RadioStationResponse)
 async def get_station_detail(
-    uuid: str,
-    adapter: RadioBrowserAdapter = Depends(get_radiobrowser_adapter)
+    uuid: str, adapter: RadioBrowserAdapter = Depends(get_radiobrowser_adapter)
 ):
     """
     Get radio station detail by UUID.
-    
+
     - **uuid**: Station UUID
     """
     try:
         station = await adapter.get_station_by_uuid(uuid)
         return RadioStationResponse.from_station(station)
-    
+
     except RadioBrowserError as e:
         if "not found" in str(e).lower():
             raise HTTPException(status_code=404, detail=f"Station not found: {uuid}")
@@ -151,6 +159,8 @@ async def get_station_detail(
     except RadioBrowserTimeoutError as e:
         raise HTTPException(status_code=504, detail=f"RadioBrowser API timeout: {e}")
     except RadioBrowserConnectionError as e:
-        raise HTTPException(status_code=503, detail=f"Cannot connect to RadioBrowser API: {e}")
+        raise HTTPException(
+            status_code=503, detail=f"Cannot connect to RadioBrowser API: {e}"
+        )
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Unexpected error: {e}")

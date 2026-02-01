@@ -1,4 +1,5 @@
 """Radio Domain - Radio station search and management"""
+
 from cloudtouch.radio.providers.radiobrowser import (
     RadioBrowserAdapter,
     RadioStation,
