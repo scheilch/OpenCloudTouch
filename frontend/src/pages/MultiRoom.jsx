@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { useDevices } from '../hooks/useDevices'
 import './MultiRoom.css'
 
 const MOCK_ZONES = [
@@ -12,8 +11,7 @@ const MOCK_ZONES = [
   }
 ]
 
-export default function MultiRoom() {
-  const { devices, loading } = useDevices()
+export default function MultiRoom({ devices = [] }) {
   const [zones, setZones] = useState(MOCK_ZONES)
   const [selectedDevices, setSelectedDevices] = useState([])
   const [editingZone, setEditingZone] = useState(null)
@@ -62,15 +60,6 @@ export default function MultiRoom() {
   const isDeviceInZone = (deviceId) => {
     return zones.some(zone => 
       zone.master === deviceId || zone.slaves.includes(deviceId)
-    )
-  }
-
-  if (loading) {
-    return (
-      <div className="loading-container">
-        <div className="spinner" />
-        <p className="loading-message">Geräte werden geladen...</p>
-      </div>
     )
   }
 
