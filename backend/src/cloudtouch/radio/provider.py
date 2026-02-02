@@ -122,22 +122,6 @@ class RadioProvider(ABC):
         """
         pass
 
-    @abstractmethod
-    async def get_station_by_id(self, station_id: str) -> Optional[RadioStation]:
-        """
-        Get station details by provider-specific ID.
-
-        Args:
-            station_id: Provider-specific station identifier
-
-        Returns:
-            RadioStation if found, None otherwise
-
-        Raises:
-            RadioProviderError: On provider-specific errors
-        """
-        pass
-
     async def resolve_stream_url(self, station: RadioStation) -> str:
         """
         Resolve final stream URL (optional, override if needed).
