@@ -27,6 +27,12 @@ class AddIPRequest(BaseModel):
     ip: str = Field(..., description="IP address to add", examples=["192.168.1.10"])
 
 
+class SetManualIPsRequest(BaseModel):
+    """Request model for setting all manual IPs at once."""
+
+    ips: list[str] = Field(..., description="List of IP addresses to set")
+
+
 class ManualIPsResponse(BaseModel):
     """Response model for manual IPs list."""
 
@@ -56,6 +62,48 @@ async def get_manual_ips(
 
 @router.post(
     "/manual-ips",
+    response_model=ManualIPsResponse,
+    status_code=status.HTTP_200_OK,
+)
+async def set_manual_ips(
+    request: SetManualIPsRequest,
+    repo: Annotated[SettingsRepository, Depends(get_settings_repo)],
+) -> ManualIPsResponse:
+    """
+    Replace all manual device IP addresses with new list.
+
+    Args:
+        request: Request containing list of IP addresses
+
+    Returns:
+        Updated list of manual IP addresses
+    """
+    # Clear existing IPs
+    existing_ips = await repo.get_manual_ips()
+    for ip in existing_ips:
+        await repo.remove_manual_ip(ip)
+    
+    # Add new IPs
+    for ip in request.ips:
+        try:
+            await repo.add_manual_ip(ip)
+        except ValueError as e:
+            # If one IP fails, rollback by clearing all
+            for added_ip in request.ips:
+                try:
+                    await repo.remove_manual_ip(added_ip)
+                except Exception:
+                    pass
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Invalid IP address: {ip}"
+            ) from e
+    
+    return ManualIPsResponse(ips=request.ips)
+
+
+@router.post(
+    "/manual-ips/add",
     response_model=MessageResponse,
     status_code=status.HTTP_201_CREATED,
 )

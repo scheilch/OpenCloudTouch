@@ -16,6 +16,8 @@ from fastapi.testclient import TestClient
 from cloudtouch.main import app
 from cloudtouch.devices.repository import Device, DeviceRepository
 from cloudtouch.devices.api.routes import get_device_repo
+from cloudtouch.settings.repository import SettingsRepository
+from cloudtouch.settings.routes import get_settings_repo
 
 
 @pytest.fixture
@@ -28,7 +30,12 @@ def mock_repo():
 @pytest.fixture
 def client(mock_repo):
     """FastAPI test client with dependency override."""
+    # Create settings repo mock inside fixture
+    mock_settings = AsyncMock(spec=SettingsRepository)
+    mock_settings.get_manual_ips = AsyncMock(return_value=[])
+    
     app.dependency_overrides[get_device_repo] = lambda: mock_repo
+    app.dependency_overrides[get_settings_repo] = lambda: mock_settings
     yield TestClient(app)
     app.dependency_overrides.clear()
 
@@ -214,6 +221,15 @@ class TestSyncEndpoint:
     def test_sync_endpoint_returns_409_when_in_progress(self, client, mock_repo):
         """Test POST /api/devices/sync returns 409 if discovery already running."""
         import cloudtouch.devices.api.routes as devices_module
+        import cloudtouch.main as main_module
+
+        # Mock settings repository
+        mock_settings = AsyncMock(spec=SettingsRepository)
+        mock_settings.get_manual_ips = AsyncMock(return_value=[])
+
+        # Inject mock directly into main module
+        original_settings = main_module.settings_repo
+        main_module.settings_repo = mock_settings
 
         # Set discovery in progress
         devices_module._discovery_in_progress = True
@@ -227,6 +243,7 @@ class TestSyncEndpoint:
         finally:
             # Reset
             devices_module._discovery_in_progress = False
+            main_module.settings_repo = original_settings
 
 
 class TestDiscoverEndpoint:

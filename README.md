@@ -217,14 +217,14 @@ docker exec soundtouch-bridge curl http://localhost:8000/health
 
 - Stellen Sie sicher, dass `--network host` verwendet wird (Docker Compose macht dies standardmäßig)
 - Prüfen Sie, ob Geräte im selben Netzwerk sind
-- Manuellen Fallback nutzen: ENV Variable `STB_MANUAL_DEVICE_IPS=192.168.1.100,192.168.1.101` setzen
+- Manuellen Fallback nutzen: ENV Variable `CT_MANUAL_DEVICE_IPS=192.168.1.100,192.168.1.101` setzen
 
 ### Port 8000 bereits belegt
 
 Ändern Sie den Port in [docker-compose.yml](docker-compose.yml) oder via ENV:
 
 ```bash
-STB_PORT=8080 docker compose up -d
+CT_PORT=8080 docker compose up -d
 ```
 
 ---
@@ -232,7 +232,7 @@ STB_PORT=8080 docker compose up -d
 ## ⚙️ Konfiguration
 
 Konfiguration erfolgt via:
-1. **ENV Variablen** (Prefix: `STB_`)
+1. **ENV Variablen** (Prefix: `CT_`)
 2. **Config-Datei** (optional): `config.yaml` im Container unter `/app/config.yaml` mounten
 
 Siehe [.env.example](.env.example) und [config.example.yaml](config.example.yaml) für alle Optionen.
@@ -241,12 +241,12 @@ Siehe [.env.example](.env.example) und [config.example.yaml](config.example.yaml
 
 | Variable | Default | Beschreibung |
 |----------|---------|--------------|
-| `STB_HOST` | `0.0.0.0` | API Bind-Adresse |
-| `STB_PORT` | `8000` | API Port |
-| `STB_LOG_LEVEL` | `INFO` | Log-Level (DEBUG, INFO, WARNING, ERROR) |
-| `STB_DB_PATH` | `/data/stb.db` | SQLite Datenbankpfad |
-| `STB_DISCOVERY_ENABLED` | `true` | SSDP/UPnP Discovery aktivieren |
-| `STB_MANUAL_DEVICE_IPS` | `[]` | Manuelle Geräte-IPs (Komma-separiert) |
+| `CT_HOST` | `0.0.0.0` | API Bind-Adresse |
+| `CT_PORT` | `8000` | API Port |
+| `CT_LOG_LEVEL` | `INFO` | Log-Level (DEBUG, INFO, WARNING, ERROR) |
+| `CT_DB_PATH` | `/data/ct.db` | SQLite Datenbankpfad |
+| `CT_DISCOVERY_ENABLED` | `true` | SSDP/UPnP Discovery aktivieren |
+| `CT_MANUAL_DEVICE_IPS` | `[]` | Manuelle Geräte-IPs (Komma-separiert) |
 
 ---
 

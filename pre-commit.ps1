@@ -3,12 +3,14 @@
 .SYNOPSIS
     Git pre-commit hook - runs tests and checks coverage
 .DESCRIPTION
-    Runs pytest with coverage check before allowing commit.
+    Runs backend + frontend tests before allowing commit.
     Prevents commits if:
-    - Tests fail
-    - Coverage falls below 80%
+    - Backend tests fail
+    - Backend coverage falls below 80%
+    - Frontend Cypress E2E tests fail
 .NOTES
     Use 'git commit --no-verify' to bypass this hook
+    Warning: Cypress tests take ~15-30 seconds!
 #>
 
 $ErrorActionPreference = "Stop"
@@ -18,14 +20,15 @@ function Write-Hook { param($Message) Write-Host "[PRE-COMMIT] $Message" -Foregr
 function Write-HookError { param($Message) Write-Host "[PRE-COMMIT ERROR] $Message" -ForegroundColor Red }
 function Write-HookSuccess { param($Message) Write-Host "[PRE-COMMIT OK] $Message" -ForegroundColor Green }
 
-Write-Hook "Running tests with coverage check..."
+Write-Hook "Running backend + frontend tests..."
 Write-Host ""
 
-# Run pytest with coverage
+# Step 1: Backend tests with coverage
+Write-Hook "Step 1/2: Backend tests (pytest + coverage)..."
 try {
     Set-Location backend
     & ..\.venv\Scripts\python.exe -m pytest tests/ `
-        --cov=cloudtouch `
+        --cov=src `
         --cov-report=term-missing `
         --cov-fail-under=80 `
         --quiet
@@ -35,7 +38,7 @@ try {
     
     if ($exitCode -ne 0) {
         Write-Host ""
-        Write-HookError "Tests failed or coverage below 80%!"
+        Write-HookError "Backend tests failed or coverage below 80%!"
         Write-Host ""
         Write-Host "To see details, run:" -ForegroundColor Yellow
         Write-Host "  cd backend && pytest -v" -ForegroundColor Yellow
@@ -43,12 +46,47 @@ try {
         exit 1
     }
     
+    Write-HookSuccess "Backend tests passed (coverage >= 80%)"
     Write-Host ""
-    Write-HookSuccess "All tests passed and coverage >= 80%"
-    Write-Host ""
-    exit 0
 }
 catch {
-    Write-HookError "Failed to run tests: $_"
+    Write-HookError "Failed to run backend tests: $_"
     exit 1
 }
+
+# Step 2: Frontend Cypress E2E tests
+Write-Hook "Step 2/2: Frontend E2E tests (Cypress)..."
+Write-Hook "Warning: This may take ~15-30 seconds..."
+try {
+    Set-Location frontend
+    
+    # Run Cypress tests (headless, with mocks)
+    # Use Start-Process to avoid PowerShell RemoteException on npm output
+    $process = Start-Process -FilePath "npm" -ArgumentList "run", "test:e2e" -Wait -NoNewWindow -PassThru
+    $exitCode = $process.ExitCode
+    
+    Set-Location ..
+    
+    if ($exitCode -ne 0) {
+        Write-Host ""
+        Write-HookError "Frontend E2E tests failed!"
+        Write-Host ""
+        Write-Host "To debug, run:" -ForegroundColor Yellow
+        Write-Host "  cd frontend && npm run test:e2e" -ForegroundColor Yellow
+        Write-Host ""
+        exit 1
+    }
+    
+    Write-HookSuccess "Frontend E2E tests passed"
+    Write-Host ""
+}
+catch {
+    Set-Location ..
+    Write-HookError "Failed to run frontend tests: $_"
+    exit 1
+}
+
+Write-Host ""
+Write-HookSuccess "All checks passed! Proceeding with commit..."
+Write-Host ""
+exit 0

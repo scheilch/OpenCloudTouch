@@ -1,6 +1,6 @@
 # Example configuration file for CloudTouch
 # Can be mounted into container at /app/config.yaml
-# ENV variables take precedence (prefix: STB_)
+# ENV variables take precedence (prefix: CT_)
 
 # Server settings
 host: "0.0.0.0"

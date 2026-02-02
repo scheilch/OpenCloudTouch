@@ -57,16 +57,16 @@ deployment/
 
 ```bash
 # SSDP Discovery
-STB_DISCOVERY_TIMEOUT=10
+CT_DISCOVERY_TIMEOUT=10
 
 # Manual Device IPs (wenn SSDP nicht funktioniert)
-STB_MANUAL_DEVICE_IPS="192.168.1.100,192.168.1.101"
+CT_MANUAL_DEVICE_IPS="192.168.1.100,192.168.1.101"
 
 # Logging
-STB_LOG_LEVEL=INFO
+CT_LOG_LEVEL=INFO
 
 # Database
-STB_DATABASE_URL=sqlite+aiosqlite:///data/devices.db
+CT_DB_PATH=/data/ct.db
 ```
 
 ### Ports
