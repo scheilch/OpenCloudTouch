@@ -6,8 +6,8 @@ model-specific features in the UI and graceful degradation when endpoints
 are not supported.
 """
 
-from dataclasses import dataclass
-from typing import List, Set
+from dataclasses import dataclass, field
+from typing import List, Optional, Set
 from bosesoundtouchapi import SoundTouchClient, SoundTouchError
 
 from cloudtouch.core.logging import get_logger
@@ -39,10 +39,10 @@ class DeviceCapabilities:
     has_group_support: bool = False
 
     # Supported sources
-    supported_sources: List[str] = None
+    supported_sources: List[str] = field(default_factory=list)
 
     # All supported endpoints
-    supported_endpoints: Set[str] = None
+    supported_endpoints: Set[str] = field(default_factory=set)
 
     def __post_init__(self):
         """Initialize default values for mutable fields."""
@@ -145,7 +145,7 @@ async def get_device_capabilities(client: SoundTouchClient) -> DeviceCapabilitie
 
 
 async def safe_api_call(
-    client: SoundTouchClient, endpoint_uri, endpoint_name: str = None
+    client: SoundTouchClient, endpoint_uri, endpoint_name: Optional[str] = None
 ):
     """
     Make API call with graceful error handling.
