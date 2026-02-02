@@ -1,7 +1,4 @@
-import { useState, useEffect } from 'react'
-import { useDevices } from '../hooks/useDevices'
-import { useNowPlaying } from '../hooks/useNowPlaying'
-import { usePresets } from '../hooks/usePresets'
+import { useState } from 'react'
 import DeviceSwiper from '../components/DeviceSwiper'
 import NowPlaying from '../components/NowPlaying'
 import PresetButton from '../components/PresetButton'
@@ -9,24 +6,17 @@ import RadioSearch from '../components/RadioSearch'
 import VolumeSlider from '../components/VolumeSlider'
 import './RadioPresets.css'
 
-export default function RadioPresets() {
-  const { devices, loading, error } = useDevices()
+export default function RadioPresets({ devices = [] }) {
   const [currentDeviceIndex, setCurrentDeviceIndex] = useState(0)
   const [searchOpen, setSearchOpen] = useState(false)
   const [assigningPreset, setAssigningPreset] = useState(null)
   const [volume, setVolume] = useState(45)
   const [muted, setMuted] = useState(false)
+  const [presets, setPresets] = useState({})
 
   const currentDevice = devices[currentDeviceIndex]
-  const nowPlaying = useNowPlaying(currentDevice?.device_id)
-  const { presets, assignPreset, clearPreset } = usePresets(currentDevice?.device_id)
-
-  // Update presets when device changes
-  useEffect(() => {
-    if (currentDevice) {
-      // Presets hook automatically updates via device_id dependency
-    }
-  }, [currentDevice])
+  // TODO: NowPlaying will be implemented in Phase 3 with backend endpoint
+  const nowPlaying = null
 
   const handleAssignClick = (presetNumber) => {
     setAssigningPreset(presetNumber)
@@ -35,36 +25,22 @@ export default function RadioPresets() {
 
   const handleStationSelect = (station) => {
     if (assigningPreset) {
-      assignPreset(assigningPreset, station)
+      // TODO: Phase 3 - Call backend API to save preset
+      setPresets({ ...presets, [assigningPreset]: station })
       setAssigningPreset(null)
     }
   }
 
   const handlePlayPreset = (presetNumber) => {
     console.log('Play preset', presetNumber, presets[presetNumber])
-    // Mock: Would trigger API call
+    // TODO: Phase 3 - Call backend API to play preset
   }
 
   const handleClearPreset = (presetNumber) => {
-    clearPreset(presetNumber)
-  }
-
-  if (loading) {
-    return (
-      <div className="loading-container">
-        <div className="spinner" />
-        <p className="loading-message">Geräte werden geladen...</p>
-      </div>
-    )
-  }
-
-  if (error) {
-    return (
-      <div className="error-container">
-        <p className="error-message">{error}</p>
-        <button className="retry-button">Erneut versuchen</button>
-      </div>
-    )
+    // TODO: Phase 3 - Call backend API to clear preset
+    const newPresets = { ...presets }
+    delete newPresets[presetNumber]
+    setPresets(newPresets)
   }
 
   if (devices.length === 0) {

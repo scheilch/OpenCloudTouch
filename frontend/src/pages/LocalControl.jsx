@@ -1,7 +1,5 @@
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { useDevices } from '../hooks/useDevices'
-import { useNowPlaying } from '../hooks/useNowPlaying'
 import DeviceSwiper from '../components/DeviceSwiper'
 import './LocalControl.css'
 
@@ -12,8 +10,7 @@ const SOURCES = [
   { id: 'AIRPLAY', label: 'AirPlay', icon: '✈️', supported: 'conditional' }
 ]
 
-export default function LocalControl() {
-  const { devices, loading, error } = useDevices()
+export default function LocalControl({ devices = [] }) {
   const [currentDeviceIndex, setCurrentDeviceIndex] = useState(0)
   const [volume, setVolume] = useState(45)
   const [muted, setMuted] = useState(false)
@@ -21,7 +18,8 @@ export default function LocalControl() {
   const [playState, setPlayState] = useState('PLAY_STATE')
 
   const currentDevice = devices[currentDeviceIndex]
-  const nowPlaying = useNowPlaying(currentDevice?.device_id)
+  // TODO: NowPlaying will be implemented in Phase 3 with backend endpoint
+  const nowPlaying = null
 
   useEffect(() => {
     if (currentDevice) {
@@ -64,23 +62,6 @@ export default function LocalControl() {
 
   const handleStandby = () => {
     console.log(`Standby ${currentDevice?.name}`)
-  }
-
-  if (loading) {
-    return (
-      <div className="loading-container">
-        <div className="spinner" />
-        <p className="loading-message">Geräte werden geladen...</p>
-      </div>
-    )
-  }
-
-  if (error) {
-    return (
-      <div className="error-container">
-        <p className="error-message">{error}</p>
-      </div>
-    )
   }
 
   if (devices.length === 0) {

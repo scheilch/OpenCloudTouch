@@ -1,10 +1,8 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { useDevices } from '../hooks/useDevices'
 import './Firmware.css'
 
-export default function Firmware() {
-  const { devices, loading } = useDevices()
+export default function Firmware({ devices = [] }) {
   const [currentDeviceIndex] = useState(0)
 
   const currentDevice = devices[currentDeviceIndex]
@@ -19,15 +17,6 @@ export default function Firmware() {
     if (!firmware) return 'Unknown'
     const parts = firmware.split('.')
     return `${parts[0]}.${parts[1]}.${parts[2]}`
-  }
-
-  if (loading) {
-    return (
-      <div className="loading-container">
-        <div className="spinner" />
-        <p className="loading-message">Geräte werden geladen...</p>
-      </div>
-    )
   }
 
   if (devices.length === 0) {
