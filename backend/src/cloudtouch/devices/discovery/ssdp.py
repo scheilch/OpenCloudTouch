@@ -118,7 +118,6 @@ class SSDPDiscovery:
                 except Exception as e:
                     logger.debug(f"Error receiving SSDP response: {e}")
                     break
-                    break
 
         finally:
             sock.close()
