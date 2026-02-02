@@ -10,6 +10,7 @@ __pycache__/
 # docs/ - personal work notes and agent documentation
 # SERVER-DEPLOY.md - personal deployment guide
 docs/
+deployment/
 SERVER-DEPLOY.md
 /prototypes
 

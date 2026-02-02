@@ -15,7 +15,7 @@ class AppConfig(BaseSettings):
     """Application configuration with ENV override and YAML support."""
 
     model_config = SettingsConfigDict(
-        env_prefix="STB_",
+        env_prefix="CT_",
         env_file=".env",
         env_file_encoding="utf-8",
         case_sensitive=False,
@@ -29,7 +29,7 @@ class AppConfig(BaseSettings):
     log_file: Optional[str] = Field(default=None, description="Optional log file path")
 
     # Database
-    db_path: str = Field(default="/data/stb.db", description="SQLite database path")
+    db_path: str = Field(default="/data/ct.db", description="SQLite database path")
 
     # Discovery
     discovery_enabled: bool = Field(

@@ -1,0 +1,32 @@
+{
+  "count": 3,
+  "devices": [
+    {
+      "id": 1,
+      "device_id": "MOCK_192_168_1_101",
+      "ip": "192.168.1.101",
+      "name": "Living Room (Mock ST10)",
+      "model": "ST10",
+      "mac_address": "AA:BB:CC:DD:EE:01",
+      "firmware_version": "1.0.0-mock"
+    },
+    {
+      "id": 2,
+      "device_id": "MOCK_192_168_1_102",
+      "ip": "192.168.1.102",
+      "name": "Schlafzimmer (Mock ST30)",
+      "model": "ST30",
+      "mac_address": "AA:BB:CC:DD:EE:02",
+      "firmware_version": "1.0.0-mock"
+    },
+    {
+      "id": 3,
+      "device_id": "MOCK_192_168_1_103",
+      "ip": "192.168.1.103",
+      "name": "Küche (Mock ST300)",
+      "model": "ST300",
+      "mac_address": "AA:BB:CC:DD:EE:03",
+      "firmware_version": "1.0.0-mock"
+    }
+  ]
+}

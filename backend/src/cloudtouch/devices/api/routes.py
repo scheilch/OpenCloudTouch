@@ -16,6 +16,7 @@ from cloudtouch.devices.adapter import (
 )
 from cloudtouch.devices.discovery.manual import ManualDiscovery
 from cloudtouch.devices.repository import Device, DeviceRepository
+from cloudtouch.settings.repository import SettingsRepository
 from cloudtouch.core.config import get_config, AppConfig
 
 logger = logging.getLogger(__name__)
@@ -33,6 +34,16 @@ async def get_device_repo() -> DeviceRepository:
     from cloudtouch.main import device_repo
 
     return device_repo
+
+
+async def get_settings_repo() -> SettingsRepository:
+    """Get settings repository instance."""
+    from cloudtouch.main import settings_repo
+
+    if settings_repo is None:
+        raise RuntimeError("Settings repository not initialized")
+    
+    return settings_repo
 
 
 # Helper functions for discover_devices (keep functions < 20 lines)
@@ -127,7 +138,10 @@ async def discover_devices() -> Dict[str, Any]:
 
 
 @router.post("/sync")
-async def sync_devices(repo: DeviceRepository = Depends(get_device_repo)):
+async def sync_devices(
+    repo: DeviceRepository = Depends(get_device_repo),
+    settings_repo: SettingsRepository = Depends(get_settings_repo),
+):
     """
     Discover devices and sync to database.
     Queries each device for detailed info (/info endpoint).
@@ -150,6 +164,7 @@ async def sync_devices(repo: DeviceRepository = Depends(get_device_repo)):
             # Discover devices
             devices: List[DiscoveredDevice] = []
 
+            # Real discovery
             if cfg.discovery_enabled:
                 discovery = BoseSoundTouchDiscoveryAdapter()
                 try:
@@ -160,6 +175,7 @@ async def sync_devices(repo: DeviceRepository = Depends(get_device_repo)):
                 except Exception as e:
                     logger.error(f"Discovery failed: {e}")
 
+            # Manual IPs
             manual_ips = cfg.manual_device_ips_list
             if manual_ips:
                 manual = ManualDiscovery(manual_ips)
@@ -172,21 +188,22 @@ async def sync_devices(repo: DeviceRepository = Depends(get_device_repo)):
 
             for discovered in devices:
                 try:
+                    # Real device: query /info endpoint
                     client = BoseSoundTouchClientAdapter(discovered.base_url)
                     info = await client.get_info()
 
                     device = Device(
                         device_id=info.device_id,
                         ip=discovered.ip,
-                        name=info.name,
-                        model=info.type,
-                        mac_address=info.mac_address,
-                        firmware_version=info.firmware_version,
-                    )
+                            name=info.name,
+                            model=info.type,
+                            mac_address=info.mac_address,
+                            firmware_version=info.firmware_version,
+                        )
 
                     await repo.upsert(device)
                     synced += 1
-                    logger.info(f"Synced device: {info.name} ({info.device_id})")
+                    logger.info(f"Synced device: {device.name} ({device.device_id})")
 
                 except Exception as e:
                     failed += 1

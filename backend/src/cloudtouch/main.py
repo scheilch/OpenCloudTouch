@@ -114,10 +114,30 @@ async def health_check():
 
 
 # Static files (frontend)
+# Development: ../../frontend/dist
+# Production: frontend/dist (copied during Docker build)
+static_dir = Path(__file__).parent.parent.parent.parent / "frontend" / "dist"
+if not static_dir.exists():
+    # Fallback for Docker/production deployment
+    static_dir = Path(__file__).parent.parent / "frontend" / "dist"
 
-static_dir = Path(__file__).parent.parent / "frontend" / "dist"
 if static_dir.exists():
-    app.mount("/", StaticFiles(directory=str(static_dir), html=True), name="static")
+    from fastapi.responses import FileResponse
+    
+    # Serve static assets (CSS, JS, images)
+    app.mount("/assets", StaticFiles(directory=str(static_dir / "assets")), name="assets")
+    
+    # Catch-all route for SPA (React Router) - must come AFTER API routes
+    @app.get("/{full_path:path}")
+    async def serve_spa(full_path: str):
+        """Serve index.html for all non-API routes (SPA support)."""
+        # If requesting a static file that exists, serve it
+        file_path = static_dir / full_path
+        if file_path.is_file():
+            return FileResponse(file_path)
+        
+        # Otherwise serve index.html (React Router handles the rest)
+        return FileResponse(static_dir / "index.html")
 
 
 if __name__ == "__main__":

@@ -54,14 +54,14 @@ class TestManualIPsEndpoints:
         assert data == {"ips": test_ips}
 
     def test_post_manual_ip_success(self, client, mock_settings_repo):
-        """Test POST /api/settings/manual-ips with valid IP."""
+        """Test POST /api/settings/manual-ips/add with valid IP."""
         # Arrange
         ip_to_add = "192.168.1.10"
         mock_settings_repo.add_manual_ip = AsyncMock()
 
         # Act
         response = client.post(
-            "/api/settings/manual-ips", json={"ip": ip_to_add}
+            "/api/settings/manual-ips/add", json={"ip": ip_to_add}
         )
 
         # Assert
@@ -71,7 +71,7 @@ class TestManualIPsEndpoints:
         mock_settings_repo.add_manual_ip.assert_awaited_once_with(ip_to_add)
 
     def test_post_manual_ip_invalid_format(self, client, mock_settings_repo):
-        """Test POST /api/settings/manual-ips with invalid IP format."""
+        """Test POST /api/settings/manual-ips/add with invalid IP format."""
         # Arrange
         invalid_ip = "999.999.999.999"
         mock_settings_repo.add_manual_ip = AsyncMock(
@@ -80,7 +80,7 @@ class TestManualIPsEndpoints:
 
         # Act
         response = client.post(
-            "/api/settings/manual-ips", json={"ip": invalid_ip}
+            "/api/settings/manual-ips/add", json={"ip": invalid_ip}
         )
 
         # Assert
@@ -89,7 +89,7 @@ class TestManualIPsEndpoints:
         assert "Invalid IP address" in data["detail"]
 
     def test_post_manual_ip_duplicate(self, client, mock_settings_repo):
-        """Test POST /api/settings/manual-ips with duplicate IP."""
+        """Test POST /api/settings/manual-ips/add with duplicate IP."""
         # Arrange
         duplicate_ip = "192.168.1.10"
         mock_settings_repo.add_manual_ip = AsyncMock(
@@ -98,7 +98,7 @@ class TestManualIPsEndpoints:
 
         # Act
         response = client.post(
-            "/api/settings/manual-ips", json={"ip": duplicate_ip}
+            "/api/settings/manual-ips/add", json={"ip": duplicate_ip}
         )
 
         # Assert

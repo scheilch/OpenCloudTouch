@@ -9,6 +9,10 @@ from cloudtouch.db import Device, DeviceRepository
 from cloudtouch.discovery import DiscoveredDevice
 from cloudtouch.devices.client import DeviceInfo
 from cloudtouch.devices.api.routes import get_device_repo
+from cloudtouch.settings.repository import SettingsRepository
+from cloudtouch.settings.routes import get_settings_repo
+from cloudtouch.settings.repository import SettingsRepository
+from cloudtouch.settings.routes import get_settings_repo
 
 
 @pytest.fixture
@@ -132,29 +136,41 @@ async def test_sync_devices_success(mock_config):
     mock_repo = AsyncMock(spec=DeviceRepository)
     mock_repo.upsert = AsyncMock()
 
+    # Mock settings repository
+    mock_settings = AsyncMock(spec=SettingsRepository)
+    mock_settings.get_manual_ips = AsyncMock(return_value=[])
+
     async def get_mock_repo():
         return mock_repo
 
-    with patch(
-        "cloudtouch.devices.api.routes.BoseSoundTouchDiscoveryAdapter"
-    ) as mock_disco, patch(
-        "cloudtouch.devices.api.routes.BoseSoundTouchClientAdapter"
-    ) as mock_client:
+    async def get_mock_settings():
+        return mock_settings
 
-        # Mock discovery
-        mock_disco_instance = AsyncMock()
-        mock_disco_instance.discover.return_value = discovered
-        mock_disco.return_value = mock_disco_instance
+    # Inject mock directly into main module
+    import cloudtouch.main as main_module
+    original_settings = main_module.settings_repo
+    main_module.settings_repo = mock_settings
 
-        # Mock client
-        mock_client_instance = AsyncMock()
-        mock_client_instance.get_info.return_value = device_info
-        mock_client.return_value = mock_client_instance
+    try:
+        with patch(
+            "cloudtouch.devices.api.routes.BoseSoundTouchDiscoveryAdapter"
+        ) as mock_disco, patch(
+            "cloudtouch.devices.api.routes.BoseSoundTouchClientAdapter"
+        ) as mock_client:
 
-        # Override dependency
-        app.dependency_overrides[get_device_repo] = get_mock_repo
+            # Mock discovery
+            mock_disco_instance = AsyncMock()
+            mock_disco_instance.discover.return_value = discovered
+            mock_disco.return_value = mock_disco_instance
 
-        try:
+            # Mock client
+            mock_client_instance = AsyncMock()
+            mock_client_instance.get_info.return_value = device_info
+            mock_client.return_value = mock_client_instance
+
+            # Override dependency
+            app.dependency_overrides[get_device_repo] = get_mock_repo
+
             transport = ASGITransport(app=app)
             async with AsyncClient(
                 transport=transport, base_url="http://test"
@@ -166,8 +182,10 @@ async def test_sync_devices_success(mock_config):
             assert data["discovered"] == 1
             assert data["synced"] == 1
             assert data["failed"] == 0
-        finally:
-            app.dependency_overrides.clear()
+    finally:
+        # Restore original
+        main_module.settings_repo = original_settings
+        app.dependency_overrides.clear()
 
 
 @pytest.mark.asyncio
@@ -190,30 +208,39 @@ async def test_sync_devices_partial_failure(mock_config):
     mock_repo = AsyncMock(spec=DeviceRepository)
     mock_repo.upsert = AsyncMock()
 
+    # Mock settings repository
+    mock_settings = AsyncMock(spec=SettingsRepository)
+    mock_settings.get_manual_ips = AsyncMock(return_value=[])
+
     async def get_mock_repo():
         return mock_repo
 
-    with patch(
-        "cloudtouch.devices.api.routes.BoseSoundTouchDiscoveryAdapter"
-    ) as mock_disco, patch(
-        "cloudtouch.devices.api.routes.BoseSoundTouchClientAdapter"
-    ) as mock_client:
+    # Inject mock directly into main module
+    import cloudtouch.main as main_module
+    original_settings = main_module.settings_repo
+    main_module.settings_repo = mock_settings
 
-        mock_disco_instance = AsyncMock()
-        mock_disco_instance.discover.return_value = discovered
-        mock_disco.return_value = mock_disco_instance
+    try:
+        with patch(
+            "cloudtouch.devices.api.routes.BoseSoundTouchDiscoveryAdapter"
+        ) as mock_disco, patch(
+            "cloudtouch.devices.api.routes.BoseSoundTouchClientAdapter"
+        ) as mock_client:
 
-        # First device succeeds, second fails
-        mock_client_instance = AsyncMock()
-        mock_client_instance.get_info.side_effect = [
-            device_info,
-            Exception("Connection timeout"),
-        ]
-        mock_client.return_value = mock_client_instance
+            mock_disco_instance = AsyncMock()
+            mock_disco_instance.discover.return_value = discovered
+            mock_disco.return_value = mock_disco_instance
 
-        app.dependency_overrides[get_device_repo] = get_mock_repo
+            # First device succeeds, second fails
+            mock_client_instance = AsyncMock()
+            mock_client_instance.get_info.side_effect = [
+                device_info,
+                Exception("Connection timeout"),
+            ]
+            mock_client.return_value = mock_client_instance
 
-        try:
+            app.dependency_overrides[get_device_repo] = get_mock_repo
+
             transport = ASGITransport(app=app)
             async with AsyncClient(
                 transport=transport, base_url="http://test"
@@ -225,8 +252,10 @@ async def test_sync_devices_partial_failure(mock_config):
             assert data["discovered"] == 2
             assert data["synced"] == 1
             assert data["failed"] == 1
-        finally:
-            app.dependency_overrides.clear()
+    finally:
+        # Restore original
+        main_module.settings_repo = original_settings
+        app.dependency_overrides.clear()
 
 
 @pytest.mark.asyncio

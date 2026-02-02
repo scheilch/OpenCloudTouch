@@ -12,7 +12,7 @@ Write-Host ""
 Write-Host "=== Clear SoundTouch Bridge Database ===" -ForegroundColor Yellow
 Write-Host ""
 Write-Host "Target: $serverUser@$serverHost" -ForegroundColor White
-Write-Host "Database: $DataPath/stb.db" -ForegroundColor White
+Write-Host "Database: $DataPath/ct.db" -ForegroundColor White
 Write-Host ""
 
 $confirmation = Read-Host "Are you sure you want to delete the database? (yes/no)"
@@ -30,9 +30,9 @@ set -e
 DataPath="$DataPath"
 ContainerName="$ContainerName"
 
-if [ -f "`${DataPath}/stb.db" ]; then
-    rm -f "`${DataPath}/stb.db"
-    echo "[OK] Database deleted: `${DataPath}/stb.db"
+if [ -f "`${DataPath}/ct.db" ]; then
+    rm -f "`${DataPath}/ct.db"
+    echo "[OK] Database deleted: `${DataPath}/ct.db"
 else
     echo "[INFO] Database not found (already empty)"
 fi

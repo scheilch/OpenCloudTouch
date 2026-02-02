@@ -41,12 +41,26 @@
 - User-facing Texte (UI, Error Messages): Deutsch
 
 ### 1.2 Commit-Richtlinien
-⚠️ **WICHTIG**: Commits nur auf **explizite Aufforderung** des Users!
-- Nie automatisch committen
-- User muss explizit "commit" oder "commit & push" sagen
-- Format: Conventional Commits (`feat:`, `fix:`, `test:`, `refactor:`, `docs:`)
-- **NIEMALS `--no-verify` verwenden** - Tests müssen ALLE grün sein
-- Wenn Tests fehlschlagen: Problem fixen, NICHT umgehen
+⚠️ **KRITISCH**: Commits NUR auf **explizite User-Aufforderung**!
+
+**WORKFLOW (ZWINGEND)**:
+1. Code implementieren
+2. **BUILD → DEPLOY → TESTEN (durch USER!)**
+3. User testet manuell auf NAS Server/System
+4. **NUR wenn User sagt "commit"** → dann committen
+5. User nimmt Implementierungen ab, NICHT der Agent!
+
+**VERBOTEN**:
+- ❌ Automatisch committen nach Implementation
+- ❌ Committen vor User-Test
+- ❌ "Ich committe jetzt" ohne User-Erlaubnis
+- ❌ `--no-verify` verwenden
+
+**ERLAUBT**:
+- ✅ User sagt explizit "commit" oder "commit & push"
+- ✅ Alle Tests grün (pre-commit hook muss durchlaufen)
+
+**Commit-Format**: Conventional Commits (`feat:`, `fix:`, `test:`, `refactor:`, `docs:`)
 
 ### 1.3 Git Workflow
 ```bash
