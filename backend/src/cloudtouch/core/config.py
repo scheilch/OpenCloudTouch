@@ -82,6 +82,17 @@ class AppConfig(BaseSettings):
     @field_validator("log_level")
     @classmethod
     def validate_log_level(cls, v: str) -> str:
+        """Validate and normalize log level.
+        
+        Args:
+            v: Log level string (case-insensitive).
+            
+        Returns:
+            Uppercase log level string.
+            
+        Raises:
+            ValueError: If log level is not in allowed values.
+        """
         allowed = {"DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"}
         v_upper = v.upper()
         if v_upper not in allowed:
@@ -91,6 +102,17 @@ class AppConfig(BaseSettings):
     @field_validator("log_format")
     @classmethod
     def validate_log_format(cls, v: str) -> str:
+        """Validate and normalize log format.
+        
+        Args:
+            v: Log format string (case-insensitive).
+            
+        Returns:
+            Lowercase log format string ('text' or 'json').
+            
+        Raises:
+            ValueError: If log format is not in allowed values.
+        """
         allowed = {"text", "json"}
         v_lower = v.lower()
         if v_lower not in allowed:
