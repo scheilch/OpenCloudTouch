@@ -224,7 +224,10 @@ class SSDPDiscovery:
 
     def _find_xml_text(self, root: Element, path: str) -> Optional[str]:
         """
-        Find XML element text with namespace-agnostic search.
+        Find XML element text with proper namespace handling.
+
+        Extracts namespace from root element and uses it for XPath queries.
+        Falls back to namespace-agnostic search if no namespace is found.
 
         Args:
             root: XML root element
@@ -233,17 +236,21 @@ class SSDPDiscovery:
         Returns:
             Element text or None
         """
-        # Try namespace-agnostic search using local-name()
-        # This works regardless of the namespace
-        if path.startswith(".//"):
-            tag_name = path[3:]  # Remove ".//"
-            # Search for element with matching local name, ignoring namespace
-            for elem in root.iter():
-                if elem.tag.endswith(tag_name) or elem.tag == tag_name:
-                    if elem.text:
-                        return elem.text.strip()
+        # Extract namespace from root tag (e.g., {urn:schemas-upnp-org:device-1-0})
+        namespace = None
+        if root.tag.startswith("{"):
+            namespace = root.tag[1:root.tag.index("}")]
 
-        # Fallback to normal find
+        # Build proper XPath with namespace
+        if namespace and path.startswith(".//"):
+            tag_name = path[3:]  # Remove ".//"
+            # Use namespace map for proper XPath query
+            namespaces = {"ns": namespace}
+            elem = root.find(f".//ns:{tag_name}", namespaces)
+            if elem is not None and elem.text:
+                return elem.text.strip()
+
+        # Fallback: Try without namespace (for non-namespaced XML)
         elem = root.find(path)  # type: ignore[assignment]
         if elem is not None and elem.text:
             return elem.text.strip()
