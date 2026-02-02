@@ -93,7 +93,7 @@ class BoseSoundTouchClientAdapter(SoundTouchClient):
         """Extract firmware version from Components list."""
         if not hasattr(info, "Components") or not info.Components:
             return ""
-        
+
         first_component = info.Components[0]
         return (
             first_component.SoftwareVersion
@@ -105,7 +105,7 @@ class BoseSoundTouchClientAdapter(SoundTouchClient):
         """Extract IP address from NetworkInfo or fallback to self.ip."""
         if not info.NetworkInfo or len(info.NetworkInfo) == 0:
             return self.ip
-        
+
         network_info = info.NetworkInfo[0]
         return (
             network_info.IpAddress
