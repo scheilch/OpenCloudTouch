@@ -6,6 +6,7 @@ Iteration 0: Basic setup with /health endpoint
 import logging
 from contextlib import asynccontextmanager
 from pathlib import Path
+from typing import Optional
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -21,9 +22,9 @@ from cloudtouch.settings.routes import router as settings_router
 from cloudtouch.core.logging import setup_logging
 
 
-# Global instances
-device_repo: DeviceRepository = None
-settings_repo: SettingsRepository = None
+# Global instances (initialized in lifespan)
+device_repo: Optional[DeviceRepository] = None
+settings_repo: Optional[SettingsRepository] = None
 
 
 @asynccontextmanager
