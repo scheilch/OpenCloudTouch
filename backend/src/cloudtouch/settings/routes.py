@@ -18,6 +18,7 @@ async def get_settings_repo() -> SettingsRepository:
     """Get settings repository instance."""
     from cloudtouch.main import settings_repo
 
+    assert settings_repo is not None, "SettingsRepository not initialized"
     return settings_repo
 
 
@@ -92,9 +93,9 @@ async def set_manual_ips(
             for added_ip in request.ips:
                 try:
                     await repo.remove_manual_ip(added_ip)
-                except Exception as e:
+                except Exception as rollback_error:
                     logger.warning(
-                        f"Failed to rollback added IP {added_ip}: {e}"
+                        f"Failed to rollback added IP {added_ip}: {rollback_error}"
                     )
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,

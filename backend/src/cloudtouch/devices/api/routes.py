@@ -33,6 +33,7 @@ async def get_device_repo() -> DeviceRepository:
     """Get device repository instance."""
     from cloudtouch.main import device_repo
 
+    assert device_repo is not None, "DeviceRepository not initialized"
     return device_repo
 
 

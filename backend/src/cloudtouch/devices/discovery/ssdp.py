@@ -244,7 +244,7 @@ class SSDPDiscovery:
                         return elem.text.strip()
 
         # Fallback to normal find
-        elem = root.find(path)
+        elem = root.find(path)  # type: ignore[assignment]
         if elem is not None and elem.text:
             return elem.text.strip()
 
