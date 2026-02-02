@@ -11,7 +11,9 @@ import asyncio
 import logging
 import socket
 from typing import Dict, Optional
-from xml.etree import ElementTree
+from xml.etree.ElementTree import Element
+
+from defusedxml.ElementTree import fromstring as parse_xml_string
 
 import httpx
 
@@ -183,8 +185,8 @@ class SSDPDiscovery:
             response = await client.get(location)
             response.raise_for_status()
 
-            # Parse XML
-            root = ElementTree.fromstring(response.text)
+            # Parse XML securely using defusedxml
+            root = parse_xml_string(response.text)
 
             # Check if it's a Bose device
             manufacturer = self._find_xml_text(root, ".//manufacturer")
@@ -220,7 +222,7 @@ class SSDPDiscovery:
             logger.debug(f"Failed to parse device at {location}: {e}")
             return None
 
-    def _find_xml_text(self, root: ElementTree.Element, path: str) -> Optional[str]:
+    def _find_xml_text(self, root: Element, path: str) -> Optional[str]:
         """
         Find XML element text with namespace-agnostic search.
 

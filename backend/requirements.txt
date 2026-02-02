@@ -8,3 +8,4 @@ PyYAML==6.0.2
 websockets==13.1
 bosesoundtouchapi==1.0.86
 ssdpy==0.4.1
+defusedxml==0.7.1
