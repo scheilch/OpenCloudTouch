@@ -155,17 +155,6 @@ class TestRadioProviderInterface:
                     )
                 ]
 
-            async def get_station_by_id(self, station_id: str):
-                if station_id == "1":
-                    return RadioStation(
-                        station_id=station_id,
-                        name="Found Station",
-                        url="http://test.com",
-                        country="DE",
-                        provider="test",
-                    )
-                return None
-
         # Should be able to instantiate
         provider = TestProvider()
         assert provider.provider_name == "test"
@@ -184,13 +173,6 @@ class TestRadioProviderInterface:
         assert len(results) == 1
         assert results[0].tags == ["rock"]
 
-        station = await provider.get_station_by_id("1")
-        assert station is not None
-        assert station.name == "Found Station"
-
-        station = await provider.get_station_by_id("999")
-        assert station is None
-
     @pytest.mark.asyncio
     async def test_default_resolve_stream_url_implementation(self):
         """Test that default resolve_stream_url returns URL unchanged."""
@@ -208,9 +190,6 @@ class TestRadioProviderInterface:
 
             async def search_by_tag(self, tag: str, limit: int = 20):
                 return []
-
-            async def get_station_by_id(self, station_id: str):
-                return None
 
         provider = SimpleProvider()
         station = RadioStation(
