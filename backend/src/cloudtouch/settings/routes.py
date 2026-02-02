@@ -83,7 +83,7 @@ async def set_manual_ips(
     existing_ips = await repo.get_manual_ips()
     for ip in existing_ips:
         await repo.remove_manual_ip(ip)
-    
+
     # Add new IPs
     for ip in request.ips:
         try:
@@ -101,7 +101,7 @@ async def set_manual_ips(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail=f"Invalid IP address: {ip}"
             ) from e
-    
+
     return ManualIPsResponse(ips=request.ips)
 
 
