@@ -126,15 +126,15 @@ try {
         "--rm"
         "-p", "${Port}:7777"
         "-v", "${DataDir}:/data"
-        "-e", "STB_LOG_LEVEL=INFO"
-        "-e", "STB_LOG_FORMAT=text"
+        "-e", "CT_LOG_LEVEL=INFO"
+        "-e", "CT_LOG_FORMAT=text"
     )
     
     if ($ManualIPs) {
         $podmanArgs += "-e"
-        $podmanArgs += "STB_MANUAL_DEVICE_IPS=$ManualIPs"
+        $podmanArgs += "CT_MANUAL_DEVICE_IPS=$ManualIPs"
         $podmanArgs += "-e"
-        $podmanArgs += "STB_DISCOVERY_ENABLED=false"
+        $podmanArgs += "CT_DISCOVERY_ENABLED=false"
     }
     
     $podmanArgs += $Tag

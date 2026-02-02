@@ -15,7 +15,7 @@ def test_config_defaults():
     assert config.host == "0.0.0.0"
     assert config.port == 7777
     assert config.log_level == "INFO"
-    assert config.db_path == "/data/stb.db"
+    assert config.db_path == "/data/ct.db"
     assert config.discovery_enabled is True
     assert config.discovery_timeout == 10
     assert config.manual_device_ips_list == []
@@ -53,8 +53,8 @@ def test_config_feature_toggles_from_env():
     import os
 
     # Set ENV variables
-    os.environ["STB_ENABLE_HDMI_CONTROLS"] = "false"
-    os.environ["STB_ENABLE_ADVANCED_AUDIO"] = "false"
+    os.environ["CT_ENABLE_HDMI_CONTROLS"] = "false"
+    os.environ["CT_ENABLE_ADVANCED_AUDIO"] = "false"
 
     config = AppConfig()
 
@@ -63,8 +63,8 @@ def test_config_feature_toggles_from_env():
     assert config.enable_zone_management is True  # Not set, default True
 
     # Clean up
-    del os.environ["STB_ENABLE_HDMI_CONTROLS"]
-    del os.environ["STB_ENABLE_ADVANCED_AUDIO"]
+    del os.environ["CT_ENABLE_HDMI_CONTROLS"]
+    del os.environ["CT_ENABLE_ADVANCED_AUDIO"]
 
 
 def test_config_log_level_validation():
@@ -84,12 +84,12 @@ def test_config_log_level_validation():
 
 
 def test_config_env_prefix():
-    """Test that ENV variables are recognized with STB_ prefix."""
+    """Test that ENV variables are recognized with CT_ prefix."""
     import os
 
     # Set ENV variable
-    os.environ["STB_PORT"] = "9000"
-    os.environ["STB_LOG_LEVEL"] = "DEBUG"
+    os.environ["CT_PORT"] = "9000"
+    os.environ["CT_LOG_LEVEL"] = "DEBUG"
 
     config = AppConfig()
 
@@ -97,8 +97,8 @@ def test_config_env_prefix():
     assert config.log_level == "DEBUG"
 
     # Clean up
-    del os.environ["STB_PORT"]
-    del os.environ["STB_LOG_LEVEL"]
+    del os.environ["CT_PORT"]
+    del os.environ["CT_LOG_LEVEL"]
 
 
 def test_config_init():

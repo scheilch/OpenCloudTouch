@@ -6,11 +6,19 @@
   "description": "CloudTouch - Local control for Bose SoundTouch devices",
   "scripts": {
     "dev": "vite",
+    "dev:mock": "vite --mode development",
+    "dev:live": "VITE_MOCK_MODE=false vite",
     "build": "vite build",
+    "build:mock": "vite build --mode development",
     "preview": "vite preview",
+    "preview:mock": "vite preview --mode development",
     "test": "vitest",
     "test:ui": "vitest --ui",
-    "test:coverage": "vitest --coverage"
+    "test:coverage": "vitest --coverage",
+    "test:e2e": "cypress run",
+    "test:e2e:open": "cypress open",
+    "test:e2e:mock": "cypress run --env mode=mock",
+    "test:e2e:real": "cypress run --env mode=real"
   },
   "dependencies": {
     "react": "^18.2.0",
@@ -26,6 +34,7 @@
     "@types/react-dom": "^18.2.17",
     "@vitejs/plugin-react": "^4.2.1",
     "@vitest/ui": "^1.0.4",
+    "cypress": "^13.6.2",
     "jsdom": "^23.0.1",
     "vite": "^5.0.8",
     "vitest": "^1.0.4"

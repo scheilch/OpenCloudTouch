@@ -85,10 +85,10 @@ export default function RadioPresets() {
         currentIndex={currentDeviceIndex}
         onIndexChange={setCurrentDeviceIndex}
       >
-        <div className="device-card">
+        <div className="device-card" data-test="device-card">
           <div className="device-card-header">
-            <h2 className="device-name">{currentDevice.name}</h2>
-            <span className="device-model">{currentDevice.model}</span>
+            <h2 className="device-name" data-test="device-name">{currentDevice.name}</h2>
+            <span className="device-model" data-test="device-model">{currentDevice.model}</span>
           </div>
           
           <NowPlaying nowPlaying={nowPlaying} />

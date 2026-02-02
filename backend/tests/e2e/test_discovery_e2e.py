@@ -14,10 +14,10 @@ import pytest
 import os
 
 # Skip hardware tests if no devices available
-DEVICES_AVAILABLE = os.getenv("STB_HAS_DEVICES", "false").lower() == "true"
+DEVICES_AVAILABLE = os.getenv("CT_HAS_DEVICES", "false").lower() == "true"
 skip_if_no_devices = pytest.mark.skipif(
     not DEVICES_AVAILABLE,
-    reason="Requires real SoundTouch devices. Set STB_HAS_DEVICES=true to enable.",
+    reason="Requires real SoundTouch devices. Set CT_HAS_DEVICES=true to enable.",
 )
 
 
