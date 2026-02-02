@@ -92,8 +92,10 @@ async def set_manual_ips(
             for added_ip in request.ips:
                 try:
                     await repo.remove_manual_ip(added_ip)
-                except Exception:
-                    pass
+                except Exception as e:
+                    logger.warning(
+                        f"Failed to rollback added IP {added_ip}: {e}"
+                    )
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail=f"Invalid IP address: {ip}"
