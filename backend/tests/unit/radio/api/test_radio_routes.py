@@ -373,18 +373,15 @@ class TestRadioAPIErrorHandling:
         try:
             response = client.get("/api/radio/station/test-uuid")
 
-            # Current implementation returns 500 (catches RadioBrowserError first)
-            # Ideally should be 504
-            assert response.status_code == 500
+            # After fixing exception order: Timeout correctly returns 504
+            assert response.status_code == 504
         finally:
             app.dependency_overrides.clear()
 
     def test_station_detail_connection_error_returns_503(self, client, mock_adapter):
         """Test station detail connection failure handling.
 
-        Note: Current implementation catches RadioBrowserError (parent class)
-        first, so connection error returns 500 instead of 503.
-        This test documents actual behavior, not ideal behavior.
+        After fixing exception order: Connection error correctly returns 503.
         """
         from cloudtouch.radio.providers.radiobrowser import RadioBrowserConnectionError
 
@@ -396,9 +393,8 @@ class TestRadioAPIErrorHandling:
         try:
             response = client.get("/api/radio/station/test-uuid")
 
-            # Current implementation returns 500 (catches RadioBrowserError first)
-            # Ideally should be 503
-            assert response.status_code == 500
+            # After fixing exception order: Connection error correctly returns 503
+            assert response.status_code == 503
         finally:
             app.dependency_overrides.clear()
 

@@ -43,7 +43,7 @@ async def get_settings_repo() -> SettingsRepository:
 
     if settings_repo is None:
         raise RuntimeError("Settings repository not initialized")
-    
+
     return settings_repo
 
 
@@ -74,20 +74,20 @@ async def _discover_via_manual_ips(cfg: AppConfig) -> List[DiscoveredDevice]:
     """
     # Get IPs from database
     from cloudtouch.main import settings_repo
-    
+
     db_ips = []
     if settings_repo:
         try:
             db_ips = await settings_repo.get_manual_ips()
         except Exception as e:
             logger.error(f"Failed to get manual IPs from database: {e}")
-    
+
     # Get IPs from environment variable
     env_ips = cfg.manual_device_ips_list or []
-    
+
     # Merge and deduplicate
     all_ips = list(set(db_ips + env_ips))
-    
+
     if not all_ips:
         return []
 
@@ -318,4 +318,4 @@ async def get_device_capabilities_endpoint(
         logger.error(f"Failed to get capabilities for device {device_id}: {e}")
         raise HTTPException(
             status_code=500, detail=f"Failed to query device capabilities: {str(e)}"
-        )
+        ) from e

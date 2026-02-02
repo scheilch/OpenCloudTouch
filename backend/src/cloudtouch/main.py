@@ -124,10 +124,10 @@ if not static_dir.exists():
 
 if static_dir.exists():
     from fastapi.responses import FileResponse
-    
+
     # Serve static assets (CSS, JS, images)
     app.mount("/assets", StaticFiles(directory=str(static_dir / "assets")), name="assets")
-    
+
     # Catch-all route for SPA (React Router) - must come AFTER API routes
     @app.get("/{full_path:path}")
     async def serve_spa(full_path: str):
@@ -136,7 +136,7 @@ if static_dir.exists():
         file_path = static_dir / full_path
         if file_path.is_file():
             return FileResponse(file_path)
-        
+
         # Otherwise serve index.html (React Router handles the rest)
         return FileResponse(static_dir / "index.html")
 

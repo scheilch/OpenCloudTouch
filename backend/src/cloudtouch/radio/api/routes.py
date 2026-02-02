@@ -128,15 +128,15 @@ async def search_stations(
         )
 
     except RadioBrowserTimeoutError as e:
-        raise HTTPException(status_code=504, detail=f"RadioBrowser API timeout: {e}")
+        raise HTTPException(status_code=504, detail=f"RadioBrowser API timeout: {e}") from e
     except RadioBrowserConnectionError as e:
         raise HTTPException(
             status_code=503, detail=f"Cannot connect to RadioBrowser API: {e}"
-        )
+        ) from e
     except RadioBrowserError as e:
-        raise HTTPException(status_code=500, detail=f"RadioBrowser API error: {e}")
+        raise HTTPException(status_code=500, detail=f"RadioBrowser API error: {e}") from e
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Unexpected error: {e}")
+        raise HTTPException(status_code=500, detail=f"Unexpected error: {e}") from e
 
 
 @router.get("/station/{uuid}", response_model=RadioStationResponse)
@@ -152,15 +152,15 @@ async def get_station_detail(
         station = await adapter.get_station_by_uuid(uuid)
         return RadioStationResponse.from_station(station)
 
-    except RadioBrowserError as e:
-        if "not found" in str(e).lower():
-            raise HTTPException(status_code=404, detail=f"Station not found: {uuid}")
-        raise HTTPException(status_code=500, detail=f"RadioBrowser API error: {e}")
     except RadioBrowserTimeoutError as e:
-        raise HTTPException(status_code=504, detail=f"RadioBrowser API timeout: {e}")
+        raise HTTPException(status_code=504, detail=f"RadioBrowser API timeout: {e}") from e
     except RadioBrowserConnectionError as e:
         raise HTTPException(
             status_code=503, detail=f"Cannot connect to RadioBrowser API: {e}"
-        )
+        ) from e
+    except RadioBrowserError as e:
+        if "not found" in str(e).lower():
+            raise HTTPException(status_code=404, detail=f"Station not found: {uuid}") from e
+        raise HTTPException(status_code=500, detail=f"RadioBrowser API error: {e}") from e
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Unexpected error: {e}")
+        raise HTTPException(status_code=500, detail=f"Unexpected error: {e}") from e
