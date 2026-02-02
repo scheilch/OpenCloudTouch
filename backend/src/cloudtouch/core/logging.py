@@ -3,10 +3,10 @@ Structured logging configuration for SoundTouch Bridge
 Provides consistent logging format with context enrichment
 """
 
-import logging
 import json
+import logging
 import sys
-from datetime import datetime
+from datetime import UTC, datetime
 from typing import Any, Dict
 
 from cloudtouch.core.config import get_config
@@ -18,7 +18,7 @@ class StructuredFormatter(logging.Formatter):
     def format(self, record: logging.LogRecord) -> str:
         """Format log record as JSON."""
         log_data: Dict[str, Any] = {
-            "timestamp": datetime.utcnow().isoformat() + "Z",
+            "timestamp": datetime.now(UTC).isoformat(),
             "level": record.levelname,
             "logger": record.name,
             "message": record.getMessage(),
