@@ -1,18 +1,16 @@
 """Integration tests for device API endpoints."""
 
-import pytest
 from unittest.mock import AsyncMock, patch
+
+import pytest
 from httpx import ASGITransport, AsyncClient
 
-from cloudtouch.main import app
 from cloudtouch.db import Device, DeviceRepository
-from cloudtouch.discovery import DiscoveredDevice
-from cloudtouch.devices.client import DeviceInfo
 from cloudtouch.devices.api.routes import get_device_repo
+from cloudtouch.devices.client import DeviceInfo
+from cloudtouch.discovery import DiscoveredDevice
+from cloudtouch.main import app
 from cloudtouch.settings.repository import SettingsRepository
-from cloudtouch.settings.routes import get_settings_repo
-from cloudtouch.settings.repository import SettingsRepository
-from cloudtouch.settings.routes import get_settings_repo
 
 
 @pytest.fixture
@@ -148,14 +146,15 @@ async def test_sync_devices_success(mock_config):
 
     # Inject mock directly into main module
     import cloudtouch.main as main_module
+
     original_settings = main_module.settings_repo
     main_module.settings_repo = mock_settings
 
     try:
         with patch(
-            "cloudtouch.devices.api.routes.get_discovery_adapter"
+            "cloudtouch.devices.services.sync_service.get_discovery_adapter"
         ) as mock_get_disco, patch(
-            "cloudtouch.devices.api.routes.get_soundtouch_client"
+            "cloudtouch.devices.services.sync_service.get_soundtouch_client"
         ) as mock_get_client:
 
             # Mock discovery factory
@@ -217,14 +216,15 @@ async def test_sync_devices_partial_failure(mock_config):
 
     # Inject mock directly into main module
     import cloudtouch.main as main_module
+
     original_settings = main_module.settings_repo
     main_module.settings_repo = mock_settings
 
     try:
         with patch(
-            "cloudtouch.devices.api.routes.get_discovery_adapter"
+            "cloudtouch.devices.services.sync_service.get_discovery_adapter"
         ) as mock_get_disco, patch(
-            "cloudtouch.devices.api.routes.get_soundtouch_client"
+            "cloudtouch.devices.services.sync_service.get_soundtouch_client"
         ) as mock_get_client:
 
             mock_disco_instance = AsyncMock()

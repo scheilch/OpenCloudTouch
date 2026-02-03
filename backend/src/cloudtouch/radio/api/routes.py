@@ -4,19 +4,15 @@ Radio API Endpoints
 Provides REST API for searching and retrieving radio stations.
 """
 
-from fastapi import APIRouter, Query, HTTPException, Depends
-from typing import List
-from pydantic import BaseModel
 from enum import Enum
+from typing import List
+
+from fastapi import APIRouter, Depends, HTTPException, Query
+from pydantic import BaseModel
 
 from cloudtouch.radio.providers.radiobrowser import (
-    RadioBrowserAdapter,
-    RadioStation,
-    RadioBrowserError,
-    RadioBrowserTimeoutError,
-    RadioBrowserConnectionError,
-)
-
+    RadioBrowserAdapter, RadioBrowserConnectionError, RadioBrowserError,
+    RadioBrowserTimeoutError, RadioStation)
 
 # Router
 router = APIRouter(prefix="/api/radio", tags=["radio"])
@@ -128,13 +124,17 @@ async def search_stations(
         )
 
     except RadioBrowserTimeoutError as e:
-        raise HTTPException(status_code=504, detail=f"RadioBrowser API timeout: {e}") from e
+        raise HTTPException(
+            status_code=504, detail=f"RadioBrowser API timeout: {e}"
+        ) from e
     except RadioBrowserConnectionError as e:
         raise HTTPException(
             status_code=503, detail=f"Cannot connect to RadioBrowser API: {e}"
         ) from e
     except RadioBrowserError as e:
-        raise HTTPException(status_code=500, detail=f"RadioBrowser API error: {e}") from e
+        raise HTTPException(
+            status_code=500, detail=f"RadioBrowser API error: {e}"
+        ) from e
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Unexpected error: {e}") from e
 
@@ -153,14 +153,20 @@ async def get_station_detail(
         return RadioStationResponse.from_station(station)
 
     except RadioBrowserTimeoutError as e:
-        raise HTTPException(status_code=504, detail=f"RadioBrowser API timeout: {e}") from e
+        raise HTTPException(
+            status_code=504, detail=f"RadioBrowser API timeout: {e}"
+        ) from e
     except RadioBrowserConnectionError as e:
         raise HTTPException(
             status_code=503, detail=f"Cannot connect to RadioBrowser API: {e}"
         ) from e
     except RadioBrowserError as e:
         if "not found" in str(e).lower():
-            raise HTTPException(status_code=404, detail=f"Station not found: {uuid}") from e
-        raise HTTPException(status_code=500, detail=f"RadioBrowser API error: {e}") from e
+            raise HTTPException(
+                status_code=404, detail=f"Station not found: {uuid}"
+            ) from e
+        raise HTTPException(
+            status_code=500, detail=f"RadioBrowser API error: {e}"
+        ) from e
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Unexpected error: {e}") from e

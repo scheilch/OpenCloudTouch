@@ -1,12 +1,8 @@
 """Radio Domain - Radio station search and management"""
 
 from cloudtouch.radio.providers.radiobrowser import (
-    RadioBrowserAdapter,
-    RadioStation,
-    RadioBrowserError,
-    RadioBrowserTimeoutError,
-    RadioBrowserConnectionError,
-)
+    RadioBrowserAdapter, RadioBrowserConnectionError, RadioBrowserError,
+    RadioBrowserTimeoutError, RadioStation)
 
 __all__ = [
     "RadioBrowserAdapter",

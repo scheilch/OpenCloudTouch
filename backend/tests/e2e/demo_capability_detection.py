@@ -28,12 +28,10 @@ from pathlib import Path
 # Add backend to path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from cloudtouch.devices.capabilities import (
-    DeviceCapabilities,
-    get_device_capabilities,
-    safe_api_call,
-    get_feature_flags_for_ui,
-)
+from cloudtouch.devices.capabilities import (DeviceCapabilities,
+                                             get_device_capabilities,
+                                             get_feature_flags_for_ui,
+                                             safe_api_call)
 
 
 def print_section(title: str):
@@ -109,6 +107,7 @@ def print_feature_flags(flags: dict):
 async def demo_mock_mode():
     """Demonstrate capability detection with mock data."""
     from unittest.mock import MagicMock
+
     from bosesoundtouchapi import SoundTouchClient
     from bosesoundtouchapi.models import Capabilities, Information, SourceList
 

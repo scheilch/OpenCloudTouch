@@ -12,8 +12,9 @@ Usage:
 """
 
 import asyncio
-import httpx
 import sys
+
+import httpx
 
 
 async def demo_iteration0():

@@ -9,13 +9,14 @@ Struktur:
 - TestCapabilitiesEndpoint: GET /api/devices/{id}/capabilities
 """
 
-import pytest
 from unittest.mock import AsyncMock, patch
+
+import pytest
 from fastapi.testclient import TestClient
 
-from cloudtouch.main import app
-from cloudtouch.devices.repository import Device, DeviceRepository
 from cloudtouch.devices.api.routes import get_device_repo
+from cloudtouch.devices.repository import Device, DeviceRepository
+from cloudtouch.main import app
 from cloudtouch.settings.repository import SettingsRepository
 from cloudtouch.settings.routes import get_settings_repo
 
@@ -33,7 +34,7 @@ def client(mock_repo):
     # Create settings repo mock inside fixture
     mock_settings = AsyncMock(spec=SettingsRepository)
     mock_settings.get_manual_ips = AsyncMock(return_value=[])
-    
+
     app.dependency_overrides[get_device_repo] = lambda: mock_repo
     app.dependency_overrides[get_settings_repo] = lambda: mock_settings
     yield TestClient(app)
@@ -185,8 +186,8 @@ class TestSyncEndpoint:
         Bug: If discovery raises exception, lock might remain acquired.
         Fixed: 2026-01-29 - try-finally block resets _discovery_in_progress.
         """
-        from cloudtouch.devices.api.routes import _discovery_lock
         import cloudtouch.devices.api.routes as devices_module
+        from cloudtouch.devices.api.routes import _discovery_lock
 
         # Reset global state
         devices_module._discovery_in_progress = False
@@ -457,7 +458,7 @@ class TestSyncDatabaseErrors:
 
         Regression: Ensures DB errors don't crash the application silently.
         """
-        from cloudtouch.devices.repository import DeviceRepository, Device
+        from cloudtouch.devices.repository import Device, DeviceRepository
 
         repo = DeviceRepository(":memory:")
         await repo.initialize()
@@ -501,7 +502,7 @@ class TestSyncDatabaseErrors:
 
         Design verification: SQLite UPSERT pattern works correctly.
         """
-        from cloudtouch.devices.repository import DeviceRepository, Device
+        from cloudtouch.devices.repository import Device, DeviceRepository
 
         repo = DeviceRepository(":memory:")
         await repo.initialize()
@@ -555,7 +556,7 @@ class TestSyncDatabaseErrors:
 
         Regression: Ensures error handling doesn't stop entire batch operation.
         """
-        from cloudtouch.devices.repository import DeviceRepository, Device
+        from cloudtouch.devices.repository import Device, DeviceRepository
 
         repo = DeviceRepository(":memory:")
         await repo.initialize()
@@ -617,8 +618,28 @@ class TestSyncDatabaseErrors:
 class TestDeleteAllDevicesEndpoint:
     """Tests for DELETE /api/devices endpoint (testing/cleanup)."""
 
-    def test_delete_all_devices_success(self, client, mock_repo):
-        """Test DELETE /api/devices removes all devices."""
+    def test_delete_all_devices_blocked_in_production(self, client, mock_repo):
+        """Test DELETE /api/devices is blocked when dangerous operations disabled."""
+        # Default config has allow_dangerous_operations=False
+        response = client.delete("/api/devices")
+
+        assert response.status_code == 403
+        data = response.json()
+        assert "Dangerous operations disabled" in data["detail"]
+        assert "CT_ALLOW_DANGEROUS_OPERATIONS=true" in data["detail"]
+        # Should NOT call delete_all when blocked
+        mock_repo.delete_all.assert_not_called()
+
+    def test_delete_all_devices_success_when_enabled(self, client, mock_repo, monkeypatch):
+        """Test DELETE /api/devices succeeds when dangerous operations enabled."""
+        # Enable dangerous operations via env var
+        monkeypatch.setenv("CT_ALLOW_DANGEROUS_OPERATIONS", "true")
+
+        # Reinitialize config to pick up new env var
+        from cloudtouch.core.config import init_config
+
+        init_config()  # Reload config with new env var
+
         mock_repo.delete_all = AsyncMock(return_value=None)
 
         response = client.delete("/api/devices")
@@ -628,8 +649,15 @@ class TestDeleteAllDevicesEndpoint:
         assert data["message"] == "All devices deleted"
         mock_repo.delete_all.assert_awaited_once()
 
-    def test_delete_all_devices_when_empty(self, client, mock_repo):
+    def test_delete_all_devices_when_empty(self, client, mock_repo, monkeypatch):
         """Test DELETE /api/devices when database is already empty."""
+        # Enable dangerous operations
+        monkeypatch.setenv("CT_ALLOW_DANGEROUS_OPERATIONS", "true")
+
+        from cloudtouch.core.config import init_config
+
+        init_config()  # Reload config
+
         mock_repo.delete_all = AsyncMock(return_value=None)
 
         response = client.delete("/api/devices")
@@ -638,4 +666,3 @@ class TestDeleteAllDevicesEndpoint:
         data = response.json()
         assert data["message"] == "All devices deleted"
         mock_repo.delete_all.assert_awaited_once()
-

@@ -192,7 +192,7 @@
   gap: var(--space-sm);
   width: 100%;
   padding: var(--space-md);
-  background: linear-gradient(135deg, var(--color-accent) 0%, #0052A3 100%);
+  background: linear-gradient(135deg, var(--color-accent) 0%, #0052a3 100%);
   border-radius: var(--border-radius-md);
   font-size: 16px;
   font-weight: var(--font-weight-bold);
@@ -477,7 +477,7 @@
   border: 2px solid var(--color-border);
   border-radius: var(--border-radius-md);
   font-size: 16px;
-  font-family: 'Courier New', monospace;
+  font-family: "Courier New", monospace;
   transition: border-color 0.2s;
 }
 
@@ -568,7 +568,7 @@
 }
 
 .ip-address {
-  font-family: 'Courier New', monospace;
+  font-family: "Courier New", monospace;
   font-size: 16px;
   font-weight: var(--font-weight-medium);
 }
