@@ -587,7 +587,216 @@ diff requirements.txt requirements.lock.txt  # Compare
 - **Review Date**: [When to re-evaluate]
 ```
 
-### 2.5 Deliverable: Backend Analysis Report
+### 2.5 Performance Analysis
+
+**Objective**: Measure and optimize performance across ALL execution contexts (runtime, build, test, deployment).
+
+**Performance Categories**:
+
+#### 2.5.1 Application Runtime Performance
+
+**Backend API Performance**:
+```powershell
+# Measure API endpoint response times
+cd backend
+pytest tests/performance/ --benchmark-only --benchmark-json=../analysis/api-benchmarks.json
+
+# Monitor in production (if deployed)
+# Check logs for slow requests >100ms
+Get-Content data-local/cloudtouch.log | Select-String "duration" | 
+  Where-Object { $_ -match "duration.*([0-9]{3,}ms)" }
+```
+
+**Frontend Performance**:
+```powershell
+# Lighthouse CI performance score
+cd frontend
+npm install -g @lhci/cli
+lhci autorun --collect.url=http://localhost:4173
+
+# Bundle size analysis
+npm run build -- --profile
+npx vite-bundle-visualizer
+```
+
+**Performance Targets**:
+- API Response Time: p95 <100ms, p99 <500ms
+- Time to Interactive (TTI): <3s
+- First Contentful Paint (FCP): <1.5s
+- Bundle Size: <500KB gzipped
+- Lighthouse Score: >90 (Performance)
+
+**Common Bottlenecks**:
+- Synchronous SSDP discovery (should be async)
+- N+1 database queries (use batch loading)
+- Large JSON payloads (use pagination)
+- Missing caching (HTTP headers, in-memory cache)
+- Unoptimized images (use WebP, lazy loading)
+
+#### 2.5.2 Build Performance
+
+**Targets**:
+- Frontend Build (Vite): <30s
+- Backend Build (pip install): <60s
+- Docker Build (multi-stage): <3min
+- Docker Image Size: <500MB
+
+**Measurement**:
+```powershell
+# Frontend build time
+Measure-Command { cd frontend; npm run build }
+
+# Backend dependencies install
+Measure-Command { cd backend; pip install -r requirements.txt }
+
+# Docker build time
+Measure-Command { docker build -t cloudtouch:test . }
+
+# Docker image size
+docker images cloudtouch:test --format "{{.Size}}"
+```
+
+**Optimization Techniques**:
+- Layer caching (COPY requirements.txt before COPY .)
+- Multi-stage builds (builder → runtime)
+- .dockerignore (exclude node_modules/, .venv/, htmlcov/)
+- Dependency pinning (avoid unnecessary rebuilds)
+- Parallel builds (npm ci --legacy-peer-deps)
+
+#### 2.5.3 Test Performance
+
+**Targets**:
+- Unit Tests (pytest): <10s total
+- Unit Tests (vitest): <5s total
+- Integration Tests: <30s total
+- E2E Tests (Cypress): <60s total
+- Pre-commit Hook: <2min total
+
+**Measurement**:
+```powershell
+# Backend test duration
+Measure-Command { cd backend; pytest -v --durations=10 }
+
+# Frontend test duration
+Measure-Command { cd frontend; npm run test:unit }
+
+# E2E test duration
+Measure-Command { cd frontend; npm run test:e2e:mock }
+
+# Pre-commit hook total time
+Measure-Command { .\pre-commit.ps1 }
+```
+
+**Optimization Techniques**:
+- Parallel test execution (pytest-xdist: -n auto)
+- Mock external services (no real HTTP calls in unit tests)
+- Database fixtures (reuse DB setup across tests)
+- Selective test runs (only changed modules)
+- Test order optimization (fast tests first)
+
+**Anti-Patterns**:
+- ❌ Real API calls in unit tests (use mocks)
+- ❌ Sleep/wait in tests (use proper async/await)
+- ❌ Large test fixtures (generate minimal data)
+- ❌ No test isolation (tests depend on each other)
+- ❌ Running E2E on every file save (use unit tests)
+
+#### 2.5.4 Deployment Script Performance
+
+**Targets**:
+- Local Build → Run: <2min
+- NAS Server Deployment (deploy-to-server.ps1): <5min
+- Container Startup: <10s
+
+**Measurement**:
+```powershell
+# Local deployment
+Measure-Command { .\deployment\deploy-local.ps1 }
+
+# NAS Server deployment
+Measure-Command { .\deployment\deploy-to-server.ps1 }
+
+# Container startup time
+docker run cloudtouch:latest &
+Measure-Command { 
+  do { Start-Sleep -Seconds 1 } 
+  until (Test-NetConnection -ComputerName localhost -Port 8000 -InformationLevel Quiet)
+}
+```
+
+**Optimization Techniques**:
+- Incremental builds (don't rebuild if no changes)
+- Parallel operations (build frontend + backend simultaneously)
+- SSH connection reuse (ControlMaster for multiple commands)
+- Image layer caching (don't invalidate layers unnecessarily)
+- Health checks (don't wait fixed time, poll until ready)
+
+#### 2.5.5 Performance Monitoring Tools
+
+**Recommended Tools**:
+```powershell
+# Python profiling (cProfile for hotspots)
+python -m cProfile -o profile.stats backend/main.py
+python -m pstats profile.stats
+
+# Memory profiling (memory_profiler)
+pip install memory_profiler
+python -m memory_profiler backend/main.py
+
+# JavaScript profiling (Chrome DevTools)
+# Open http://localhost:4173 in Chrome → F12 → Performance tab
+
+# Docker stats (monitor container resources)
+docker stats cloudtouch --no-stream
+
+# Load testing (Locust for API stress testing)
+pip install locust
+locust -f tests/performance/locustfile.py
+```
+
+**Deliverable**: Performance baseline document
+```markdown
+# Performance Baseline (YYYY-MM-DD)
+
+## Application Performance
+- API p95: [X]ms (Target: <100ms)
+- FCP: [X]s (Target: <1.5s)
+- TTI: [X]s (Target: <3s)
+- Lighthouse: [X]/100 (Target: >90)
+
+## Build Performance
+- Frontend Build: [X]s (Target: <30s)
+- Docker Build: [X]s (Target: <180s)
+- Image Size: [X]MB (Target: <500MB)
+
+## Test Performance
+- pytest: [X]s (Target: <10s)
+- vitest: [X]s (Target: <5s)
+- Cypress E2E: [X]s (Target: <60s)
+- Pre-commit: [X]s (Target: <120s)
+
+## Deployment Performance
+- Local Deploy: [X]s (Target: <120s)
+- NAS Server Deploy: [X]s (Target: <300s)
+- Container Startup: [X]s (Target: <10s)
+
+## Bottlenecks Identified
+1. [Description] - Impact: [High/Medium/Low]
+2. [Description] - Impact: [High/Medium/Low]
+
+## Optimization Recommendations
+1. [Recommendation] - Expected Gain: [X]%
+2. [Recommendation] - Expected Gain: [X]%
+```
+
+**When to optimize**:
+- ✅ Performance is <50% of target (e.g., API p95 >200ms)
+- ✅ User-facing slowness (>3s load time)
+- ✅ Build/test time impacts developer productivity (>5min pre-commit)
+- ❌ Premature optimization (don't optimize before measuring)
+- ❌ Micro-optimizations (100ms → 95ms is not worth complexity)
+
+### 2.6 Deliverable: Backend Analysis Report
 
 **Format** (max 3 pages, same structure as Frontend report)
 
