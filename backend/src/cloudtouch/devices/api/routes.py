@@ -27,7 +27,6 @@ router = APIRouter(prefix="/api/devices", tags=["Devices"])
 
 # Discovery lock to prevent concurrent discovery requests
 _discovery_lock = asyncio.Lock()
-_discovery_in_progress = False
 
 
 # Dependency injection
@@ -154,31 +153,24 @@ async def sync_devices(
     Returns:
         Sync summary with success/failure counts
     """
-    global _discovery_in_progress
-
-    # Check if discovery already in progress
-    if _discovery_in_progress:
+    # Prevent concurrent discovery - reject if already running
+    if _discovery_lock.locked():
         logger.warning("Discovery already in progress, rejecting concurrent request")
         raise HTTPException(status_code=409, detail="Discovery already in progress")
 
     async with _discovery_lock:
-        _discovery_in_progress = True
-        try:
-            cfg = get_config()
+        cfg = get_config()
 
-            # Use service layer for business logic
-            service = DeviceSyncService(
-                repository=repo,
-                discovery_timeout=cfg.discovery_timeout,
-                manual_ips=cfg.manual_device_ips_list,
-                discovery_enabled=cfg.discovery_enabled,
-            )
+        # Use service layer for business logic
+        service = DeviceSyncService(
+            repository=repo,
+            discovery_timeout=cfg.discovery_timeout,
+            manual_ips=cfg.manual_device_ips_list,
+            discovery_enabled=cfg.discovery_enabled,
+        )
 
-            result = await service.sync()
-            return result.to_dict()
-
-        finally:
-            _discovery_in_progress = False
+        result = await service.sync()
+        return result.to_dict()
 
 
 @router.get("")
