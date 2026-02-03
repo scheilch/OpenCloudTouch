@@ -312,7 +312,282 @@ pylint src/ --disable=all --enable=cyclic-import,unused-import --output-format=j
 | pytest-mock | 3.11.1 | 3.12.0 | ❌ | REMOVE (not used, using unittest.mock) |
 ```
 
-### 2.4 Deliverable: Backend Analysis Report
+### 2.4 Security & Vulnerabilities Analysis
+
+**⚠️ CRITICAL**: Security is NOT optional. Every vulnerability must be addressed before production deployment.
+
+#### 2.4.1 Dependency Vulnerability Scanning
+
+**Backend (Python)**:
+```powershell
+cd backend
+
+# Safety - Check for known security vulnerabilities in dependencies
+safety check --json --output ../analysis/safety-vulnerabilities.json
+safety check --full-report > ../analysis/safety-full-report.txt
+
+# Pip-audit - Alternative vulnerability scanner (more up-to-date)
+pip-audit --format json --output ../analysis/pip-audit.json
+pip-audit --desc > ../analysis/pip-audit-detailed.txt
+
+# Bandit - Security issue scanner for Python code
+bandit -r src/ -f json -o ../analysis/bandit-security.json
+bandit -r src/ -ll -i  # Show only medium/high severity issues
+
+# Check for outdated dependencies with known CVEs
+pip list --outdated --format json > ../analysis/outdated-packages.json
+```
+
+**Frontend (JavaScript/TypeScript)**:
+```powershell
+cd frontend
+
+# npm audit - Built-in vulnerability scanner
+npm audit --json > ../analysis/npm-audit.json
+npm audit --audit-level=moderate > ../analysis/npm-audit-summary.txt
+
+# Audit production dependencies only (ignore devDependencies)
+npm audit --production --json > ../analysis/npm-audit-production.json
+
+# Check for outdated packages with security updates
+npm outdated --json > ../analysis/npm-outdated.json
+
+# Snyk (if available) - Alternative vulnerability scanner
+npx snyk test --json > ../analysis/snyk-report.json || echo "Snyk not configured"
+```
+
+#### 2.4.2 Security Checklist - Backend
+
+**Critical Security Issues** (MUST FIX before production):
+- [ ] **Secrets in Code**: No API keys, passwords, tokens in source files
+- [ ] **SQL Injection**: Using parameterized queries (FastAPI + SQLAlchemy = safe)
+- [ ] **Command Injection**: No `os.system()`, `subprocess.shell=True` with user input
+- [ ] **Path Traversal**: Validate file paths, use `os.path.abspath()` and check within allowed directory
+- [ ] **CORS Configuration**: Not allowing `*` in production (specific origins only)
+- [ ] **Authentication**: Protected endpoints have proper auth (if applicable)
+- [ ] **Input Validation**: All user inputs validated with Pydantic models
+- [ ] **Error Messages**: No stack traces/internal info leaked to clients
+- [ ] **Dependency Vulnerabilities**: All HIGH/CRITICAL CVEs patched
+
+**High Priority Security Issues** (Fix ASAP):
+- [ ] **Rate Limiting**: Prevent DoS attacks on discovery/API endpoints
+- [ ] **HTTPS Only**: Ensure production deployment uses TLS/SSL
+- [ ] **Environment Variables**: Sensitive config from `.env`, not hardcoded
+- [ ] **Logging**: No sensitive data logged (passwords, tokens, IP addresses in plain text)
+- [ ] **File Uploads**: If accepting files, validate type/size/content
+- [ ] **XML Parsing**: Using safe XML parsers (defusedxml) to prevent XXE attacks
+- [ ] **Deserialization**: No `pickle.loads()` on untrusted data
+- [ ] **Regex DoS**: No catastrophic backtracking in regex patterns
+
+**Medium Priority Security Issues**:
+- [ ] **Debug Mode**: Disabled in production (`CT_LOG_LEVEL != DEBUG`)
+- [ ] **Directory Listing**: Web server doesn't expose directory listings
+- [ ] **Version Disclosure**: Server headers don't reveal software versions
+- [ ] **Session Management**: Secure cookie flags (HttpOnly, Secure, SameSite)
+- [ ] **Dependency Pinning**: Exact versions pinned to prevent supply chain attacks
+- [ ] **Subprocess Calls**: Use list syntax instead of shell strings
+
+**Bandit High-Severity Patterns to Check**:
+```python
+# ❌ CRITICAL: Hardcoded password
+PASSWORD = "admin123"  # Bandit: B105
+
+# ❌ CRITICAL: SQL injection risk
+query = f"SELECT * FROM users WHERE id = {user_id}"  # Bandit: B608
+
+# ❌ HIGH: Command injection
+os.system(f"ping {user_input}")  # Bandit: B605
+
+# ❌ HIGH: Insecure random
+import random
+token = random.randint(1000, 9999)  # Bandit: B311 - Use secrets module
+
+# ❌ MEDIUM: Unsafe YAML load
+yaml.load(data)  # Bandit: B506 - Use yaml.safe_load()
+
+# ✅ CORRECT: Safe alternatives
+from secrets import token_urlsafe
+PASSWORD = os.getenv("CT_ADMIN_PASSWORD")  # From environment
+query = "SELECT * FROM users WHERE id = ?"  # Parameterized
+subprocess.run(["ping", user_input], check=True)  # List syntax
+token = token_urlsafe(16)  # Cryptographically secure
+yaml.safe_load(data)  # Safe YAML parsing
+```
+
+#### 2.4.3 Security Checklist - Frontend
+
+**Critical Security Issues**:
+- [ ] **XSS (Cross-Site Scripting)**: React escapes by default, but check:
+  - No `dangerouslySetInnerHTML` without sanitization (use DOMPurify)
+  - No `eval()` or `new Function()` with user input
+  - No `innerHTML` / `outerHTML` with user data
+- [ ] **Sensitive Data Exposure**: No API keys, secrets in frontend code
+- [ ] **Local Storage**: No sensitive data in localStorage/sessionStorage (tokens only in httpOnly cookies)
+- [ ] **CSRF Protection**: API calls include CSRF tokens if using cookies
+- [ ] **Content Security Policy**: CSP headers configured on backend
+- [ ] **Dependency Vulnerabilities**: All HIGH/CRITICAL npm audit issues resolved
+
+**High Priority Security Issues**:
+- [ ] **Input Sanitization**: User input sanitized before rendering
+- [ ] **URL Validation**: External links validated, no `javascript:` URLs
+- [ ] **Iframe Security**: If using iframes, proper `sandbox` attributes
+- [ ] **PostMessage**: If using `window.postMessage`, origin validated
+- [ ] **Third-Party Scripts**: Minimal use, loaded from trusted CDNs with SRI
+- [ ] **Console Logging**: No sensitive data in `console.log()` (remove in production)
+
+**Common Frontend Vulnerabilities**:
+```javascript
+// ❌ CRITICAL: XSS vulnerability
+<div dangerouslySetInnerHTML={{ __html: userInput }} />
+
+// ❌ CRITICAL: Hardcoded API key
+const API_KEY = "sk-proj-abc123..."  // NEVER do this!
+
+// ❌ HIGH: Sensitive data in localStorage
+localStorage.setItem('password', password)  // Accessible via XSS
+
+// ❌ MEDIUM: Unvalidated redirect
+window.location = userInput  // Can redirect to malicious site
+
+// ✅ CORRECT: Safe alternatives
+import DOMPurify from 'dompurify'
+<div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(userInput) }} />
+
+const API_KEY = import.meta.env.VITE_API_KEY  // From .env, backend validation
+
+// Use httpOnly cookies for auth tokens (set by backend)
+// localStorage only for non-sensitive UI state
+
+// Validate redirect URL
+const allowedDomains = ['system.local']
+if (allowedDomains.some(d => url.includes(d))) window.location = url
+```
+
+#### 2.4.4 Outdated Dependencies Risk Assessment
+
+**Priority Levels for Updates**:
+
+| Severity | CVE Score | Action | Timeline |
+|----------|-----------|--------|----------|
+| CRITICAL | 9.0-10.0 | Update IMMEDIATELY | Same day |
+| HIGH | 7.0-8.9 | Update within 1 week | < 7 days |
+| MEDIUM | 4.0-6.9 | Update within 1 month | < 30 days |
+| LOW | 0.1-3.9 | Update next release | Next version |
+| None | N/A (just outdated) | Evaluate benefit vs. risk | As needed |
+
+**Dependency Update Strategy**:
+1. **Check Release Notes**: What changed? Breaking changes?
+2. **Test in Dev**: Update locally, run full test suite
+3. **Check Transitive Dependencies**: Does update pull in vulnerable sub-dependencies?
+4. **One at a time**: Update ONE major dependency per commit (easier rollback)
+5. **Pin Versions**: After update, pin exact version in requirements.txt / package-lock.json
+
+**Example Analysis**:
+```markdown
+| Package | Current | Latest | CVE | Severity | Action | Blocked By |
+|---------|---------|--------|-----|----------|--------|------------|
+| httpx | 0.24.1 | 0.27.0 | CVE-2024-XXXX | HIGH | UPDATE | None |
+| fastapi | 0.100.0 | 0.110.0 | None | - | UPDATE | Tests pass ✅ |
+| pillow | 9.0.0 | 10.2.0 | CVE-2023-XXXX | CRITICAL | UPDATE NOW | ⚠️ Breaking changes in 10.x |
+| pytest | 7.4.0 | 8.0.0 | None | - | WAIT | Breaking changes, low priority |
+| lodash | 4.17.20 | 4.17.21 | CVE-2021-23337 | HIGH | REMOVE | Not used anymore |
+```
+
+#### 2.4.5 Supply Chain Security
+
+**npm/pip Package Integrity**:
+- [ ] Verify package signatures where available
+- [ ] Check package maintainer trustworthiness (GitHub stars, download count, last update)
+- [ ] Review dependencies of dependencies (transitive vulnerabilities)
+- [ ] Use `npm ci` instead of `npm install` (respects package-lock.json exactly)
+- [ ] Use `pip-tools` or `poetry` for deterministic builds
+
+**Suspicious Package Patterns** (🚨 RED FLAGS):
+- ❌ Package name typosquatting (`reqeusts` instead of `requests`)
+- ❌ Package with 0 downloads, created yesterday
+- ❌ Package pulling in 50+ dependencies for simple task
+- ❌ Maintainer email from sketchy domain
+- ❌ Package requesting unusual permissions (network access for a date formatter?)
+
+**Lock File Validation**:
+```powershell
+# Verify npm lockfile integrity
+npm audit fix  # Auto-fix non-breaking updates
+npm audit fix --force  # ⚠️ May introduce breaking changes
+
+# Verify pip dependencies match lockfile
+pip check  # Check for conflicts
+pip freeze > requirements.lock.txt  # Generate exact versions
+diff requirements.txt requirements.lock.txt  # Compare
+```
+
+#### 2.4.6 Deliverable: Security Audit Report
+
+**Format** (max 2 pages):
+```markdown
+# Security Audit Report - CloudTouch Backend
+
+## Executive Summary
+- **Critical Vulnerabilities**: [N] found, [N] fixed, [N] remaining
+- **High Vulnerabilities**: [N] found, [N] fixed, [N] remaining
+- **Medium/Low**: [N] (acceptable risk)
+- **Overall Risk Level**: [LOW/MEDIUM/HIGH/CRITICAL]
+
+## Critical Issues Requiring Immediate Action
+
+### 1. [CVE-YYYY-XXXXX] - Pillow Remote Code Execution
+- **Package**: pillow 9.0.0
+- **Severity**: CRITICAL (CVSS 9.8)
+- **Impact**: Arbitrary code execution via malicious image
+- **Fix**: Update to pillow >= 10.2.0
+- **Status**: ❌ NOT FIXED (breaking changes in 10.x)
+- **Action Plan**: 
+  1. Review Pillow API changes (1 hour)
+  2. Update code for v10 compatibility (2 hours)
+  3. Test image processing flows (1 hour)
+  4. Deploy ASAP
+
+### 2. [Bandit B105] - Hardcoded Password in config.py
+- **File**: `src/cloudtouch/core/config.py:45`
+- **Issue**: `DEFAULT_PASSWORD = "admin123"`
+- **Severity**: CRITICAL
+- **Fix**: Move to environment variable `CT_ADMIN_PASSWORD`
+- **Status**: ✅ FIXED in commit abc123f
+- **Verification**: Manually tested, no hardcoded secrets remain
+
+## High Priority Issues (Fix within 7 days)
+
+[List each issue with same format as Critical]
+
+## Dependency Vulnerabilities Summary
+
+| Package | Current | Latest | CVE | Severity | Status |
+|---------|---------|--------|-----|----------|--------|
+| httpx | 0.24.1 | 0.27.0 | CVE-2024-12345 | HIGH | ⏳ Update in progress |
+| pillow | 9.0.0 | 10.2.0 | CVE-2023-98765 | CRITICAL | ❌ Blocked by breaking changes |
+| fastapi | 0.100.0 | 0.110.0 | None | - | ✅ Updated |
+
+## Bandit Security Scan Results
+- **Total Issues**: [N]
+- **High Severity**: [N]
+- **Medium Severity**: [N]
+- **Low Severity**: [N]
+- **False Positives**: [N] (document why)
+
+## Recommendations
+1. **Immediate**: Fix all CRITICAL issues (ETA: [date])
+2. **Short-term**: Fix HIGH issues (ETA: [date])
+3. **Ongoing**: Monitor dependency updates monthly
+4. **Process**: Add security scanning to CI/CD pipeline
+
+## Risk Acceptance (if any)
+- **Issue**: [Description]
+- **Reason**: [Why not fixing now]
+- **Mitigation**: [What we're doing instead]
+- **Review Date**: [When to re-evaluate]
+```
+
+### 2.5 Deliverable: Backend Analysis Report
 
 **Format** (max 3 pages, same structure as Frontend report)
 
