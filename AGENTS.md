@@ -204,6 +204,160 @@ except Exception:
     pass  # Fehler verschlucken ist verboten!
 ```
 
+### 3.5 Naming Conventions & Consistency
+
+**ZWINGEND**: Konsistente Namensgebung über ALLE Code-Dateien hinweg!
+
+#### 3.5.1 Python Backend
+```python
+# ✅ GOOD: PEP 8 Konventionen
+class DeviceRepository:           # PascalCase für Klassen
+    def get_by_device_id(self):   # snake_case für Funktionen/Methoden
+        pass
+
+SSDP_MULTICAST_ADDR = "..."      # UPPER_SNAKE_CASE für Konstanten
+device_count = 5                  # snake_case für Variablen
+_internal_cache = {}              # Leading underscore für private
+
+# ❌ BAD: Inkonsistent
+class deviceRepository:           # Falsch! PascalCase fehlt
+    def GetDeviceById(self):      # Falsch! camelCase statt snake_case
+        MAX_devices = 10          # Falsch! Inkonsistent
+```
+
+#### 3.5.2 TypeScript/JavaScript Frontend
+```typescript
+// ✅ GOOD: Standard JS/TS Konventionen
+class DeviceManager {             // PascalCase für Klassen
+  fetchDevices() {}               // camelCase für Methoden
+}
+
+const MAX_RETRY_COUNT = 3;        // UPPER_SNAKE_CASE für Konstanten
+let deviceList = [];              // camelCase für Variablen
+const _privateHelper = () => {};  // Leading underscore für private
+
+// React Components: PascalCase
+function DeviceCard({ device }) { return <div>...</div>; }
+
+// ❌ BAD: Inkonsistent
+function device_card() {}         // Falsch! Components PascalCase
+let DeviceList = [];              // Falsch! Variablen camelCase
+const max_retry = 3;              // Falsch! Konstanten UPPER_SNAKE_CASE
+```
+
+#### 3.5.3 Dateinamen
+```
+# ✅ GOOD: Konsistente Konventionen
+
+Backend Python:
+  adapter.py                      # snake_case für Module
+  device_repository.py            # snake_case mit Unterstrichen
+  test_adapter.py                 # test_ Präfix für Tests
+
+Frontend JavaScript/TypeScript:
+  DeviceCard.jsx                  # PascalCase für React Components
+  deviceService.ts                # camelCase für Services/Utils
+  DeviceCard.test.jsx             # .test. für Tests
+
+# ❌ BAD: Inkonsistent
+  Device_Repository.py            # Falsch! Keine PascalCase für Python-Module
+  device-card.jsx                 # Falsch! Kebab-case vermeiden
+  devicecard.jsx                  # Falsch! Keine Trennung erkennbar
+```
+
+#### 3.5.4 URL/API Endpoints
+```python
+# ✅ GOOD: RESTful mit kebab-case
+@router.get("/api/devices")                    # Plural für Collections
+@router.get("/api/devices/{device_id}")        # snake_case für Parameter
+@router.post("/api/settings/manual-ips")       # kebab-case für Multi-Word
+
+# ❌ BAD: Inkonsistent
+@router.get("/api/Device")                     # Falsch! Singular + PascalCase
+@router.get("/api/devices/{deviceId}")         # Falsch! camelCase in URL
+@router.post("/api/settings/manualIPs")        # Falsch! camelCase statt kebab
+```
+
+#### 3.5.5 Environment Variables & Config
+```bash
+# ✅ GOOD: UPPER_SNAKE_CASE mit Namespace-Präfix
+CT_DISCOVERY_TIMEOUT=10
+CT_MANUAL_DEVICE_IPS=192.168.1.100,192.168.1.101
+CT_LOG_LEVEL=DEBUG
+
+# ❌ BAD: Inkonsistent oder ohne Präfix
+discoveryTimeout=10               # Falsch! Kein UPPER_SNAKE_CASE
+ct-manual-ips=...                 # Falsch! Kebab-case statt Underscore
+TIMEOUT=10                        # Falsch! Kein CT_ Präfix (Kollisionsgefahr)
+```
+
+#### 3.5.6 Datenbank-Felder
+```python
+# ✅ GOOD: snake_case konsistent
+class Device:
+    device_id: str                # snake_case
+    ip_address: str
+    friendly_name: str
+    created_at: datetime
+
+# ❌ BAD: Inkonsistent
+class Device:
+    deviceId: str                 # Falsch! camelCase in Python
+    IPAddress: str                # Falsch! PascalCase
+    FriendlyName: str             # Falsch! PascalCase
+```
+
+#### 3.5.7 Boolean Variablen/Flags
+```python
+# ✅ GOOD: is_, has_, should_, can_ Präfixe
+is_connected = True
+has_error = False
+should_retry = True
+can_discover = False
+
+# ❌ BAD: Verb oder Substantiv
+connected = True                  # Unklar: Status oder Aktion?
+error = False                     # Unklar: Boolean oder Error-Objekt?
+retry = True                      # Unklar: Boolean oder Retry-Count?
+```
+
+#### 3.5.8 Event Handler / Callbacks
+```typescript
+// ✅ GOOD: on/handle Präfixe
+function handleClick(event) {}
+function onDeviceSelected(device) {}
+function handleRetry() {}
+
+// ❌ BAD: Kein Präfix
+function click() {}               // Unklar: Handler oder Aktion?
+function deviceSelected() {}      // Unklar: Handler oder Getter?
+```
+
+#### 3.5.9 Naming Consistency Checklist
+**Vor jedem Commit prüfen**:
+- [ ] Python: snake_case (Funktionen/Variablen), PascalCase (Klassen), UPPER_SNAKE_CASE (Konstanten)
+- [ ] TypeScript/React: camelCase (Funktionen/Variablen), PascalCase (Klassen/Components), UPPER_SNAKE_CASE (Konstanten)
+- [ ] Dateinamen: snake_case (Python), camelCase/PascalCase (JS/TS je nach Typ)
+- [ ] API-Endpoints: kebab-case, Plural für Collections
+- [ ] Env-Variablen: CT_ Präfix + UPPER_SNAKE_CASE
+- [ ] Boolean: is_/has_/should_/can_ Präfixe
+- [ ] Event Handler: handle/on Präfixe
+- [ ] Private: Leading underscore `_`
+- [ ] Keine Abbreviations (außer allgemein bekannt: HTTP, URL, IP, ID)
+- [ ] Sprechende Namen statt Kürzel (discovery statt disc, timeout statt to)
+
+#### 3.5.10 Anti-Patterns vermeiden
+```python
+# ❌ VERBOTEN
+temp, tmp, data, info, obj       # Zu generisch
+a, b, c, x, y, z                 # Single-letter (außer in Loops/Math)
+get_data(), do_stuff()           # Nicht-deskriptiv
+myVar, theDevice, aDevice        # Artikel-Präfixe
+deviceManager2, device_final     # Nummerierung/Suffixe
+```
+
+**Bei Unsicherheit**: Bestehende Code-Patterns nachahmen, nicht neue Stile erfinden!
+
 ---
 
 ## 4. Clean Architecture
