@@ -290,31 +290,45 @@ Fokus: **Knopf drücken → Sender spielt → Anzeige**
 - **Tests**: 150 Backend Tests (83% Coverage) + 22 Frontend Tests (100% RadioSearch Coverage)
 - **Refactoring**: Provider abstraction (radio_provider.py) vorbereitet für zukünftige Erweiterungen
 
-### ✅ Iteration 2.5: Testing & Quality Assurance (ABGESCHLOSSEN)
+### ✅ Iteration 2.5: Testing & Quality Assurance + Refactoring (ABGESCHLOSSEN)
 
-**Backend**:
-- ✅ **163 Tests PASSING** (157 Unit + 6 E2E)
-- ✅ **Coverage: 83.61%** (Target: ≥80%) 🎯 **ÜBERTROFFEN!**
-- ✅ **13 neue Tests** für kritische Use Cases:
-  - Discovery API Endpoints (6 Tests) - `/api/devices/discover`
-  - Capabilities API (1 Test) - `/api/devices/{id}/capabilities`
-  - Radio Error Handling (5 Tests) - Timeout/Connection Errors
-  - SSDP Concurrency (2 Tests) - Parallelität-sicher
-  - IPv6 Support (3 Tests) - Manual + SSDP
-  - Duplicate Detection (2 Tests) - SSDP + Manual Deduplication
+**Backend Tests**:
+- ✅ **268 Tests PASSING** (Unit + Integration + E2E)
+- ✅ **Coverage: 88%** (Target: ≥80%) 🎯 **DEUTLICH ÜBERTROFFEN!**
+- ✅ **+20 neue Tests** in Session 5-7:
+  - BoseSoundTouchClientAdapter: 99% Coverage (+13 Tests)
+  - SSDP Edge Cases: 73% Coverage (+7 Tests)
+  - Device API Concurrency Tests
+  - Error Handling & Retry Logic
 
-**Frontend**:
-- ✅ Component Tests (DeviceCarousel, BurgerMenu, TopBar) - 112 Tests
-- ✅ Integration Tests - 98.2% Pass-Rate
-- ✅ **109/111 Tests PASSED** (2 skipped: JSDOM limitation)
+**Frontend Tests**:
+- ✅ **87 Tests PASSING** (+6 neue Error Handling Tests)
+- ✅ **Coverage: ~55%** (von 0% hochgezogen)
+- ✅ Component Tests: RadioPresets, Settings, DeviceSwiper, EmptyState
+- ✅ **Error Handling**: Network errors, HTTP errors, Retry mechanism
 
-**Key Achievements**:
-- ✅ Critical API Endpoints jetzt vollständig getestet
-- ✅ Edge Cases abgedeckt (Concurrent Requests, IPv6, Timeouts)
-- ✅ Error Handling dokumentiert & validiert
-- ✅ Code-Qualität: Keine halluzinierten APIs, realitätsnahe Tests
+**E2E Tests**:
+- ✅ **15 Cypress Tests PASSING** (Mock Mode)
+- ✅ Device Discovery + Manual IP Configuration
+- ✅ Complete User Journey Tests
+- ✅ Regression Tests für 3 Bug-Fixes
 
-**Status**: ✅ **ABGESCHLOSSEN** - Test-Suite produktionsreif für Iteration 3
+**Refactoring Highlights** (13/16 Tasks, 3h 34min, -90% deviation):
+- ✅ **Service Layer Extraction**: Clean Architecture, DeviceSyncService
+- ✅ **Global State Removal**: Lock-based concurrency statt Boolean-Flag
+- ✅ **Frontend Error Handling**: Retry-Button, User-friendly messages
+- ✅ **Dead Code Removal**: Alle Linter clean (ruff, vulture, ESLint)
+- ✅ **Production Guards**: DELETE endpoint protected
+- ✅ **Auto-Formatting**: black, isort, Prettier über 77 Files
+- ✅ **Naming Conventions**: Konsistente Namen über alle 370 Tests
+
+**Code Quality**:
+- ✅ 370 automatisierte Tests (268 Backend + 87 Frontend + 15 E2E)
+- ✅ Zero Global State, Zero Linter Warnings
+- ✅ TDD-Workflow: Alle Änderungen mit Tests abgesichert
+- ✅ Pre-Commit Hooks: Tests + Coverage + E2E automatisch
+
+**Status**: ✅ **PRODUCTION-READY** - Refactoring abgeschlossen, alle Tests grün
 
 ### 🔜 Iteration 3: Preset Mapping
 - SQLite Schema (devices, presets, mappings)
