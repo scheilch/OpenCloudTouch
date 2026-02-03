@@ -14,13 +14,32 @@ import "./App.css";
 /**
  * AppRouter - Handles routing logic with device-based guards
  */
-function AppRouter({ devices, isLoading, onRefreshDevices }) {
+function AppRouter({ devices, isLoading, error, onRefreshDevices, onRetry }) {
   if (isLoading) {
     return (
       <div className="app">
         <div className="loading-container">
           <div className="spinner" />
           <p className="loading-message">CloudTouch wird geladen...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="app">
+        <div className="error-container">
+          <div className="error-icon">⚠️</div>
+          <h2 className="error-title">Fehler beim Laden der Geräte</h2>
+          <p className="error-message">{error}</p>
+          <button
+            className="btn btn-primary"
+            onClick={onRetry}
+            aria-label="Erneut versuchen"
+          >
+            Erneut versuchen
+          </button>
         </div>
       </div>
     );
@@ -89,24 +108,35 @@ function AppRouter({ devices, isLoading, onRefreshDevices }) {
 function App() {
   const [devices, setDevices] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   // Fetch devices from backend
   const fetchDevices = async () => {
     try {
+      setError(null); // Clear previous errors
+      setIsLoading(true);
+      
       const response = await fetch("/api/devices");
-      if (response.ok) {
-        const data = await response.json();
-        const devicesList = data.devices || [];
-        setDevices(devicesList);
-        return devicesList;
+      if (!response.ok) {
+        throw new Error(`Server-Fehler: ${response.status} ${response.statusText}`);
       }
-      return [];
-    } catch (error) {
-      console.error("Failed to fetch devices:", error);
+      
+      const data = await response.json();
+      const devicesList = data.devices || [];
+      setDevices(devicesList);
+      return devicesList;
+    } catch (err) {
+      const errorMessage = err.message || "Unbekannter Fehler beim Laden der Geräte";
+      setError(errorMessage);
+      console.error("Failed to fetch devices:", err);
       return [];
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleRetry = () => {
+    fetchDevices();
   };
 
   useEffect(() => {
@@ -121,7 +151,9 @@ function App() {
         <AppRouter
           devices={devices}
           isLoading={isLoading}
+          error={error}
           onRefreshDevices={fetchDevices}
+          onRetry={handleRetry}
         />
       </ToastProvider>
     </BrowserRouter>
