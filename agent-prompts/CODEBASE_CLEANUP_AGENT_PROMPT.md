@@ -21,6 +21,132 @@ After extensive refactoring iterations, the codebase contains:
 
 ---
 
+## ⚙️ AUTONOMY PROTOCOL
+
+**⚠️ CRITICAL: Execute ALL cleanup tasks completely autonomously without user interruption.**
+
+### Default Mode: AUTONOMOUS EXECUTION
+
+**RULE #1: DO NOT ASK, EXECUTE**
+- ALL analysis and cleanup tasks MUST be executed autonomously
+- NO permission requests before removing code/docs
+- NO status updates asking "should I continue?"
+- NO confirmation requests for standard cleanup operations
+- Agent analyzes, executes, validates, and proceeds to next phase
+
+**RULE #2: User decisions ONLY for these exceptions**:
+1. ❌ **Complete class deletion** (entire class removed from codebase)
+   - ✅ AUTONOMOUS: Removing dead code within classes
+   - ✅ AUTONOMOUS: Removing unused methods, properties, imports
+   - ✅ AUTONOMOUS: Refactoring, renaming, restructuring classes
+   - ❌ USER DECISION: Deleting entire class file (e.g., `UserService.py` completely removed)
+
+2. ❌ **Documentation deletion** (entire document removed)
+   - ✅ AUTONOMOUS: Consolidating 5 READMEs into 1 comprehensive README
+   - ✅ AUTONOMOUS: Removing outdated sections from docs
+   - ✅ AUTONOMOUS: Rewriting verbose docs to be concise
+   - ✅ AUTONOMOUS: Merging duplicate documentation
+   - ❌ USER DECISION: Deleting entire README/guide (e.g., `docs/DEPLOYMENT.md` removed, not merged)
+
+**RULE #3: Deferred Decision Pattern**
+
+If a USER DECISION is needed but NOT blocking current cleanup:
+1. **Document the decision** in `docs/analysis/pending-decisions.md`:
+   ```markdown
+   ### [Cleanup Task] - [Decision Title]
+   **Context**: [Why this needs user decision]
+   **Impact**: [What happens if we delete vs. keep]
+   **Recommendation**: [Agent's recommendation with rationale]
+   **Blocked Tasks**: [List of tasks that cannot proceed without this decision]
+   **Status**: PENDING
+   ```
+
+2. **Continue with other cleanup tasks** that don't require the decision
+3. **Check before each new phase**: Does this phase require a pending decision?
+   - YES → Skip phase, document in blocked tasks
+   - NO → Execute phase autonomously
+
+**RULE #4: NO EXCUSES FOR CLEANUP**
+
+The following are **NOT valid reasons** to interrupt user:
+- ❌ "This removes a lot of code" → GOOD (Less code = better)
+- ❌ "Not sure if this is used" → CHECK (grep_search, list_code_usages)
+- ❌ "Multiple docs mention this" → FIX ALL (Use multi_replace)
+- ❌ "Complex consolidation" → DO IT (Create comprehensive doc)
+- ❌ "Tests might need updates" → UPDATE THEM (TDD required)
+- ❌ "Large diff" → EXPECTED (Cleanup creates large diffs)
+- ❌ "Want to confirm deletion" → NO (Use tools to verify, then delete)
+
+**RULE #5: Validation Before Deletion (Automated)**
+
+Before deleting ANY code:
+1. Run `grep_search` to find all references
+2. Run `list_code_usages` for functions/classes
+3. Check imports with semantic_search
+4. If NO references found → Delete autonomously
+5. If references exist:
+   - Dead code (only tests/mocks reference it) → Delete autonomously + update tests
+   - Real usage → Refactor to remove dependency, THEN delete
+6. Run full test suite after deletion
+7. If tests fail → Fix immediately (no user escalation)
+
+**RULE #6: Documentation Consolidation (Autonomous)**
+
+Example autonomous consolidation:
+```markdown
+BEFORE:
+- docs/DEPLOYMENT.md (50 lines, outdated)
+- docs/DOCKER.md (30 lines, overlaps with DEPLOYMENT.md)
+- deployment/README.md (40 lines, duplicate info)
+- TRUENAS-DEPLOY.md (60 lines, TrueNAS-specific)
+
+AFTER (AUTONOMOUS):
+- docs/DEPLOYMENT.md (80 lines, comprehensive, includes all scenarios)
+- TRUENAS-DEPLOY.md (kept, references DEPLOYMENT.md for common steps)
+- DELETE: docs/DOCKER.md (merged into DEPLOYMENT.md)
+- DELETE: deployment/README.md (merged into DEPLOYMENT.md)
+
+Agent consolidates WITHOUT asking because:
+- ✅ No complete doc deletion (DOCKER.md content preserved in DEPLOYMENT.md)
+- ✅ Information preserved (consolidated, not lost)
+- ✅ Improves clarity (single source of truth)
+```
+
+**RULE #7: Commit Strategy (When Instructed)**
+
+Per AGENTS.md, commits ONLY on explicit user instruction.
+BUT within a cleanup session:
+- ✅ Execute entire phase (20-50 file changes)
+- ✅ Keep all tests green throughout
+- ✅ Build cohesive cleanup changeset
+- ❌ Stop after each file asking "commit now?"
+
+User will decide when to commit after reviewing cleanup scope.
+
+**ENFORCEMENT**:
+
+Example violations vs. correct behavior:
+
+❌ **VIOLATION**: "I found 5 unused imports in `utils.py`. Should I remove them?"
+✅ **CORRECT**: Removes unused imports, runs tests, proceeds to next file.
+
+❌ **VIOLATION**: "There are 3 README files with overlapping content. Should I consolidate?"
+✅ **CORRECT**: Consolidates into 1 comprehensive README, deletes redundant sections (not entire files), updates cross-references.
+
+❌ **VIOLATION**: "Class `LegacyAdapter` seems unused. Confirm deletion?"
+✅ **CORRECT**: Runs grep_search + list_code_usages, finds no references except deprecated tests, deletes class + tests, runs test suite, proceeds.
+
+**Autonomy Checklist (Before ANY user interaction)**:
+- [ ] Am I deleting an ENTIRE class file? (If NO → Don't ask)
+- [ ] Am I deleting an ENTIRE documentation file? (If NO → Don't ask)
+- [ ] Is there a technical blocker? (If NO → Don't ask)
+- [ ] Can I defer this decision? (If YES → Defer and continue)
+- [ ] Did I validate with grep_search/list_code_usages? (Must be YES before deleting)
+
+**If all checks pass → EXECUTE AUTONOMOUSLY, DO NOT ASK.**
+
+---
+
 ## 🎯 PHASE 0: CONTEXT ACQUISITION (30 minutes)
 
 **⚠️ CRITICAL: Real Device Tests are EXCLUDED from all automated runs!**
