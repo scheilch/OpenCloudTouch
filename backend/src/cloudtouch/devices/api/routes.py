@@ -13,6 +13,8 @@ from cloudtouch.discovery import DiscoveredDevice
 from cloudtouch.devices.adapter import (
     BoseSoundTouchDiscoveryAdapter,
     BoseSoundTouchClientAdapter,
+    get_discovery_adapter,
+    get_soundtouch_client,
 )
 from cloudtouch.devices.discovery.manual import ManualDiscovery
 from cloudtouch.devices.repository import Device, DeviceRepository
@@ -167,11 +169,9 @@ async def sync_devices(
 
             # Real discovery
             if cfg.discovery_enabled:
-                discovery = BoseSoundTouchDiscoveryAdapter()
+                discovery = get_discovery_adapter(timeout=cfg.discovery_timeout)
                 try:
-                    discovered_devices = await discovery.discover(
-                        timeout=cfg.discovery_timeout
-                    )
+                    discovered_devices = await discovery.discover()
                     devices.extend(discovered_devices)
                 except Exception as e:
                     logger.error(f"Discovery failed: {e}")
@@ -189,18 +189,18 @@ async def sync_devices(
 
             for discovered in devices:
                 try:
-                    # Real device: query /info endpoint
-                    client = BoseSoundTouchClientAdapter(discovered.base_url)
+                    # Query device /info endpoint (uses factory for mock/real)
+                    client = get_soundtouch_client(discovered.base_url)
                     info = await client.get_info()
 
                     device = Device(
                         device_id=info.device_id,
                         ip=discovered.ip,
-                            name=info.name,
-                            model=info.type,
-                            mac_address=info.mac_address,
-                            firmware_version=info.firmware_version,
-                        )
+                        name=info.name,
+                        model=info.type,
+                        mac_address=info.mac_address,
+                        firmware_version=info.firmware_version,
+                    )
 
                     await repo.upsert(device)
                     synced += 1
@@ -208,7 +208,8 @@ async def sync_devices(
 
                 except Exception as e:
                     failed += 1
-                    logger.error(f"Failed to sync device {discovered.ip}: {e}")
+                    device_info = getattr(discovered, 'ip', str(discovered))
+                    logger.error(f"Failed to sync device {device_info}: {e}")
 
             return {
                 "discovered": len(devices),
@@ -223,7 +224,7 @@ async def sync_devices(
 async def get_devices(repo: DeviceRepository = Depends(get_device_repo)):
     """
     Get all devices from database.
-
+    
     Returns:
         List of devices with details
     """
@@ -233,6 +234,23 @@ async def get_devices(repo: DeviceRepository = Depends(get_device_repo)):
         "count": len(devices),
         "devices": [d.to_dict() for d in devices],
     }
+
+
+@router.delete("")
+async def delete_all_devices(repo: DeviceRepository = Depends(get_device_repo)):
+    """
+    Delete all devices from database.
+    
+    **Testing/Development endpoint only.**
+    Use for cleaning database before E2E tests or manual testing.
+    
+    Returns:
+        Confirmation message
+    """
+    await repo.delete_all()
+    logger.info("All devices deleted from database")
+    
+    return {"message": "All devices deleted"}
 
 
 @router.get("/{device_id}")

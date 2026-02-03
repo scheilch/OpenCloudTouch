@@ -101,8 +101,8 @@ class TestRealAPIStack:
             firmware_version="28.0.12.46499",
         )
         
-        with patch("cloudtouch.devices.api.routes.BoseSoundTouchDiscoveryAdapter") as mock_discovery, \
-             patch("cloudtouch.devices.api.routes.BoseSoundTouchClientAdapter") as mock_client, \
+        with patch("cloudtouch.devices.api.routes.get_discovery_adapter") as mock_get_discovery, \
+             patch("cloudtouch.devices.api.routes.get_soundtouch_client") as mock_get_client, \
              patch("cloudtouch.devices.api.routes.get_config") as mock_config:
             
             # Configure mocks
@@ -112,10 +112,10 @@ class TestRealAPIStack:
             
             mock_discovery_instance = AsyncMock()
             mock_discovery_instance.discover.return_value = discovered
-            mock_discovery.return_value = mock_discovery_instance
+            mock_get_discovery.return_value = mock_discovery_instance
             
-            # Mock client to return device info
-            def create_mock_client(base_url):
+            # Mock client factory to return device info
+            def create_mock_client(base_url, timeout=5):
                 client = AsyncMock()
                 if "192.168.1.100" in base_url:
                     client.get_info.return_value = mock_device_info_1
@@ -123,7 +123,7 @@ class TestRealAPIStack:
                     client.get_info.return_value = mock_device_info_2
                 return client
             
-            mock_client.side_effect = create_mock_client
+            mock_get_client.side_effect = create_mock_client
             
             # 3. Trigger sync via API
             response = await real_api_client.post("/api/devices/sync")
@@ -241,8 +241,8 @@ class TestRealAPIStack:
             firmware_version="28.0.10.12345",  # Old firmware
         )
         
-        with patch("cloudtouch.devices.api.routes.BoseSoundTouchDiscoveryAdapter") as mock_discovery, \
-             patch("cloudtouch.devices.api.routes.BoseSoundTouchClientAdapter") as mock_client, \
+        with patch("cloudtouch.devices.api.routes.get_discovery_adapter") as mock_get_discovery, \
+             patch("cloudtouch.devices.api.routes.get_soundtouch_client") as mock_get_client, \
              patch("cloudtouch.devices.api.routes.get_config") as mock_config:
             
             mock_config.return_value.discovery_enabled = True
@@ -251,11 +251,11 @@ class TestRealAPIStack:
             
             mock_discovery_instance = AsyncMock()
             mock_discovery_instance.discover.return_value = discovered_v1
-            mock_discovery.return_value = mock_discovery_instance
+            mock_get_discovery.return_value = mock_discovery_instance
             
             mock_client_instance = AsyncMock()
             mock_client_instance.get_info.return_value = device_info_v1
-            mock_client.return_value = mock_client_instance
+            mock_get_client.return_value = mock_client_instance
             
             # 2. First sync
             response = await real_api_client.post("/api/devices/sync")
@@ -278,8 +278,8 @@ class TestRealAPIStack:
             firmware_version="28.0.12.46499",  # New firmware
         )
         
-        with patch("cloudtouch.devices.api.routes.BoseSoundTouchDiscoveryAdapter") as mock_discovery, \
-             patch("cloudtouch.devices.api.routes.BoseSoundTouchClientAdapter") as mock_client, \
+        with patch("cloudtouch.devices.api.routes.get_discovery_adapter") as mock_get_discovery, \
+             patch("cloudtouch.devices.api.routes.get_soundtouch_client") as mock_get_client, \
              patch("cloudtouch.devices.api.routes.get_config") as mock_config:
             
             mock_config.return_value.discovery_enabled = True
@@ -288,11 +288,11 @@ class TestRealAPIStack:
             
             mock_discovery_instance = AsyncMock()
             mock_discovery_instance.discover.return_value = discovered_v1
-            mock_discovery.return_value = mock_discovery_instance
+            mock_get_discovery.return_value = mock_discovery_instance
             
             mock_client_instance = AsyncMock()
             mock_client_instance.get_info.return_value = device_info_v2
-            mock_client.return_value = mock_client_instance
+            mock_get_client.return_value = mock_client_instance
             
             # 5. Second sync (should UPDATE, not INSERT)
             response = await real_api_client.post("/api/devices/sync")

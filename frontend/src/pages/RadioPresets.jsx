@@ -65,6 +65,7 @@ export default function RadioPresets({ devices = [] }) {
           <div className="device-card-header">
             <h2 className="device-name" data-test="device-name">{currentDevice.name}</h2>
             <span className="device-model" data-test="device-model">{currentDevice.model}</span>
+            <span className="device-ip" data-test="device-ip">{currentDevice.ip}</span>
           </div>
           
           <NowPlaying nowPlaying={nowPlaying} />

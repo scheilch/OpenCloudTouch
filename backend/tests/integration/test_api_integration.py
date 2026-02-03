@@ -153,20 +153,20 @@ async def test_sync_devices_success(mock_config):
 
     try:
         with patch(
-            "cloudtouch.devices.api.routes.BoseSoundTouchDiscoveryAdapter"
-        ) as mock_disco, patch(
-            "cloudtouch.devices.api.routes.BoseSoundTouchClientAdapter"
-        ) as mock_client:
+            "cloudtouch.devices.api.routes.get_discovery_adapter"
+        ) as mock_get_disco, patch(
+            "cloudtouch.devices.api.routes.get_soundtouch_client"
+        ) as mock_get_client:
 
-            # Mock discovery
+            # Mock discovery factory
             mock_disco_instance = AsyncMock()
             mock_disco_instance.discover.return_value = discovered
-            mock_disco.return_value = mock_disco_instance
+            mock_get_disco.return_value = mock_disco_instance
 
-            # Mock client
+            # Mock client factory
             mock_client_instance = AsyncMock()
             mock_client_instance.get_info.return_value = device_info
-            mock_client.return_value = mock_client_instance
+            mock_get_client.return_value = mock_client_instance
 
             # Override dependency
             app.dependency_overrides[get_device_repo] = get_mock_repo
@@ -222,14 +222,14 @@ async def test_sync_devices_partial_failure(mock_config):
 
     try:
         with patch(
-            "cloudtouch.devices.api.routes.BoseSoundTouchDiscoveryAdapter"
-        ) as mock_disco, patch(
-            "cloudtouch.devices.api.routes.BoseSoundTouchClientAdapter"
-        ) as mock_client:
+            "cloudtouch.devices.api.routes.get_discovery_adapter"
+        ) as mock_get_disco, patch(
+            "cloudtouch.devices.api.routes.get_soundtouch_client"
+        ) as mock_get_client:
 
             mock_disco_instance = AsyncMock()
             mock_disco_instance.discover.return_value = discovered
-            mock_disco.return_value = mock_disco_instance
+            mock_get_disco.return_value = mock_disco_instance
 
             # First device succeeds, second fails
             mock_client_instance = AsyncMock()
@@ -237,7 +237,7 @@ async def test_sync_devices_partial_failure(mock_config):
                 device_info,
                 Exception("Connection timeout"),
             ]
-            mock_client.return_value = mock_client_instance
+            mock_get_client.return_value = mock_client_instance
 
             app.dependency_overrides[get_device_repo] = get_mock_repo
 

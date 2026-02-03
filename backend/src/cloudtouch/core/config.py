@@ -3,6 +3,7 @@ Zentrale Konfiguration für SoundTouchBridge.
 Nutzt pydantic-settings für ENV + YAML Validierung.
 """
 
+import os
 from pathlib import Path
 from typing import Optional
 
@@ -28,8 +29,39 @@ class AppConfig(BaseSettings):
     log_format: str = Field(default="text", description="Log format: 'text' or 'json'")
     log_file: Optional[str] = Field(default=None, description="Optional log file path")
 
+    # Mock Mode
+    mock_mode: bool = Field(
+        default=False, description="Enable mock mode (for testing without real devices)"
+    )
+
     # Database
-    db_path: str = Field(default="/data/ct.db", description="SQLite database path")
+    db_path: str = Field(default="", description="SQLite database path (auto-configured if empty)")
+    
+    @property
+    def effective_db_path(self) -> str:
+        """
+        Get effective database path based on environment.
+        
+        Priority:
+        1. Explicit CT_DB_PATH (if set)
+        2. CI=true → ":memory:"
+        3. CT_MOCK_MODE=true → "data-local/ct-test.db"
+        4. Production → "data/ct.db"
+        """
+        # Explicit override
+        if self.db_path:
+            return self.db_path
+        
+        # CI: Use in-memory DB
+        if os.getenv("CI", "false").lower() == "true":
+            return ":memory:"
+        
+        # Mock mode: Use test DB in data-local
+        if self.mock_mode:
+            return "data-local/ct-test.db"
+        
+        # Production: Use persistent DB in data/
+        return "/data/ct.db"
 
     # Discovery
     discovery_enabled: bool = Field(

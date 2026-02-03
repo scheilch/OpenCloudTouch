@@ -1,0 +1,69 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 160">
+  <!-- SoundTouch 20 - Horizontal rectangular design -->
+  <defs>
+    <linearGradient id="st20-body" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1a1a1a;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#0d0d0d;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="st20-grill" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#2d2d2d;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#1a1a1a;stop-opacity:1" />
+    </linearGradient>
+    <filter id="st20-shadow">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="3"/>
+      <feOffset dx="0" dy="4" result="offsetblur"/>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.3"/>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <!-- Shadow -->
+  <ellipse cx="120" cy="145" rx="80" ry="6" fill="#000" opacity="0.2"/>
+  
+  <!-- Main body -->
+  <rect x="20" y="30" width="200" height="105" rx="8" 
+        fill="url(#st20-body)" filter="url(#st20-shadow)"/>
+  
+  <!-- Speaker grill -->
+  <rect x="30" y="40" width="180" height="85" rx="4" fill="url(#st20-grill)"/>
+  
+  <!-- Grill pattern -->
+  <g opacity="0.15">
+    <line x1="40" y1="50" x2="40" y2="115" stroke="#fff" stroke-width="1"/>
+    <line x1="55" y1="50" x2="55" y2="115" stroke="#fff" stroke-width="1"/>
+    <line x1="70" y1="50" x2="70" y2="115" stroke="#fff" stroke-width="1"/>
+    <line x1="85" y1="50" x2="85" y2="115" stroke="#fff" stroke-width="1"/>
+    <line x1="100" y1="50" x2="100" y2="115" stroke="#fff" stroke-width="1"/>
+    <line x1="115" y1="50" x2="115" y2="115" stroke="#fff" stroke-width="1"/>
+    <line x1="130" y1="50" x2="130" y2="115" stroke="#fff" stroke-width="1"/>
+    <line x1="145" y1="50" x2="145" y2="115" stroke="#fff" stroke-width="1"/>
+    <line x1="160" y1="50" x2="160" y2="115" stroke="#fff" stroke-width="1"/>
+    <line x1="175" y1="50" x2="175" y2="115" stroke="#fff" stroke-width="1"/>
+    <line x1="190" y1="50" x2="190" y2="115" stroke="#fff" stroke-width="1"/>
+  </g>
+  
+  <!-- Display area -->
+  <rect x="85" y="15" width="70" height="10" rx="2" fill="#000" opacity="0.8"/>
+  <text x="120" y="22" text-anchor="middle" font-family="Arial, sans-serif" 
+        font-size="6" fill="#0f0" opacity="0.7">SOUNDTOUCH</text>
+  
+  <!-- Bose logo -->
+  <rect x="35" y="18" width="35" height="6" rx="2" fill="#fff" opacity="0.9"/>
+  <text x="52.5" y="22.5" text-anchor="middle" font-family="Arial, sans-serif" 
+        font-size="5" font-weight="bold" fill="#000">BOSE</text>
+  
+  <!-- Control buttons -->
+  <circle cx="40" cy="140" r="3" fill="#333" stroke="#555" stroke-width="0.5"/>
+  <circle cx="65" cy="140" r="3" fill="#333" stroke="#555" stroke-width="0.5"/>
+  <circle cx="120" cy="140" r="5" fill="#333" stroke="#555" stroke-width="0.5"/>
+  <circle cx="175" cy="140" r="3" fill="#333" stroke="#555" stroke-width="0.5"/>
+  <circle cx="200" cy="140" r="3" fill="#333" stroke="#555" stroke-width="0.5"/>
+  
+  <!-- LED indicator -->
+  <circle cx="120" cy="37" r="2" fill="#0f0" opacity="0.8"/>
+</svg>

@@ -14,6 +14,7 @@ services:
       - CT_PORT=7777
       - CT_DB_PATH=/data/ct.db
       - CT_LOG_LEVEL=INFO
+      - CT_MOCK_MODE=false  # Production: Use real devices
       - CT_DISCOVERY_ENABLED=true
       - CT_DISCOVERY_TIMEOUT=10
       # Station descriptor URL - adjust if running on different host

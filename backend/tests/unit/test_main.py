@@ -23,8 +23,9 @@ async def test_lifespan_initialization():
         mock_config = MagicMock(spec=AppConfig)
         mock_config.host = "0.0.0.0"
         mock_config.port = 7777
-        mock_config.db_path = ":memory:"
+        mock_config.effective_db_path = ":memory:"
         mock_config.discovery_enabled = True
+        mock_config.mock_mode = False
         mock_get_config.return_value = mock_config
 
         # Mock repository
@@ -93,8 +94,9 @@ async def test_lifespan_error_handling():
         mock_config = MagicMock()
         mock_config.host = "0.0.0.0"
         mock_config.port = 7777
-        mock_config.db_path = ":memory:"
+        mock_config.effective_db_path = ":memory:"
         mock_config.discovery_enabled = True
+        mock_config.mock_mode = False
         mock_get_config.return_value = mock_config
 
         # Mock repo that fails to initialize

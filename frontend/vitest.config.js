@@ -7,6 +7,12 @@ export default defineConfig({
     globals: true,
     environment: 'jsdom',
     setupFiles: './tests/setup.js',
+    exclude: [
+      '**/node_modules/**',
+      '**/dist/**',
+      '**/tests/real/**', // Exclude real device tests from default runs
+      '**/tests/e2e/**', // Exclude Cypress E2E tests
+    ],
     coverage: {
       provider: 'v8',
       reporter: ['text', 'html'],
