@@ -14,6 +14,11 @@ deployment/
 SERVER-DEPLOY.md
 /prototypes
 
+# Temporary analysis files (cleanup/refactoring artifacts)
+analysis/
+*_TEMP.md
+CONTEXT_TEMP.md
+
 # Docker / Container artifacts
 *.tar
 cloudtouch-image.tar

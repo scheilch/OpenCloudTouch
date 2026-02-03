@@ -591,7 +591,190 @@ pytest --cov=src --cov-report=term-missing --cov-fail-under=80
 # If coverage DROPS → Write missing tests BEFORE continuing!
 ```
 
-### 4.3 Regression Detection
+### 4.3 Test Quality Requirements
+
+⚠️ **CRITICAL**: Coverage is NOT the goal - MEANINGFUL TESTS are the goal!
+
+**Test Quality Standards**:
+
+#### Tests MUST Test Functionality, Not Just Exist
+- ❌ **BAD**: Tests that only check `assert result is not None` (useless!)
+- ❌ **BAD**: Tests that just call functions without assertions (coverage theater)
+- ❌ **BAD**: Tests that mock everything and test nothing (fake coverage)
+- ✅ **GOOD**: Tests that verify actual business logic and edge cases
+
+**Example of BAD test (coverage theater)**:
+```python
+def test_sync_devices():
+    """Test device sync."""
+    repo = Mock()
+    service = DeviceService(repo)
+    service.sync()  # No assertions! Just calls the function
+    # This gives coverage but tests NOTHING!
+```
+
+**Example of GOOD test (tests functionality)**:
+```python
+def test_sync_devices_saves_discovered_devices():
+    """Test that discovered devices are saved to repository."""
+    # Arrange
+    mock_discovery = Mock(return_value=[
+        Device(id="123", name="Living Room"),
+        Device(id="456", name="Kitchen")
+    ])
+    mock_repo = Mock()
+    service = DeviceService(repo=mock_repo, discovery=mock_discovery)
+    
+    # Act
+    service.sync()
+    
+    # Assert - Verify actual behavior!
+    assert mock_repo.upsert.call_count == 2
+    mock_repo.upsert.assert_any_call(Device(id="123", name="Living Room"))
+    mock_repo.upsert.assert_any_call(Device(id="456", name="Kitchen"))
+```
+
+#### Required Test Scenarios for Each Function
+
+**For EVERY public function, test**:
+1. **Happy Path**: Normal input → expected output
+2. **Edge Cases**: Empty inputs, null, zero, max values
+3. **Error Cases**: Invalid input → proper exception/error handling
+4. **Side Effects**: Database changes, API calls, state mutations verified
+5. **Business Logic**: All conditional branches executed with assertions
+
+**Example - Testing volume control**:
+```python
+# ✅ Complete test suite for volume control
+def test_set_volume_normal_range():
+    """Test setting volume within valid range (0-100)."""
+    assert set_volume(50) == 50
+
+def test_set_volume_zero():
+    """Test volume can be set to minimum (0)."""
+    assert set_volume(0) == 0
+
+def test_set_volume_max():
+    """Test volume can be set to maximum (100)."""
+    assert set_volume(100) == 100
+
+def test_set_volume_negative_raises_error():
+    """Test negative volume raises ValueError."""
+    with pytest.raises(ValueError, match="Volume must be 0-100"):
+        set_volume(-1)
+
+def test_set_volume_above_max_raises_error():
+    """Test volume >100 raises ValueError."""
+    with pytest.raises(ValueError, match="Volume must be 0-100"):
+        set_volume(101)
+
+def test_set_volume_calls_device_api():
+    """Test that setting volume calls device API with correct value."""
+    mock_device = Mock()
+    set_volume(50, device=mock_device)
+    mock_device.set_volume.assert_called_once_with(50)
+```
+
+#### Code Must Be Written to Be Testable
+
+**Design for Testability**:
+- ✅ Use **Dependency Injection** (pass dependencies as constructor args)
+- ✅ **Separate side effects** from business logic (pure functions)
+- ✅ **Small functions** (<20 lines) are easier to test
+- ✅ **Single Responsibility** - one function does one thing
+- ❌ **No global state** (makes tests non-deterministic)
+- ❌ **No tight coupling** (hard to mock dependencies)
+- ❌ **No hidden dependencies** (instantiating dependencies inside functions)
+
+**Example - Hard to Test (BAD)**:
+```python
+class DeviceSync:
+    def sync(self):
+        # Hidden dependencies = UNTESTABLE!
+        client = BoseClient()  # Can't mock
+        db = Database()        # Can't mock
+        devices = client.discover()
+        db.save(devices)
+```
+
+**Example - Easy to Test (GOOD)**:
+```python
+class DeviceSync:
+    def __init__(self, client: BoseClient, db: Database):
+        # Dependency Injection = TESTABLE!
+        self.client = client
+        self.db = db
+    
+    def sync(self):
+        devices = self.client.discover()
+        self.db.save(devices)
+
+# Now testing is trivial:
+def test_sync():
+    mock_client = Mock(return_value=[Device(...)])
+    mock_db = Mock()
+    sync = DeviceSync(client=mock_client, db=mock_db)
+    sync.sync()
+    # Verify actual behavior:
+    assert mock_db.save.called
+    assert mock_db.save.call_args[0][0][0].id == "123"
+```
+
+#### When Coverage Is NOT Enough
+
+**These scenarios indicate BAD tests despite high coverage**:
+1. **No assertions** - Test runs code but doesn't verify anything
+2. **Only happy path tested** - No edge cases or errors tested
+3. **Mocking too much** - Mock returns are tested, not actual logic
+4. **Tests pass when code is broken** - Tests don't catch real bugs
+5. **Tests are fragile** - Break on every refactoring (testing implementation, not behavior)
+
+**Quality Check Questions**:
+- ❓ If I delete this assertion, does the test still pass? → BAD TEST
+- ❓ If I break the business logic, does the test fail? → If NO: BAD TEST
+- ❓ Does this test verify a real user requirement? → If NO: USELESS TEST
+- ❓ Can I understand what's being tested from the test name? → If NO: UNCLEAR TEST
+
+#### Regression Tests Are MANDATORY
+
+**For EVERY bug fixed**:
+1. Write a test that reproduces the bug (RED)
+2. Fix the bug (GREEN)
+3. **Keep the test** as regression protection (prevent future recurrence)
+
+**Example**:
+```python
+def test_xml_namespace_parsing_regression():
+    """Regression test for XML namespace handling bug.
+    
+    Bug: SSDP discovery failed to parse manufacturer from XML with namespace.
+    Fixed: 2026-01-29 - Implemented namespace-agnostic search.
+    """
+    xml = '<root xmlns="urn:schemas-upnp-org:device-1-0"><manufacturer>Bose</manufacturer></root>'
+    result = parse_manufacturer(xml)
+    assert result == "Bose"  # Would fail before fix
+```
+
+#### Agent Responsibilities
+
+**When writing tests, you MUST**:
+- ✅ Verify actual behavior with specific assertions
+- ✅ Test all code paths (if/else, try/except, loops)
+- ✅ Test edge cases and error conditions
+- ✅ Use descriptive test names explaining WHAT is tested
+- ✅ Write tests that fail when code breaks (verify this!)
+- ✅ Prefer testing behavior over implementation details
+
+**NEVER**:
+- ❌ Write tests just to increase coverage percentage
+- ❌ Write tests without assertions (coverage theater)
+- ❌ Skip edge cases because "happy path works"
+- ❌ Accept "this is hard to test" - REFACTOR until testable!
+- ❌ Mock so much that you're testing the mocks, not the code
+
+**REMEMBER**: 80% coverage with meaningful tests > 100% coverage with useless tests!
+
+### 4.4 Regression Detection
 
 **Signs of regression**:
 - ❌ Test that was passing now fails

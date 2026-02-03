@@ -1309,6 +1309,225 @@ What specific information from [doc] do you need to preserve?"
 
 ---
 
+## 🏗️ CLEANUP PATTERNS & BEST PRACTICES
+
+### Pattern 1: Strangler Fig Pattern (for large refactorings)
+
+**When to use**: Replacing large, complex modules without breaking everything
+
+**Process**:
+1. **Build new implementation** alongside old (both exist in parallel)
+2. **Route new usage** to new code (via feature flag or config)
+3. **Gradually migrate** existing code paths to new implementation
+4. **Monitor** for issues (logging, metrics)
+5. **Delete old code** when nothing uses it anymore
+
+**Example**:
+```python
+# OLD: Tight coupling, hard to test
+class DeviceDiscovery:
+    def find_devices(self):
+        # Complex SSDP logic mixed with HTTP calls
+        pass
+
+# NEW: Clean separation, testable
+class SSDPDiscovery(DeviceDiscovery):
+    def find_devices(self):
+        # Pure SSDP logic
+        pass
+
+# MIGRATION: Use feature flag
+def get_discovery_service():
+    if config.use_new_discovery:
+        return SSDPDiscovery()
+    else:
+        return LegacyDeviceDiscovery()
+
+# USAGE: Gradually migrate
+discovery = get_discovery_service()
+devices = discovery.find_devices()
+```
+
+**Benefits**:
+- ✅ No "big bang" rewrites
+- ✅ Can revert quickly if issues
+- ✅ Continuous integration (tests always pass)
+- ✅ Low risk
+
+### Pattern 2: Adapter Pattern (for external dependencies)
+
+**When to use**: Wrapping third-party libraries, external APIs, or volatile code
+
+**Process**:
+1. **Define interface** (what operations do you need?)
+2. **Implement adapter** (wraps external library)
+3. **Replace direct usage** with adapter
+4. **Mock adapter** in tests (not the external library)
+
+**Example**:
+```python
+# BAD: Direct dependency on httpx everywhere
+async def get_device_info(ip: str):
+    async with httpx.AsyncClient() as client:
+        response = await client.get(f"http://{ip}:8090/info")
+        return response.text
+
+# GOOD: Adapter pattern
+class HTTPClient(ABC):
+    @abstractmethod
+    async def get(self, url: str) -> str:
+        pass
+
+class HTTPXAdapter(HTTPClient):
+    async def get(self, url: str) -> str:
+        async with httpx.AsyncClient() as client:
+            response = await client.get(url)
+            return response.text
+
+# USAGE: Dependency injection
+class DeviceService:
+    def __init__(self, http: HTTPClient):
+        self.http = http
+    
+    async def get_info(self, ip: str):
+        xml = await self.http.get(f"http://{ip}:8090/info")
+        return parse_xml(xml)
+
+# TESTING: Easy mocking
+def test_device_service():
+    mock_http = Mock(HTTPClient)
+    mock_http.get.return_value = "<info>...</info>"
+    service = DeviceService(mock_http)
+    info = service.get_info("192.168.1.100")
+    # Test passes without real HTTP calls!
+```
+
+**Benefits**:
+- ✅ Easy to swap implementations (e.g., httpx → aiohttp)
+- ✅ Testable without external dependencies
+- ✅ Isolates breaking changes in libraries
+
+### Pattern 3: Feature Flags (for risky changes)
+
+**When to use**: Deploying risky changes, A/B testing, gradual rollout
+
+**Process**:
+1. **Add config flag** (env var or config file)
+2. **Implement new code** behind flag
+3. **Deploy with flag OFF** (default to safe behavior)
+4. **Enable flag** gradually (test in dev → staging → prod)
+5. **Remove flag** once stable (make new code default)
+
+**Example**:
+```python
+# Config
+USE_NEW_PRESET_API = os.getenv("CT_USE_NEW_PRESET_API", "false").lower() == "true"
+
+# Code
+async def save_preset(device_id: str, preset: int, station: str):
+    if USE_NEW_PRESET_API:
+        # New implementation (risky, but better)
+        return await new_preset_service.save(device_id, preset, station)
+    else:
+        # Old implementation (stable, proven)
+        return await legacy_preset_save(device_id, preset, station)
+```
+
+**Benefits**:
+- ✅ Can deploy without risk
+- ✅ Can revert instantly (flip flag)
+- ✅ Can test in production safely
+
+### Pattern 4: SOLID Principles Reminder
+
+**S - Single Responsibility**
+- One class = one reason to change
+- ❌ BAD: `DeviceManager` does discovery + API calls + DB + UI updates
+- ✅ GOOD: `DeviceDiscovery`, `DeviceRepository`, `DeviceAPIClient` (separate)
+
+**O - Open/Closed**
+- Open for extension, closed for modification
+- ❌ BAD: `if provider == "radiobrowser": ... elif provider == "tunein": ...` (modify class for each provider)
+- ✅ GOOD: `RadioProvider` interface, `RadioBrowserProvider`, `TuneInProvider` (extend with new classes)
+
+**L - Liskov Substitution**
+- Subtypes must be substitutable for base types
+- ❌ BAD: `Square` inherits `Rectangle` but breaks `set_width()/set_height()` invariants
+- ✅ GOOD: Composition over inheritance (`Square` has-a `dimensions`, not is-a `Rectangle`)
+
+**I - Interface Segregation**
+- Many small interfaces > one fat interface
+- ❌ BAD: `IDevice` with 50 methods (most devices implement only 10)
+- ✅ GOOD: `IPlayback`, `IVolume`, `IPresets` (devices implement only what they support)
+
+**D - Dependency Inversion**
+- Depend on abstractions, not concretions
+- ❌ BAD: `DeviceService` creates `HTTPXClient()` directly
+- ✅ GOOD: `DeviceService(http: HTTPClient)` - depends on interface, not implementation
+
+### Pattern 5: Progressive Enhancement (UI)
+
+**When to use**: Building user-facing features that should work everywhere
+
+**Process**:
+1. **Base functionality** works without JavaScript (HTML + CSS)
+2. **Enhanced functionality** if JavaScript enabled (interactivity)
+3. **Progressive features** if modern browser (animations, web workers)
+
+**Example**:
+```jsx
+// LEVEL 1: Works without JavaScript (server-rendered HTML)
+<form action="/api/devices/sync" method="POST">
+  <button type="submit">Sync Devices</button>
+</form>
+
+// LEVEL 2: Enhanced with JavaScript (no page reload)
+function DeviceSyncButton() {
+  const handleSync = async () => {
+    await fetch('/api/devices/sync', { method: 'POST' });
+    alert('Synced!');
+  };
+  return <button onClick={handleSync}>Sync Devices</button>;
+}
+
+// LEVEL 3: Progressive (loading state, animations)
+function DeviceSyncButton() {
+  const [loading, setLoading] = useState(false);
+  const handleSync = async () => {
+    setLoading(true);
+    await fetch('/api/devices/sync', { method: 'POST' });
+    setLoading(false);
+  };
+  return (
+    <motion.button 
+      onClick={handleSync} 
+      disabled={loading}
+      whileHover={{ scale: 1.05 }}
+    >
+      {loading ? <Spinner /> : 'Sync Devices'}
+    </motion.button>
+  );
+}
+```
+
+**Benefits**:
+- ✅ Works for everyone (accessibility)
+- ✅ Graceful degradation
+- ✅ Better UX for modern browsers
+
+### Pattern 6: The Boy Scout Rule
+
+> "Leave the code better than you found it"
+
+**Every cleanup should**:
+- Fix the original problem
+- Plus one small improvement nearby
+- Example: Fix a bug → also improve variable naming in that function
+
+**Cumulative effect**: Codebase gets cleaner over time
+
+---
+
 ## 📝 FINAL CHECKLIST FOR AGENT
 
 **Before starting**:
