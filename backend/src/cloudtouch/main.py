@@ -41,17 +41,18 @@ async def lifespan(app: FastAPI):
     logger = logging.getLogger(__name__)
     cfg = get_config()
     logger.info(f"SoundTouchBridge starting on {cfg.host}:{cfg.port}")
-    logger.info(f"Database: {cfg.db_path}")
+    logger.info(f"Database: {cfg.effective_db_path}")
     logger.info(f"Discovery enabled: {cfg.discovery_enabled}")
+    logger.info(f"Mock mode: {cfg.mock_mode}")
 
     # Initialize database
-    device_repo = DeviceRepository(cfg.db_path)
+    device_repo = DeviceRepository(cfg.effective_db_path)
     await device_repo.initialize()
     logger.info("Device repository initialized")
 
     # Initialize settings repository (convert str to Path if needed)
     from pathlib import Path
-    db_path = Path(cfg.db_path) if isinstance(cfg.db_path, str) else cfg.db_path
+    db_path = Path(cfg.effective_db_path) if isinstance(cfg.effective_db_path, str) else cfg.effective_db_path
     settings_repo = SettingsRepository(db_path)
     await settings_repo.initialize()
     logger.info("Settings repository initialized")
