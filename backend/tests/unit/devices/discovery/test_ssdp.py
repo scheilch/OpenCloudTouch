@@ -3,9 +3,10 @@ Tests for SSDP Discovery
 """
 
 import asyncio
-import pytest
-from unittest.mock import AsyncMock, patch, MagicMock
+from unittest.mock import AsyncMock, MagicMock, patch
 from xml.etree import ElementTree
+
+import pytest
 
 from cloudtouch.devices.discovery.ssdp import SSDPDiscovery
 

@@ -2,12 +2,13 @@
 Tests for BoseSoundTouch Adapter
 """
 
-import pytest
 from unittest.mock import AsyncMock, patch
 
+import pytest
+
+from cloudtouch.core.exceptions import DiscoveryError
 from cloudtouch.devices.adapter import BoseSoundTouchDiscoveryAdapter
 from cloudtouch.discovery import DiscoveredDevice
-from cloudtouch.core.exceptions import DiscoveryError
 
 
 @pytest.mark.asyncio

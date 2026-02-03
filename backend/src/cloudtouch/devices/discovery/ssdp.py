@@ -13,9 +13,8 @@ import socket
 from typing import Dict, Optional
 from xml.etree.ElementTree import Element
 
-from defusedxml.ElementTree import fromstring as parse_xml_string
-
 import httpx
+from defusedxml.ElementTree import fromstring as parse_xml_string
 
 logger = logging.getLogger(__name__)
 
@@ -239,7 +238,7 @@ class SSDPDiscovery:
         # Extract namespace from root tag (e.g., {urn:schemas-upnp-org:device-1-0})
         namespace = None
         if root.tag.startswith("{"):
-            namespace = root.tag[1:root.tag.index("}")]
+            namespace = root.tag[1 : root.tag.index("}")]
 
         # Build proper XPath with namespace
         if namespace and path.startswith(".//"):

@@ -1,5 +1,5 @@
-import { NavLink } from 'react-router-dom'
-import './Navigation.css'
+import { NavLink } from "react-router-dom";
+import "./Navigation.css";
 
 export default function Navigation() {
   return (
@@ -27,5 +27,5 @@ export default function Navigation() {
         </NavLink>
       </div>
     </nav>
-  )
+  );
 }

@@ -1,82 +1,82 @@
-import { useState, useEffect } from 'react'
-import { motion } from 'framer-motion'
-import DeviceSwiper from '../components/DeviceSwiper'
-import './LocalControl.css'
+import { useState, useEffect } from "react";
+import { motion } from "framer-motion";
+import DeviceSwiper from "../components/DeviceSwiper";
+import "./LocalControl.css";
 
 const SOURCES = [
-  { id: 'INTERNET_RADIO', label: 'Radio', icon: '📻', supported: true },
-  { id: 'BLUETOOTH', label: 'Bluetooth', icon: '📱', supported: true },
-  { id: 'AUX', label: 'AUX', icon: '🎵', supported: true },
-  { id: 'AIRPLAY', label: 'AirPlay', icon: '✈️', supported: 'conditional' }
-]
+  { id: "INTERNET_RADIO", label: "Radio", icon: "📻", supported: true },
+  { id: "BLUETOOTH", label: "Bluetooth", icon: "📱", supported: true },
+  { id: "AUX", label: "AUX", icon: "🎵", supported: true },
+  { id: "AIRPLAY", label: "AirPlay", icon: "✈️", supported: "conditional" },
+];
 
 export default function LocalControl({ devices = [] }) {
-  const [currentDeviceIndex, setCurrentDeviceIndex] = useState(0)
-  const [volume, setVolume] = useState(45)
-  const [muted, setMuted] = useState(false)
-  const [selectedSource, setSelectedSource] = useState('INTERNET_RADIO')
-  const [playState, setPlayState] = useState('PLAY_STATE')
+  const [currentDeviceIndex, setCurrentDeviceIndex] = useState(0);
+  const [volume, setVolume] = useState(45);
+  const [muted, setMuted] = useState(false);
+  const [selectedSource, setSelectedSource] = useState("INTERNET_RADIO");
+  const [playState, setPlayState] = useState("PLAY_STATE");
 
-  const currentDevice = devices[currentDeviceIndex]
+  const currentDevice = devices[currentDeviceIndex];
   // TODO: NowPlaying will be implemented in Phase 3 with backend endpoint
-  const nowPlaying = null
+  const nowPlaying = null;
 
   useEffect(() => {
     if (currentDevice) {
       // Reset volume when device changes
-      setVolume(45)
-      setMuted(false)
+      setVolume(45);
+      setMuted(false);
     }
-  }, [currentDevice])
+  }, [currentDevice]);
 
   const handleVolumeChange = (e) => {
-    const newVolume = parseInt(e.target.value, 10)
-    setVolume(newVolume)
-    setMuted(false)
-    console.log(`Set volume to ${newVolume} on ${currentDevice?.name}`)
-  }
+    const newVolume = parseInt(e.target.value, 10);
+    setVolume(newVolume);
+    setMuted(false);
+    console.log(`Set volume to ${newVolume} on ${currentDevice?.name}`);
+  };
 
   const handleMuteToggle = () => {
-    setMuted(!muted)
-  }
+    setMuted(!muted);
+  };
 
   const handleSourceChange = (sourceId) => {
-    setSelectedSource(sourceId)
-    console.log(`Switch to ${sourceId} on ${currentDevice?.name}`)
-  }
+    setSelectedSource(sourceId);
+    console.log(`Switch to ${sourceId} on ${currentDevice?.name}`);
+  };
 
   const handlePlayPause = () => {
-    const newState = playState === 'PLAY_STATE' ? 'PAUSE_STATE' : 'PLAY_STATE'
-    setPlayState(newState)
-  }
+    const newState = playState === "PLAY_STATE" ? "PAUSE_STATE" : "PLAY_STATE";
+    setPlayState(newState);
+  };
 
   const handlePrevious = () => {
     // TODO: Implement previous track API call
-  }
+  };
 
   const handleNext = () => {
     // TODO: Implement next track API call
-  }
+  };
 
   const handleStandby = () => {
     // TODO: Implement standby API call
-  }
+  };
 
   if (devices.length === 0) {
     return (
       <div className="empty-container">
         <p className="empty-message">Keine Geräte gefunden</p>
       </div>
-    )
+    );
   }
 
-  const displayVolume = muted ? 0 : volume
-  const supportedSources = SOURCES.filter(source => {
-    if (source.supported === 'conditional') {
-      return currentDevice?.capabilities?.airplay || false
+  const displayVolume = muted ? 0 : volume;
+  const supportedSources = SOURCES.filter((source) => {
+    if (source.supported === "conditional") {
+      return currentDevice?.capabilities?.airplay || false;
     }
-    return source.supported
-  })
+    return source.supported;
+  });
 
   return (
     <div className="page local-control-page">
@@ -95,14 +95,14 @@ export default function LocalControl({ devices = [] }) {
           </div>
 
           {/* Volume Control */}
-          <motion.div 
+          <motion.div
             className="volume-section"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
           >
             <div className="volume-header">
-              <span className="volume-icon">{muted ? '🔇' : '🔊'}</span>
+              <span className="volume-icon">{muted ? "🔇" : "🔊"}</span>
               <span className="volume-label">Lautstärke</span>
               <span className="volume-value">{displayVolume}%</span>
             </div>
@@ -118,7 +118,7 @@ export default function LocalControl({ devices = [] }) {
           </motion.div>
 
           {/* Source Selection */}
-          <motion.div 
+          <motion.div
             className="source-section"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -129,7 +129,7 @@ export default function LocalControl({ devices = [] }) {
               {supportedSources.map((source) => (
                 <button
                   key={source.id}
-                  className={`source-tab ${selectedSource === source.id ? 'active' : ''}`}
+                  className={`source-tab ${selectedSource === source.id ? "active" : ""}`}
                   onClick={() => handleSourceChange(source.id)}
                 >
                   <span className="source-icon">{source.icon}</span>
@@ -140,22 +140,26 @@ export default function LocalControl({ devices = [] }) {
           </motion.div>
 
           {/* Now Playing Info (if available) */}
-          {nowPlaying && selectedSource === 'INTERNET_RADIO' && (
-            <motion.div 
+          {nowPlaying && selectedSource === "INTERNET_RADIO" && (
+            <motion.div
               className="now-playing-info"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
             >
               <div className="now-playing-text">
-                <div className="station-name">{nowPlaying.station || 'Kein Sender'}</div>
-                <div className="track-info">{nowPlaying.track || 'Keine Wiedergabe'}</div>
+                <div className="station-name">
+                  {nowPlaying.station || "Kein Sender"}
+                </div>
+                <div className="track-info">
+                  {nowPlaying.track || "Keine Wiedergabe"}
+                </div>
               </div>
             </motion.div>
           )}
 
           {/* Playback Controls */}
-          <motion.div 
+          <motion.div
             className="playback-section"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -163,26 +167,26 @@ export default function LocalControl({ devices = [] }) {
           >
             <h3 className="playback-title">Wiedergabe</h3>
             <div className="playback-controls">
-              <button 
+              <button
                 className="playback-button previous"
                 onClick={handlePrevious}
-                disabled={selectedSource === 'AUX'}
+                disabled={selectedSource === "AUX"}
               >
                 <span className="playback-icon">⏮</span>
               </button>
-              <button 
+              <button
                 className="playback-button play-pause primary"
                 onClick={handlePlayPause}
-                disabled={selectedSource === 'AUX'}
+                disabled={selectedSource === "AUX"}
               >
                 <span className="playback-icon">
-                  {playState === 'PLAY_STATE' ? '⏸️' : '▶️'}
+                  {playState === "PLAY_STATE" ? "⏸️" : "▶️"}
                 </span>
               </button>
-              <button 
+              <button
                 className="playback-button next"
                 onClick={handleNext}
-                disabled={selectedSource === 'AUX'}
+                disabled={selectedSource === "AUX"}
               >
                 <span className="playback-icon">⏭</span>
               </button>
@@ -190,20 +194,22 @@ export default function LocalControl({ devices = [] }) {
           </motion.div>
 
           {/* Quick Actions */}
-          <motion.div 
+          <motion.div
             className="quick-actions"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5 }}
           >
-            <button 
-              className={`quick-action-button ${muted ? 'active' : ''}`}
+            <button
+              className={`quick-action-button ${muted ? "active" : ""}`}
               onClick={handleMuteToggle}
             >
-              <span className="quick-action-icon">{muted ? '🔇' : '🔊'}</span>
-              <span className="quick-action-label">{muted ? 'Ton an' : 'Stumm'}</span>
+              <span className="quick-action-icon">{muted ? "🔇" : "🔊"}</span>
+              <span className="quick-action-label">
+                {muted ? "Ton an" : "Stumm"}
+              </span>
             </button>
-            <button 
+            <button
               className="quick-action-button standby"
               onClick={handleStandby}
             >
@@ -214,5 +220,5 @@ export default function LocalControl({ devices = [] }) {
         </div>
       </DeviceSwiper>
     </div>
-  )
+  );
 }

@@ -15,13 +15,13 @@ class TestMockDiscoveryAdapter:
     async def test_returns_predefined_devices(self):
         """Test that mock adapter returns 3 predefined devices."""
         adapter = MockDiscoveryAdapter()
-        
+
         devices = await adapter.discover()
-        
+
         assert len(devices) == 3
         assert isinstance(devices, list)
         assert all(isinstance(d, DiscoveredDevice) for d in devices)
-        
+
         # Check that all 3 MAC addresses are present
         mac_addresses = {d.mac_address for d in devices}
         assert mac_addresses == {"AABBCC112233", "DDEEFF445566", "112233445566"}
@@ -30,12 +30,12 @@ class TestMockDiscoveryAdapter:
     async def test_device_structure(self):
         """Test that devices have correct structure."""
         adapter = MockDiscoveryAdapter()
-        
+
         devices = await adapter.discover()
-        
+
         # Find Living Room device
         living_room = next(d for d in devices if d.mac_address == "AABBCC112233")
-        
+
         assert living_room.ip == "192.168.1.100"
         assert living_room.port == 8090
         assert living_room.mac_address == "AABBCC112233"
@@ -48,9 +48,9 @@ class TestMockDiscoveryAdapter:
     async def test_all_devices_have_required_fields(self):
         """Test that all mock devices have required fields."""
         adapter = MockDiscoveryAdapter()
-        
+
         devices = await adapter.discover()
-        
+
         for device in devices:
             assert device.ip is not None
             assert device.port == 8090
@@ -63,6 +63,6 @@ class TestMockDiscoveryAdapter:
     async def test_timeout_parameter_accepted(self):
         """Test that timeout parameter is accepted (for interface compatibility)."""
         adapter = MockDiscoveryAdapter(timeout=5)
-        
+
         devices = await adapter.discover()
         assert len(devices) == 3  # Should work regardless of timeout

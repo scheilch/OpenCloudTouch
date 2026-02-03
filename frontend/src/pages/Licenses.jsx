@@ -1,32 +1,92 @@
-import React from 'react';
-import './Licenses.css';
+import React from "react";
+import "./Licenses.css";
 
 /**
  * Licenses Component
- * 
+ *
  * Displays all external libraries and their licenses.
  * Ensures open-source compliance.
  */
 export default function Licenses() {
   const dependencies = {
     frontend: [
-      { name: 'React', version: '18.2.0', license: 'MIT', url: 'https://reactjs.org' },
-      { name: 'React Router', version: '6.20.0', license: 'MIT', url: 'https://reactrouter.com' },
-      { name: 'Framer Motion', version: '10.16.16', license: 'MIT', url: 'https://www.framer.com/motion' },
+      {
+        name: "React",
+        version: "18.2.0",
+        license: "MIT",
+        url: "https://reactjs.org",
+      },
+      {
+        name: "React Router",
+        version: "6.20.0",
+        license: "MIT",
+        url: "https://reactrouter.com",
+      },
+      {
+        name: "Framer Motion",
+        version: "10.16.16",
+        license: "MIT",
+        url: "https://www.framer.com/motion",
+      },
     ],
     backend: [
-      { name: 'FastAPI', version: '0.100+', license: 'MIT', url: 'https://fastapi.tiangolo.com' },
-      { name: 'uvicorn', version: 'latest', license: 'BSD-3-Clause', url: 'https://www.uvicorn.org' },
-      { name: 'httpx', version: 'latest', license: 'BSD-3-Clause', url: 'https://www.python-httpx.org' },
-      { name: 'aiosqlite', version: 'latest', license: 'MIT', url: 'https://github.com/omnilib/aiosqlite' },
-      { name: 'pydantic', version: '2.0+', license: 'MIT', url: 'https://docs.pydantic.dev' },
-      { name: 'libsoundtouch', version: 'latest', license: 'Apache-2.0', url: 'https://github.com/CharlesBlonde/libsoundtouch' },
+      {
+        name: "FastAPI",
+        version: "0.100+",
+        license: "MIT",
+        url: "https://fastapi.tiangolo.com",
+      },
+      {
+        name: "uvicorn",
+        version: "latest",
+        license: "BSD-3-Clause",
+        url: "https://www.uvicorn.org",
+      },
+      {
+        name: "httpx",
+        version: "latest",
+        license: "BSD-3-Clause",
+        url: "https://www.python-httpx.org",
+      },
+      {
+        name: "aiosqlite",
+        version: "latest",
+        license: "MIT",
+        url: "https://github.com/omnilib/aiosqlite",
+      },
+      {
+        name: "pydantic",
+        version: "2.0+",
+        license: "MIT",
+        url: "https://docs.pydantic.dev",
+      },
+      {
+        name: "libsoundtouch",
+        version: "latest",
+        license: "Apache-2.0",
+        url: "https://github.com/CharlesBlonde/libsoundtouch",
+      },
     ],
     build: [
-      { name: 'Vite', version: '5.0.8', license: 'MIT', url: 'https://vitejs.dev' },
-      { name: 'pytest', version: 'latest', license: 'MIT', url: 'https://pytest.org' },
-      { name: 'Docker', version: 'latest', license: 'Apache-2.0', url: 'https://www.docker.com' },
-    ]
+      {
+        name: "Vite",
+        version: "5.0.8",
+        license: "MIT",
+        url: "https://vitejs.dev",
+      },
+      {
+        name: "pytest",
+        version: "latest",
+        license: "MIT",
+        url: "https://pytest.org",
+      },
+      {
+        name: "Docker",
+        version: "latest",
+        license: "Apache-2.0",
+        url: "https://www.docker.com",
+      },
+    ],
   };
 
   const renderLicenseTable = (title, items) => (
@@ -49,8 +109,19 @@ export default function Licenses() {
             <div className="lib-link">
               <a href={dep.url} target="_blank" rel="noopener noreferrer">
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                  <path d="M13 3L6 10M13 3H8M13 3V8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                  <path d="M11 13H3V5H6" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                  <path
+                    d="M13 3L6 10M13 3H8M13 3V8"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                  <path
+                    d="M11 13H3V5H6"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                  />
                 </svg>
               </a>
             </div>
@@ -68,23 +139,23 @@ export default function Licenses() {
       </div>
 
       <div className="licenses-content">
-        {renderLicenseTable('Frontend', dependencies.frontend)}
-        {renderLicenseTable('Backend', dependencies.backend)}
-        {renderLicenseTable('Build Tools', dependencies.build)}
+        {renderLicenseTable("Frontend", dependencies.frontend)}
+        {renderLicenseTable("Backend", dependencies.backend)}
+        {renderLicenseTable("Build Tools", dependencies.build)}
       </div>
 
       <div className="licenses-footer">
         <div className="compliance-notice">
           <h3>Lizenz-Compliance</h3>
           <p>
-            CloudTouch ist Open-Source Software unter der MIT-Lizenz.
-            Alle verwendeten Bibliotheken sind mit dieser Lizenz kompatibel.
+            CloudTouch ist Open-Source Software unter der MIT-Lizenz. Alle
+            verwendeten Bibliotheken sind mit dieser Lizenz kompatibel.
           </p>
           <p>
-            <strong>CloudTouch Lizenz:</strong>{' '}
-            <a 
-              href="https://github.com/user/cloudtouch/blob/main/LICENSE" 
-              target="_blank" 
+            <strong>CloudTouch Lizenz:</strong>{" "}
+            <a
+              href="https://github.com/user/cloudtouch/blob/main/LICENSE"
+              target="_blank"
               rel="noopener noreferrer"
             >
               MIT License
@@ -95,8 +166,9 @@ export default function Licenses() {
         <div className="attribution">
           <h3>Danksagung</h3>
           <p>
-            Wir danken allen Open-Source Entwicklern und Projekten, die diese Software möglich machen.
-            Besonderer Dank an die Bose SoundTouch Community für die API-Dokumentation.
+            Wir danken allen Open-Source Entwicklern und Projekten, die diese
+            Software möglich machen. Besonderer Dank an die Bose SoundTouch
+            Community für die API-Dokumentation.
           </p>
         </div>
       </div>

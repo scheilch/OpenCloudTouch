@@ -1,14 +1,19 @@
-import './VolumeSlider.css'
+import "./VolumeSlider.css";
 
-export default function VolumeSlider({ volume, onVolumeChange, muted, onMuteToggle }) {
+export default function VolumeSlider({
+  volume,
+  onVolumeChange,
+  muted,
+  onMuteToggle,
+}) {
   return (
     <div className="volume-slider">
-      <button 
-        className={`volume-mute ${muted ? 'muted' : ''}`}
+      <button
+        className={`volume-mute ${muted ? "muted" : ""}`}
         onClick={onMuteToggle}
-        aria-label={muted ? 'Unmute' : 'Mute'}
+        aria-label={muted ? "Unmute" : "Mute"}
       >
-        {muted ? '🔇' : volume > 50 ? '🔊' : volume > 0 ? '🔉' : '🔈'}
+        {muted ? "🔇" : volume > 50 ? "🔊" : volume > 0 ? "🔉" : "🔈"}
       </button>
       <input
         type="range"
@@ -22,5 +27,5 @@ export default function VolumeSlider({ volume, onVolumeChange, muted, onMuteTogg
       />
       <span className="volume-value">{volume}%</span>
     </div>
-  )
+  );
 }

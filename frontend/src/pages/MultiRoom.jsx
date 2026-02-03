@@ -1,66 +1,66 @@
-import { useState } from 'react'
-import { motion } from 'framer-motion'
-import './MultiRoom.css'
+import { useState } from "react";
+import { motion } from "framer-motion";
+import "./MultiRoom.css";
 
 const MOCK_ZONES = [
   {
-    id: 'zone_1',
-    name: 'Living Room Zone',
-    master: 'aabbcc112233',
-    slaves: ['ddeeff445566']
-  }
-]
+    id: "zone_1",
+    name: "Living Room Zone",
+    master: "aabbcc112233",
+    slaves: ["ddeeff445566"],
+  },
+];
 
 export default function MultiRoom({ devices = [] }) {
-  const [zones, setZones] = useState(MOCK_ZONES)
-  const [selectedDevices, setSelectedDevices] = useState([])
-  const [editingZone, setEditingZone] = useState(null)
+  const [zones, setZones] = useState(MOCK_ZONES);
+  const [selectedDevices, setSelectedDevices] = useState([]);
+  const [editingZone, setEditingZone] = useState(null);
 
   const handleDeviceToggle = (deviceId) => {
-    setSelectedDevices(prev => {
+    setSelectedDevices((prev) => {
       if (prev.includes(deviceId)) {
-        return prev.filter(id => id !== deviceId)
+        return prev.filter((id) => id !== deviceId);
       }
-      return [...prev, deviceId]
-    })
-  }
+      return [...prev, deviceId];
+    });
+  };
 
   const handleCreateZone = () => {
     if (selectedDevices.length < 2) {
-      alert('Mindestens 2 Geräte erforderlich für eine Zone')
-      return
+      alert("Mindestens 2 Geräte erforderlich für eine Zone");
+      return;
     }
-    
+
     const newZone = {
       id: `zone_${Date.now()}`,
       name: `Neue Zone ${zones.length + 1}`,
       master: selectedDevices[0],
-      slaves: selectedDevices.slice(1)
-    }
-    
-    setZones([...zones, newZone])
-    setSelectedDevices([])
-    console.log('Created zone:', newZone)
-  }
+      slaves: selectedDevices.slice(1),
+    };
+
+    setZones([...zones, newZone]);
+    setSelectedDevices([]);
+    console.log("Created zone:", newZone);
+  };
 
   const handleDissolveZone = (zoneId) => {
-    setZones(zones.filter(z => z.id !== zoneId))
-  }
+    setZones(zones.filter((z) => z.id !== zoneId));
+  };
 
   const handleEditZone = (zone) => {
-    setEditingZone(zone)
-    setSelectedDevices([zone.master, ...zone.slaves])
-  }
+    setEditingZone(zone);
+    setSelectedDevices([zone.master, ...zone.slaves]);
+  };
 
   const getDeviceById = (deviceId) => {
-    return devices.find(d => d.device_id === deviceId)
-  }
+    return devices.find((d) => d.device_id === deviceId);
+  };
 
   const isDeviceInZone = (deviceId) => {
-    return zones.some(zone => 
-      zone.master === deviceId || zone.slaves.includes(deviceId)
-    )
-  }
+    return zones.some(
+      (zone) => zone.master === deviceId || zone.slaves.includes(deviceId),
+    );
+  };
 
   return (
     <div className="page multiroom-page">
@@ -68,7 +68,7 @@ export default function MultiRoom({ devices = [] }) {
 
       {/* Active Zones */}
       {zones.length > 0 && (
-        <motion.section 
+        <motion.section
           className="zones-section"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -76,11 +76,13 @@ export default function MultiRoom({ devices = [] }) {
           <h2 className="section-title">Aktive Zonen</h2>
           <div className="zones-list">
             {zones.map((zone) => {
-              const masterDevice = getDeviceById(zone.master)
-              const slaveDevices = zone.slaves.map(id => getDeviceById(id)).filter(Boolean)
-              
+              const masterDevice = getDeviceById(zone.master);
+              const slaveDevices = zone.slaves
+                .map((id) => getDeviceById(id))
+                .filter(Boolean);
+
               return (
-                <motion.div 
+                <motion.div
                   key={zone.id}
                   className="zone-card"
                   initial={{ opacity: 0, scale: 0.95 }}
@@ -91,13 +93,15 @@ export default function MultiRoom({ devices = [] }) {
                     <span className="zone-icon">🎵</span>
                     <h3 className="zone-name">{zone.name}</h3>
                   </div>
-                  
+
                   <div className="zone-devices">
                     <div className="zone-device master">
                       <span className="device-badge master-badge">Master</span>
-                      <span className="device-name">{masterDevice?.name || 'Unknown'}</span>
+                      <span className="device-name">
+                        {masterDevice?.name || "Unknown"}
+                      </span>
                     </div>
-                    
+
                     {slaveDevices.map((device) => (
                       <div key={device.device_id} className="zone-device slave">
                         <span className="device-badge slave-badge">Slave</span>
@@ -105,16 +109,16 @@ export default function MultiRoom({ devices = [] }) {
                       </div>
                     ))}
                   </div>
-                  
+
                   <div className="zone-actions">
-                    <button 
+                    <button
                       className="zone-action-button edit"
                       onClick={() => handleEditZone(zone)}
                     >
                       <span className="button-icon">✏️</span>
                       <span>Bearbeiten</span>
                     </button>
-                    <button 
+                    <button
                       className="zone-action-button dissolve"
                       onClick={() => handleDissolveZone(zone.id)}
                     >
@@ -123,33 +127,35 @@ export default function MultiRoom({ devices = [] }) {
                     </button>
                   </div>
                 </motion.div>
-              )
+              );
             })}
           </div>
         </motion.section>
       )}
 
       {/* Device Selection */}
-      <motion.section 
+      <motion.section
         className="device-selection-section"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
       >
         <h2 className="section-title">
-          {editingZone ? `Zone bearbeiten: ${editingZone.name}` : 'Neue Zone erstellen'}
+          {editingZone
+            ? `Zone bearbeiten: ${editingZone.name}`
+            : "Neue Zone erstellen"}
         </h2>
-        
+
         <div className="devices-grid">
           {devices.map((device, index) => {
-            const inZone = isDeviceInZone(device.device_id)
-            const isSelected = selectedDevices.includes(device.device_id)
-            const isMaster = selectedDevices[0] === device.device_id
-            
+            const inZone = isDeviceInZone(device.device_id);
+            const isSelected = selectedDevices.includes(device.device_id);
+            const isMaster = selectedDevices[0] === device.device_id;
+
             return (
               <motion.label
                 key={device.device_id}
-                className={`device-checkbox-card ${isSelected ? 'selected' : ''} ${inZone && !isSelected ? 'in-zone' : ''}`}
+                className={`device-checkbox-card ${isSelected ? "selected" : ""} ${inZone && !isSelected ? "in-zone" : ""}`}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.1 * index }}
@@ -163,41 +169,51 @@ export default function MultiRoom({ devices = [] }) {
                 <div className="device-checkbox-content">
                   <div className="device-checkbox-header">
                     <span className="device-checkbox-name">{device.name}</span>
-                    {isMaster && <span className="device-badge master-badge">Master</span>}
-                    {isSelected && !isMaster && <span className="device-badge slave-badge">Slave</span>}
-                    {inZone && !isSelected && <span className="device-badge in-zone-badge">In Zone</span>}
+                    {isMaster && (
+                      <span className="device-badge master-badge">Master</span>
+                    )}
+                    {isSelected && !isMaster && (
+                      <span className="device-badge slave-badge">Slave</span>
+                    )}
+                    {inZone && !isSelected && (
+                      <span className="device-badge in-zone-badge">
+                        In Zone
+                      </span>
+                    )}
                   </div>
                   <span className="device-checkbox-model">{device.model}</span>
                 </div>
               </motion.label>
-            )
+            );
           })}
         </div>
 
         {selectedDevices.length > 0 && (
-          <motion.div 
+          <motion.div
             className="selection-info"
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
           >
             <p className="selection-count">
               {selectedDevices.length} Gerät(e) ausgewählt
-              {selectedDevices.length < 2 && ' (mindestens 2 erforderlich)'}
+              {selectedDevices.length < 2 && " (mindestens 2 erforderlich)"}
             </p>
-            <button 
+            <button
               className="create-zone-button"
               onClick={handleCreateZone}
               disabled={selectedDevices.length < 2}
             >
               <span className="button-icon">➕</span>
-              <span>{editingZone ? 'Zone aktualisieren' : 'Zone erstellen'}</span>
+              <span>
+                {editingZone ? "Zone aktualisieren" : "Zone erstellen"}
+              </span>
             </button>
           </motion.div>
         )}
       </motion.section>
 
       {/* Info Box */}
-      <motion.div 
+      <motion.div
         className="info-box"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -215,5 +231,5 @@ export default function MultiRoom({ devices = [] }) {
         </div>
       </motion.div>
     </div>
-  )
+  );
 }

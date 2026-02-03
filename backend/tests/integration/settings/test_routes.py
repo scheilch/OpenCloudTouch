@@ -1,8 +1,9 @@
 """Integration tests for Settings API routes."""
 
+from unittest.mock import AsyncMock
+
 import pytest
 from fastapi.testclient import TestClient
-from unittest.mock import AsyncMock
 
 from cloudtouch.main import app
 from cloudtouch.settings.routes import get_settings_repo
@@ -66,9 +67,7 @@ class TestManualIPsEndpoints:
         assert response.status_code == 200
         data = response.json()
         assert data == {"message": "IP removed successfully", "ip": ip_to_delete}
-        mock_settings_repo.remove_manual_ip.assert_awaited_once_with(
-            ip_to_delete
-        )
+        mock_settings_repo.remove_manual_ip.assert_awaited_once_with(ip_to_delete)
 
     def test_delete_manual_ip_not_found(self, client, mock_settings_repo):
         """Test DELETE /api/settings/manual-ips/{ip} with non-existent IP."""

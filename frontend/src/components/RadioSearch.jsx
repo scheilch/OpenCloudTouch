@@ -1,43 +1,43 @@
-import { useState } from 'react'
-import './RadioSearch.css'
+import { useState } from "react";
+import "./RadioSearch.css";
 
 export default function RadioSearch({ onStationSelect, isOpen, onClose }) {
-  const [query, setQuery] = useState('')
-  const [results, setResults] = useState([])
-  const [loading, setLoading] = useState(false)
+  const [query, setQuery] = useState("");
+  const [results, setResults] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   const handleSearch = async (searchQuery) => {
-    setQuery(searchQuery)
+    setQuery(searchQuery);
     if (!searchQuery.trim()) {
-      setResults([])
-      return
+      setResults([]);
+      return;
     }
 
-    setLoading(true)
+    setLoading(true);
     // Simulate API search
     setTimeout(() => {
       const mockResults = [
-        { stationuuid: '1', name: 'Absolut relax', country: 'Germany' },
-        { stationuuid: '2', name: 'Bayern 1', country: 'Germany' },
-        { stationuuid: '3', name: '1LIVE', country: 'Germany' }
-      ].filter(s => s.name.toLowerCase().includes(searchQuery.toLowerCase()))
-      setResults(mockResults)
-      setLoading(false)
-    }, 300)
-  }
+        { stationuuid: "1", name: "Absolut relax", country: "Germany" },
+        { stationuuid: "2", name: "Bayern 1", country: "Germany" },
+        { stationuuid: "3", name: "1LIVE", country: "Germany" },
+      ].filter((s) => s.name.toLowerCase().includes(searchQuery.toLowerCase()));
+      setResults(mockResults);
+      setLoading(false);
+    }, 300);
+  };
 
   const handleSelect = (station) => {
-    onStationSelect(station)
-    setQuery('')
-    setResults([])
-    onClose?.()
-  }
+    onStationSelect(station);
+    setQuery("");
+    setResults([]);
+    onClose?.();
+  };
 
-  if (!isOpen) return null
+  if (!isOpen) return null;
 
   return (
     <div className="radio-search-overlay" onClick={onClose}>
-      <div className="radio-search-modal" onClick={e => e.stopPropagation()}>
+      <div className="radio-search-modal" onClick={(e) => e.stopPropagation()}>
         <div className="search-header">
           <input
             type="search"
@@ -47,7 +47,9 @@ export default function RadioSearch({ onStationSelect, isOpen, onClose }) {
             onChange={(e) => handleSearch(e.target.value)}
             autoFocus
           />
-          <button className="search-close" onClick={onClose}>✕</button>
+          <button className="search-close" onClick={onClose}>
+            ✕
+          </button>
         </div>
 
         <div className="search-results">
@@ -55,7 +57,7 @@ export default function RadioSearch({ onStationSelect, isOpen, onClose }) {
           {!loading && results.length === 0 && query && (
             <div className="search-empty">Keine Sender gefunden</div>
           )}
-          {results.map(station => (
+          {results.map((station) => (
             <button
               key={station.stationuuid}
               className="search-result-item"
@@ -68,5 +70,5 @@ export default function RadioSearch({ onStationSelect, isOpen, onClose }) {
         </div>
       </div>
     </div>
-  )
+  );
 }

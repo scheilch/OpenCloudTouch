@@ -66,7 +66,7 @@
 }
 
 .zone-device.master {
-  background: linear-gradient(135deg, var(--color-accent) 0%, #0052A3 100%);
+  background: linear-gradient(135deg, var(--color-accent) 0%, #0052a3 100%);
 }
 
 .device-badge {
@@ -79,7 +79,7 @@
 }
 
 .master-badge {
-  background-color: #FFD700;
+  background-color: #ffd700;
   color: #000000;
 }
 
@@ -174,7 +174,7 @@
 }
 
 .device-checkbox-card.selected {
-  background: linear-gradient(135deg, var(--color-accent) 0%, #0052A3 100%);
+  background: linear-gradient(135deg, var(--color-accent) 0%, #0052a3 100%);
   border-color: var(--color-accent);
 }
 
@@ -249,7 +249,7 @@
   justify-content: center;
   gap: var(--space-sm);
   padding: var(--space-md) var(--space-xl);
-  background: linear-gradient(135deg, var(--color-accent) 0%, #0052A3 100%);
+  background: linear-gradient(135deg, var(--color-accent) 0%, #0052a3 100%);
   border-radius: var(--border-radius-md);
   font-size: 16px;
   font-weight: var(--font-weight-bold);
@@ -274,7 +274,11 @@
   display: flex;
   gap: var(--space-md);
   padding: var(--space-lg);
-  background: linear-gradient(135deg, rgba(0, 102, 204, 0.1) 0%, rgba(0, 82, 163, 0.1) 100%);
+  background: linear-gradient(
+    135deg,
+    rgba(0, 102, 204, 0.1) 0%,
+    rgba(0, 82, 163, 0.1) 100%
+  );
   border: 1px solid rgba(0, 102, 204, 0.3);
   border-radius: var(--border-radius-md);
 }

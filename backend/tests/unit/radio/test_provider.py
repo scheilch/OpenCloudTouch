@@ -6,13 +6,11 @@ Validates that concrete implementations must implement all abstract methods.
 """
 
 import pytest
-from cloudtouch.radio.provider import (
-    RadioProvider,
-    RadioStation,
-    RadioProviderError,
-    RadioProviderTimeoutError,
-    RadioProviderConnectionError,
-)
+
+from cloudtouch.radio.provider import (RadioProvider,
+                                       RadioProviderConnectionError,
+                                       RadioProviderError,
+                                       RadioProviderTimeoutError, RadioStation)
 
 
 class TestRadioStationDataclass:

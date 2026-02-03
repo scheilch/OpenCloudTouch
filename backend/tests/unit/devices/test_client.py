@@ -2,8 +2,9 @@
 Tests for SoundTouch Client Adapter
 """
 
-import pytest
 from unittest.mock import MagicMock, patch
+
+import pytest
 
 from cloudtouch.devices.adapter import BoseSoundTouchClientAdapter
 from cloudtouch.devices.client import DeviceInfo

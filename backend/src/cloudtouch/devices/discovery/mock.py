@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 class MockDiscoveryAdapter:
     """
     Mock discovery that returns predefined Bose SoundTouch devices.
-    
+
     Used for:
     - CI/CD testing (no hardware needed)
     - Local development without network access
@@ -50,7 +50,7 @@ class MockDiscoveryAdapter:
     def __init__(self, timeout: int = 10):
         """
         Initialize mock discovery.
-        
+
         Args:
             timeout: Ignored (for interface compatibility)
         """
@@ -59,12 +59,12 @@ class MockDiscoveryAdapter:
     async def discover(self) -> List[DiscoveredDevice]:
         """
         Return predefined mock devices.
-        
+
         Returns:
             List of DiscoveredDevice objects
         """
         logger.info(f"[MOCK] Returning {len(self.MOCK_DEVICES)} predefined devices")
-        
+
         devices = []
         for mac, device_data in self.MOCK_DEVICES.items():
             devices.append(
@@ -77,5 +77,5 @@ class MockDiscoveryAdapter:
                     firmware_version=device_data["firmware_version"],
                 )
             )
-        
+
         return devices
