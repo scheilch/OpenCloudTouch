@@ -716,22 +716,56 @@ logger.info("Device discovered", extra={
 
 ## 11. Performance-Ziele
 
-### 11.1 Backend
-- API Response Time: <100ms (p95)
+### 11.1 Backend (Runtime)
+- API Response Time: <100ms (p95), <500ms (p99)
 - SSDP Discovery: <10s
 - SQLite Queries: <10ms
-- Container Startup: <5s
+- Container Startup: <10s
 
-### 11.2 Frontend
-- Time to Interactive: <3s
-- First Contentful Paint: <1s
+### 11.2 Frontend (Runtime)
+- Time to Interactive (TTI): <3s
+- First Contentful Paint (FCP): <1.5s
 - Bundle Size: <500KB (gzipped)
 - Lighthouse Score: >90
 
-### 11.3 Docker
+### 11.3 Docker (Build)
 - Image Size: <500MB
-- Build Time: <2min
-- Deployment: <30s
+- Build Time: <3min (multi-stage)
+- Deployment (NAS Server): <5min
+- Layer Cache Hit Rate: >80%
+
+### 11.4 Tests (Execution)
+- Backend pytest: <10s
+- Frontend vitest: <5s
+- E2E Cypress: <60s
+- Pre-commit Hook: <2min
+
+### 11.5 Scripts (Deployment)
+- deploy-local.ps1: <2min
+- deploy-to-server.ps1: <5min
+- export-image.ps1: <1min
+
+**Messung**:
+```powershell
+# Runtime Performance
+Measure-Command { Invoke-WebRequest http://localhost:8000/api/devices }
+
+# Build Performance
+Measure-Command { docker build -t cloudtouch:test . }
+
+# Test Performance
+Measure-Command { cd backend; pytest -v }
+
+# Script Performance
+Measure-Command { .\deployment\deploy-local.ps1 }
+```
+
+**Bei Unterschreitung (<50% Target)**:
+1. Profiling (cProfile, Chrome DevTools)
+2. Bottleneck identifizieren
+3. Optimierung implementieren
+4. Re-measure
+5. Dokumentieren in docs/analysis/performance-improvements.md
 
 ---
 
