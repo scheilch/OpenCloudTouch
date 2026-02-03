@@ -74,6 +74,7 @@ $backendEnv = @{
     CT_MOCK_MODE = if ($MockMode) { "true" } else { "false" }
     CT_LOG_LEVEL = "INFO"  # INFO logs for debugging
     CT_DB_PATH = "data-local/ct-e2e-test.db"  # Separate test DB
+    CT_ALLOW_DANGEROUS_OPERATIONS = "true"  # Allow DELETE endpoint in E2E tests
     PYTHONPATH = Join-Path $BackendDir "src"
 }
 
@@ -85,6 +86,7 @@ $wrapperScript = @"
 `$env:CT_MOCK_MODE = '$($backendEnv.CT_MOCK_MODE)'
 `$env:CT_LOG_LEVEL = '$($backendEnv.CT_LOG_LEVEL)'
 `$env:CT_DB_PATH = '$($backendEnv.CT_DB_PATH)'
+`$env:CT_ALLOW_DANGEROUS_OPERATIONS = '$($backendEnv.CT_ALLOW_DANGEROUS_OPERATIONS)'
 `$env:PYTHONPATH = '$($backendEnv.PYTHONPATH)'
 Set-Location '$BackendDir'
 & '$VenvPython' -m uvicorn cloudtouch.main:app --host localhost --port $TestPort
