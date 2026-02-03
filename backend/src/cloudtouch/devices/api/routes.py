@@ -10,13 +10,9 @@ from typing import Any, Dict, List
 from fastapi import APIRouter, Depends, HTTPException
 
 from cloudtouch.core.config import AppConfig, get_config
-from cloudtouch.devices.adapter import (
-    BoseSoundTouchDiscoveryAdapter,
-    get_discovery_adapter,
-    get_soundtouch_client,
-)
+from cloudtouch.devices.adapter import BoseSoundTouchDiscoveryAdapter
 from cloudtouch.devices.discovery.manual import ManualDiscovery
-from cloudtouch.devices.repository import Device, DeviceRepository
+from cloudtouch.devices.repository import DeviceRepository
 from cloudtouch.devices.services import DeviceSyncService
 from cloudtouch.discovery import DiscoveredDevice
 from cloudtouch.settings.repository import SettingsRepository
