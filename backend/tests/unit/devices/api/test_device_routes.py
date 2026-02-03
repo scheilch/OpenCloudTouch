@@ -221,6 +221,8 @@ class TestSyncEndpoint:
 
     def test_sync_endpoint_returns_409_when_in_progress(self, client, mock_repo):
         """Test POST /api/devices/sync returns 409 if discovery already running."""
+        import asyncio
+
         import cloudtouch.devices.api.routes as devices_module
         import cloudtouch.main as main_module
 
@@ -232,8 +234,11 @@ class TestSyncEndpoint:
         original_settings = main_module.settings_repo
         main_module.settings_repo = mock_settings
 
-        # Set discovery in progress
-        devices_module._discovery_in_progress = True
+        # Acquire lock to simulate discovery in progress
+        async def acquire_lock():
+            await devices_module._discovery_lock.acquire()
+
+        asyncio.run(acquire_lock())
 
         try:
             response = client.post("/api/devices/sync")
@@ -242,8 +247,8 @@ class TestSyncEndpoint:
             assert "already in progress" in response.json()["detail"].lower()
 
         finally:
-            # Reset
-            devices_module._discovery_in_progress = False
+            # Release lock
+            devices_module._discovery_lock.release()
             main_module.settings_repo = original_settings
 
 
