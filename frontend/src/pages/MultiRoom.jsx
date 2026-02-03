@@ -45,7 +45,6 @@ export default function MultiRoom({ devices = [] }) {
 
   const handleDissolveZone = (zoneId) => {
     setZones(zones.filter(z => z.id !== zoneId))
-    console.log('Dissolved zone:', zoneId)
   }
 
   const handleEditZone = (zone) => {

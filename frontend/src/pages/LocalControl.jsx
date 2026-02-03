@@ -38,7 +38,6 @@ export default function LocalControl({ devices = [] }) {
 
   const handleMuteToggle = () => {
     setMuted(!muted)
-    console.log(`${!muted ? 'Mute' : 'Unmute'} ${currentDevice?.name}`)
   }
 
   const handleSourceChange = (sourceId) => {
@@ -49,19 +48,18 @@ export default function LocalControl({ devices = [] }) {
   const handlePlayPause = () => {
     const newState = playState === 'PLAY_STATE' ? 'PAUSE_STATE' : 'PLAY_STATE'
     setPlayState(newState)
-    console.log(`${newState === 'PLAY_STATE' ? 'Play' : 'Pause'} on ${currentDevice?.name}`)
   }
 
   const handlePrevious = () => {
-    console.log(`Previous track on ${currentDevice?.name}`)
+    // TODO: Implement previous track API call
   }
 
   const handleNext = () => {
-    console.log(`Next track on ${currentDevice?.name}`)
+    // TODO: Implement next track API call
   }
 
   const handleStandby = () => {
-    console.log(`Standby ${currentDevice?.name}`)
+    // TODO: Implement standby API call
   }
 
   if (devices.length === 0) {
