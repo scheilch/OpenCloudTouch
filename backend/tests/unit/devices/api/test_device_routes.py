@@ -612,3 +612,30 @@ class TestSyncDatabaseErrors:
 
         finally:
             await repo.close()
+
+
+class TestDeleteAllDevicesEndpoint:
+    """Tests for DELETE /api/devices endpoint (testing/cleanup)."""
+
+    def test_delete_all_devices_success(self, client, mock_repo):
+        """Test DELETE /api/devices removes all devices."""
+        mock_repo.delete_all = AsyncMock(return_value=None)
+
+        response = client.delete("/api/devices")
+
+        assert response.status_code == 200
+        data = response.json()
+        assert data["message"] == "All devices deleted"
+        mock_repo.delete_all.assert_awaited_once()
+
+    def test_delete_all_devices_when_empty(self, client, mock_repo):
+        """Test DELETE /api/devices when database is already empty."""
+        mock_repo.delete_all = AsyncMock(return_value=None)
+
+        response = client.delete("/api/devices")
+
+        assert response.status_code == 200
+        data = response.json()
+        assert data["message"] == "All devices deleted"
+        mock_repo.delete_all.assert_awaited_once()
+

@@ -1,0 +1,81 @@
+"""
+Mock discovery adapter for testing and development without real devices.
+
+Provides predefined devices that simulate Bose SoundTouch hardware.
+"""
+
+import logging
+from typing import List
+
+from cloudtouch.discovery import DiscoveredDevice
+
+logger = logging.getLogger(__name__)
+
+
+class MockDiscoveryAdapter:
+    """
+    Mock discovery that returns predefined Bose SoundTouch devices.
+    
+    Used for:
+    - CI/CD testing (no hardware needed)
+    - Local development without network access
+    - Deterministic test scenarios
+    """
+
+    # Predefined mock devices (matches real device schema)
+    MOCK_DEVICES = {
+        "AABBCC112233": {
+            "ip": "192.168.1.100",
+            "mac": "AABBCC112233",
+            "name": "Living Room",
+            "model": "SoundTouch 20",
+            "firmware_version": "28.0.12.46499",
+        },
+        "DDEEFF445566": {
+            "ip": "192.168.1.101",
+            "mac": "DDEEFF445566",
+            "name": "Kitchen",
+            "model": "SoundTouch 10",
+            "firmware_version": "28.0.12.46499",
+        },
+        "112233445566": {
+            "ip": "192.168.1.102",
+            "mac": "112233445566",
+            "name": "Bedroom",
+            "model": "SoundTouch 30",
+            "firmware_version": "28.0.12.46499",
+        },
+    }
+
+    def __init__(self, timeout: int = 10):
+        """
+        Initialize mock discovery.
+        
+        Args:
+            timeout: Ignored (for interface compatibility)
+        """
+        self.timeout = timeout
+
+    async def discover(self) -> List[DiscoveredDevice]:
+        """
+        Return predefined mock devices.
+        
+        Returns:
+            List of DiscoveredDevice objects
+        """
+        logger.info(f"[MOCK] Returning {len(self.MOCK_DEVICES)} predefined devices")
+        
+        devices = []
+        for mac, device_data in self.MOCK_DEVICES.items():
+            devices.append(
+                DiscoveredDevice(
+                    ip=device_data["ip"],
+                    port=8090,
+                    name=device_data["name"],
+                    model=device_data["model"],
+                    mac_address=mac,
+                    firmware_version=device_data["firmware_version"],
+                )
+            )
+        
+        return devices

@@ -48,7 +48,9 @@ jobs:
           pytest --cov=cloudtouch --cov-report=xml --cov-report=term-missing --cov-fail-under=80
         env:
           PYTHONPATH: ${{ github.workspace }}
+          CT_MOCK_MODE: "true"  # Use mock adapters in CI
           CT_HAS_DEVICES: "false"  # No real devices in CI
+          CI: "true"  # Use :memory: DB
       
       - name: Upload coverage reports
         uses: codecov/codecov-action@v4

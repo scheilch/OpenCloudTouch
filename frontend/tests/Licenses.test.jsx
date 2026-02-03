@@ -19,7 +19,7 @@ describe('Licenses Component', () => {
         <Licenses />
       </BrowserRouter>
     )
-    expect(screen.getByText(/React/i)).toBeInTheDocument()
+    expect(screen.getByText('React', { exact: true })).toBeInTheDocument()
     expect(screen.getByText(/Framer Motion/i)).toBeInTheDocument()
   })
 

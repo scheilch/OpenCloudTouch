@@ -15,10 +15,13 @@
     "test": "vitest",
     "test:ui": "vitest --ui",
     "test:coverage": "vitest --coverage",
-    "test:e2e": "cypress run",
-    "test:e2e:open": "cypress open",
-    "test:e2e:mock": "cypress run --env mode=mock",
-    "test:e2e:real": "cypress run --env mode=real"
+    "test:real": "vitest tests/real",
+    "test:e2e:mock": "powershell ../scripts/run-e2e-tests.ps1 -MockMode $true",
+    "test:e2e:real": "cypress run --spec 'tests/real/**/*.cy.js'",
+    "test:e2e:real:debug": "cypress open --config specPattern='tests/real/**/*.cy.js'",
+    "test:e2e:debug": "powershell ../scripts/run-e2e-tests.ps1 -MockMode $true -HeadlessMode $false",
+    "cypress:run": "cypress run",
+    "cypress:open": "cypress open"
   },
   "dependencies": {
     "react": "^18.2.0",

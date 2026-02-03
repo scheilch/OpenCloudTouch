@@ -15,7 +15,8 @@ def test_config_defaults():
     assert config.host == "0.0.0.0"
     assert config.port == 7777
     assert config.log_level == "INFO"
-    assert config.db_path == "/data/ct.db"
+    assert config.db_path == ""  # Empty by default
+    assert config.effective_db_path == "/data/ct.db"  # Production default
     assert config.discovery_enabled is True
     assert config.discovery_timeout == 10
     assert config.manual_device_ips_list == []
@@ -159,3 +160,29 @@ def test_get_config_not_initialized():
             cloudtouch.core.config.get_config()
     finally:
         cloudtouch.core.config.config = original
+
+
+def test_effective_db_path_explicit():
+    """Test effective_db_path returns explicit value when set."""
+    config = AppConfig(db_path="/custom/path.db")
+    assert config.effective_db_path == "/custom/path.db"
+
+
+def test_effective_db_path_ci_mode(monkeypatch):
+    """Test effective_db_path returns :memory: in CI."""
+    monkeypatch.setenv("CI", "true")
+    config = AppConfig()
+    assert config.effective_db_path == ":memory:"
+
+
+def test_effective_db_path_mock_mode():
+    """Test effective_db_path returns test DB in mock mode."""
+    config = AppConfig(mock_mode=True)
+    assert config.effective_db_path == "data-local/ct-test.db"
+
+
+def test_effective_db_path_production():
+    """Test effective_db_path returns production path by default."""
+    config = AppConfig()
+    assert config.effective_db_path == "/data/ct.db"
+

@@ -60,9 +60,9 @@ Write-Hook "Warning: This may take ~15-30 seconds..."
 try {
     Set-Location frontend
     
-    # Run Cypress tests (headless, with mocks)
-    # Use Start-Process to avoid PowerShell RemoteException on npm output
-    $process = Start-Process -FilePath "npm" -ArgumentList "run", "test:e2e" -Wait -NoNewWindow -PassThru
+    # Run E2E tests with managed backend (MockMode)
+    # Script handles: backend start, tests, backend stop, cleanup
+    $process = Start-Process -FilePath "npm" -ArgumentList "run", "test:e2e:mock" -Wait -NoNewWindow -PassThru
     $exitCode = $process.ExitCode
     
     Set-Location ..
@@ -72,7 +72,7 @@ try {
         Write-HookError "Frontend E2E tests failed!"
         Write-Host ""
         Write-Host "To debug, run:" -ForegroundColor Yellow
-        Write-Host "  cd frontend && npm run test:e2e" -ForegroundColor Yellow
+        Write-Host "  cd frontend && npm run test:e2e:debug" -ForegroundColor Yellow
         Write-Host ""
         exit 1
     }
