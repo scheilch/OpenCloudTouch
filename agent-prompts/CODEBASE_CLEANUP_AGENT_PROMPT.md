@@ -23,6 +23,33 @@ After extensive refactoring iterations, the codebase contains:
 
 ## 🎯 PHASE 0: CONTEXT ACQUISITION (30 minutes)
 
+**⚠️ CRITICAL: Real Device Tests are EXCLUDED from all automated runs!**
+
+**Real vs. Mock Tests**:
+- **Mock Tests**: Run by default (unit, integration, E2E with mock adapters)
+- **Real Tests**: NEVER run automatically (require physical Bose SoundTouch hardware)
+- **Separation**: Real tests marked with `@pytest.mark.real_devices` or in `tests/real/` directories
+- **Execution**: Only via explicit scripts (`scripts/run-real-tests.ps1`)
+
+**Validation**:
+```powershell
+# Check pytest.ini excludes real tests by default
+cat backend/pytest.ini | Select-String "addopts.*not real_devices"
+
+# Check pre-commit hook doesn't run real tests
+cat pre-commit.ps1 | Select-String "real"  # Should find NO reference to real tests
+
+# Verify real test markers
+Get-ChildItem backend/tests/real/*.py | ForEach-Object { 
+  Get-Content $_ | Select-String "pytestmark.*real_devices" 
+}
+```
+
+**If violations found**:
+- ❌ Real tests in default test run → Fix pytest.ini addopts
+- ❌ Pre-commit hook runs real tests → Remove from hook
+- ❌ Real tests not marked → Add `pytestmark = pytest.mark.real_devices`
+
 ### 0.1 Understand Application Purpose via Cypress E2E Tests
 
 **Action**: Analyze Cypress test scenarios to extract:
@@ -496,7 +523,270 @@ docs/
 # EVERYTHING ELSE: DELETE!
 ```
 
-### 4.5 Deliverable: Documentation Cleanup Plan
+---
+
+## Phase 4.4: Scripts & Config Audit - "Assume Idiots Worked Here"
+
+**⚠️ CRITICAL MINDSET: Question EVERYTHING. The previous developers were probably idiots who copy-pasted without understanding.**
+
+### 4.4.1 Executable Scripts Audit
+
+**Find all scripts**:
+```powershell
+Get-ChildItem -Path scripts/,deployment/,. -Include *.ps1,*.sh,*.py -Recurse | 
+  Select-Object Name, Directory, Length, LastWriteTime |
+  Export-Csv -Path analysis/scripts-inventory.csv
+```
+
+**For EACH script, answer**:
+1. **What does it do?** (read the code, not just the header comment)
+2. **Does it still work?** (run it, don't assume)
+3. **Is it redundant?** (does another script/npm command do the same?)
+4. **Is it outdated?** (references old paths, deleted files, wrong ports?)
+5. **Should it even exist?** (or is this workflow obsolete?)
+
+**Validation Checklist per Script**:
+- [ ] Header comment matches actual functionality
+- [ ] All referenced paths exist
+- [ ] All referenced commands/tools are installed
+- [ ] Error handling present (not just `$ErrorActionPreference = "Stop"`)
+- [ ] Actually tested (run it, don't guess)
+- [ ] Not duplicate of npm script or other script
+- [ ] Still relevant to current workflow
+
+**Common Script Smells**:
+- ❌ References to deleted directories (`frontend-archive/`, `prototypes/`)
+- ❌ Hardcoded ports that don't match current config
+- ❌ Comments like "TODO: Update this" (it was never updated)
+- ❌ Try-catch blocks that silently fail
+- ❌ Functions that are never called
+- ❌ Copy-paste from Stack Overflow without adaptation
+- ❌ "Working around a bug in X" (bug probably fixed, workaround now causes bugs)
+
+**Script Cleanup Actions**:
+
+| Script | Status | Action | Reason |
+|--------|--------|--------|--------|
+| `scripts/run-all-tests.ps1` | ✅ Valid | **KEEP** | Runs unit + e2e, works |
+| `scripts/run-real-tests.ps1` | ✅ Valid | **KEEP** | Specifically for real hardware |
+| `scripts/old-deployment.ps1` | ❌ Broken | **DELETE** | References deleted `docker-compose-old.yml` |
+| `deployment/deploy-local.ps1` | ⚠️ Redundant | **CONSOLIDATE** | Merge into `deploy-to-server.ps1` |
+
+### 4.4.2 Configuration Files Audit - "Do We Really Need This?"
+
+**Inventory ALL config files**:
+```powershell
+Get-ChildItem -Path . -Include *.json,*.yaml,*.yml,*.toml,*.ini,*.config.js,*.config.ts,.env*,.gitignore -Recurse -Depth 3 |
+  Select-Object Name, Directory |
+  Sort-Object Directory, Name
+```
+
+**For EACH config file, validate**:
+
+#### **package.json / pyproject.toml - Dependencies**
+
+**Questions**:
+- ❓ Is this dependency actually used? (run `unimported` or `vulture`)
+- ❓ Why this specific version? (can we upgrade? is pin necessary?)
+- ❓ Do we need the entire library? (using lodash for 1 function?)
+- ❓ Is there a lighter alternative? (moment.js vs. date-fns)
+- ❓ Is this a dev dependency in production section? (mixing test libs with runtime libs)
+
+**Example Audit**:
+```json
+// package.json - BEFORE (idiot mode)
+{
+  "dependencies": {
+    "lodash": "^4.17.21",          // ❌ Used only for _.debounce - 24KB for 1 function!
+    "moment": "^2.29.4",            // ❌ Not used anywhere (leftover from prototype)
+    "react-router-dom": "^6.20.0", // ✅ Actually used
+    "axios": "^1.6.0"              // ⚠️ Also have fetch - pick ONE
+  },
+  "devDependencies": {
+    "vitest": "^1.0.0",            // ✅ Test runner
+    "cypress": "^13.0.0",          // ⚠️ Do we need BOTH vitest AND cypress? (yes, different purposes)
+    "react": "^18.2.0"             // ❌ Should be in dependencies, not devDependencies!
+  }
+}
+
+// package.json - AFTER (professional)
+{
+  "dependencies": {
+    "react": "^18.2.0",            // ✅ Moved from devDependencies
+    "react-router-dom": "^6.20.0", // ✅ Keep
+    // Removed: lodash (replaced with custom debounce)
+    // Removed: moment (not used)
+    // Removed: axios (use fetch API)
+  },
+  "devDependencies": {
+    "vitest": "^1.0.0",            // ✅ Unit tests
+    "cypress": "^13.0.0"           // ✅ E2E tests (different purpose than vitest)
+  }
+}
+```
+
+#### **Test Configuration Files**
+
+**Files to audit**:
+- `pytest.ini` - Is coverage threshold realistic? Are markers used?
+- `vitest.config.js` - Do we need setup files? Are paths correct?
+- `cypress.config.js` - Are viewport sizes current? Is baseUrl correct?
+- `.coveragerc` / `coverage.json` - Duplicate config with pytest.ini?
+
+**Critical Checks**:
+- [ ] All paths in config exist
+- [ ] No duplicate configs (e.g., coverage settings in 3 different files)
+- [ ] Timeout values are realistic (not 1ms, not 5 minutes)
+- [ ] Mock/stub paths point to existing files
+- [ ] Excluded paths still make sense (excluding important code?)
+
+**Example - pytest.ini**:
+```ini
+# BEFORE (copy-paste from tutorial)
+[pytest]
+testpaths = tests  # ✅ Good
+asyncio_mode = auto  # ✅ Good
+addopts = -v --strict-markers --cov=src --cov-fail-under=80  # ❌ BAD! Coverage should be optional
+
+# AFTER (professional)
+[pytest]
+testpaths = tests
+asyncio_mode = auto
+addopts = -m "not real_devices"  # ✅ Exclude real hardware tests by default
+# Coverage: Run explicitly with `pytest --cov=src --cov-fail-under=80`
+```
+
+#### **Build Configuration (vite.config.js, etc.)**
+
+**Questions**:
+- ❓ Are all plugins actually needed?
+- ❓ Are build paths correct?
+- ❓ Is output directory used anywhere?
+- ❓ Are optimizations cargo-cult (copied without understanding)?
+
+**Red Flags**:
+- ❌ Comments like "not sure if needed but doesn't hurt" (DELETE IT THEN!)
+- ❌ Experimental features enabled "just in case"
+- ❌ Output to multiple directories (pick ONE)
+- ❌ Sourcemaps disabled "for performance" (enable in dev, disable in prod properly)
+
+#### **.env / .env.example**
+
+**Validate**:
+- [ ] All variables in `.env.example` are documented (what they do, valid values)
+- [ ] No secrets in `.env.example` (only placeholders)
+- [ ] All variables in `.env.example` are actually read by code
+- [ ] No variables read by code but missing from `.env.example`
+
+**Example**:
+```bash
+# .env.example - BEFORE (idiot mode)
+API_URL=http://localhost:8000  # ❌ Not used anywhere in code
+DEBUG=true                     # ❌ Ambiguous (what does this enable?)
+SECRET_KEY=changeme            # ⚠️ Better: SECRET_KEY=your-secret-key-here
+
+# .env.example - AFTER (professional)
+# Backend API URL (default: http://localhost:7778)
+CT_API_URL=http://localhost:7778
+
+# Log level: DEBUG, INFO, WARNING, ERROR (default: INFO)
+CT_LOG_LEVEL=INFO
+
+# Discovery timeout in seconds (default: 10)
+CT_DISCOVERY_TIMEOUT=10
+```
+
+### 4.4.3 Git Configuration Audit
+
+**Files to check**:
+- `.gitignore` - Is it ignoring what it should? Are patterns too broad?
+- `.gitattributes` - Is LF/CRLF handling correct?
+- Pre-commit hooks - Do they actually run? Are they fast enough?
+
+**Gitignore Validation**:
+```bash
+# Find files that are ignored but shouldn't be:
+git ls-files --others --ignored --exclude-standard
+
+# Find files tracked that should be ignored:
+git ls-files | grep -E "node_modules|__pycache__|\.pyc$|\.env$"
+```
+
+**Pre-commit Hook Validation**:
+- [ ] Runs in <60 seconds (or developers will use `--no-verify`)
+- [ ] Doesn't run **real device tests** (only mock/unit tests)
+- [ ] Fails fast (don't run E2E if linting fails)
+- [ ] Clear error messages (what failed, how to fix)
+
+### 4.4.4 Docker/Deployment Config Audit
+
+**Files**:
+- `Dockerfile` (frontend + backend)
+- `docker-compose.yml`
+- Deployment scripts (`deploy-to-server.ps1`)
+
+**Critical Questions**:
+- ❓ Are base images pinned to specific versions? (not `python:latest`)
+- ❓ Are multi-stage builds optimized? (minimal final image size)
+- ❓ Are secrets handled correctly? (not hardcoded in Dockerfile)
+- ❓ Are ports documented and consistent? (code vs. Docker vs. scripts)
+
+**Example - Dockerfile**:
+```dockerfile
+# BEFORE (idiot mode)
+FROM python:latest  # ❌ Unpinned version
+RUN pip install -r requirements.txt  # ❌ No caching, slow rebuilds
+COPY . .  # ❌ Copies everything (including .git, node_modules)
+
+# AFTER (professional)
+FROM python:3.13-slim  # ✅ Pinned version
+WORKDIR /app
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt  # ✅ Cache layer
+COPY backend/src ./src  # ✅ Only production code
+```
+
+### 4.4.5 Deliverable: Scripts & Config Cleanup Plan
+
+**Format**:
+```markdown
+# Scripts & Config Cleanup Plan
+
+## Scripts to DELETE
+- [ ] `scripts/old-deployment.ps1` - References deleted docker-compose-old.yml
+- [ ] `deployment/export-image-old.ps1` - Duplicate of export-image.ps1
+- [ ] `frontend/build-debug.ps1` - Never used, vite has debug mode built-in
+
+Total: [N] scripts deleted
+
+## Scripts to FIX
+| Script | Issue | Fix |
+|--------|-------|-----|
+| `run-all-tests.ps1` | Includes real tests | Add `-m "not real_devices"` to pytest call |
+| `deploy-local.ps1` | Hardcoded port 8000 | Use config from .env |
+
+## Config Files to CONSOLIDATE
+- Merge `.coveragerc` into `pytest.ini` (duplicate coverage config)
+- Remove `vitest.setup.old.js` (replaced by vitest.config.js)
+
+## Dependencies to REMOVE
+### Frontend (package.json)
+- `lodash` (24KB) → Replace with custom debounce (0.5KB)
+- `moment` → Not used anywhere, DELETE
+
+### Backend (requirements.txt)
+- `requests` → Already have httpx (async), use that
+- `pyyaml` → Only used in 1 test, mock it instead
+
+## Config Issues to FIX
+- `pytest.ini`: Move coverage to optional (not in addopts)
+- `.env.example`: Add missing CT_MANUAL_DEVICE_IPS variable
+- `vite.config.js`: Remove unused plugin `vite-plugin-pwa`
+```
+
+---
+
+## Phase 4.5: Deliverable: Documentation Cleanup Plan
 
 **Format**:
 ```markdown
@@ -1072,6 +1362,30 @@ What specific information from [doc] do you need to preserve?"
 
 ---
 
+## 🎯 CRITICAL SUCCESS CRITERIA - "Professional Workspace" Checklist
+
+**When cleanup is complete, the workspace MUST feel like**:
+✅ A project maintained by senior engineers who care about quality  
+✅ A codebase you'd proudly show at a job interview  
+✅ Documentation you can read in <30 minutes and understand everything  
+✅ Scripts that work the first time, every time  
+✅ Config files where every line has a clear purpose  
+✅ Tests that run in <60 seconds and never flake  
+✅ Zero "TODO" comments older than 1 week  
+✅ Zero files with "old", "backup", "temp", "test" in the name  
+✅ Zero copy-pasted code from Stack Overflow without attribution/understanding  
+✅ Zero "this is a workaround for..." comments  
+
+**Red Flags (if you see these, cleanup FAILED)**:
+❌ "I think this script still works..."  
+❌ "Not sure what this config does, but removing it breaks things..."  
+❌ "The tests pass on my machine..."  
+❌ "We keep this file just in case..."  
+❌ "This workaround is temporary..." (from 6 months ago)  
+❌ "I'll clean this up later..."  
+
+---
+
 ## 🔗 RELATED DOCUMENTS
 
 - `AGENTS.md` - General agent rules (TDD, Clean Code, etc.)
@@ -1081,10 +1395,12 @@ What specific information from [doc] do you need to preserve?"
 ---
 
 **REMEMBER**: 
-- Code quality > speed
-- Tests must pass always
-- User approval required for structural changes
-- Document trade-offs and exceptions
-- No experiments without permission
+- **Assume idiots worked here** - Validate everything, trust nothing
+- **Code quality > speed** - Better slow and correct than fast and broken
+- **Tests must ALWAYS pass** - Green before commit, green after commit
+- **Real tests NEVER in automation** - Only mock/unit tests in CI/pre-commit
+- **User approval required** - For structural changes >20h effort
+- **Document trade-offs** - If you keep a workaround, explain WHY
+- **No experiments** - Cleanup is about removing complexity, not adding features
 
 **START WITH PHASE 0 - CONTEXT ACQUISITION**
