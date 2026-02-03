@@ -61,6 +61,30 @@
   }
 }
 
+/* Error State Specific */
+.error-icon {
+  font-size: 64px;
+  margin-bottom: var(--space-md);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
+.error-title {
+  font-size: 24px;
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+  margin-bottom: var(--space-sm);
+}
+
+.loading-message,
 .error-message,
 .empty-message {
   margin-top: var(--space-md);
