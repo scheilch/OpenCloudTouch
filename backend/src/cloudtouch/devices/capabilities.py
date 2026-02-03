@@ -8,10 +8,10 @@ are not supported.
 
 from dataclasses import dataclass, field
 from typing import List, Optional, Set
+
 from bosesoundtouchapi import SoundTouchClient, SoundTouchError
 
 from cloudtouch.core.logging import get_logger
-
 
 logger = get_logger(__name__)
 

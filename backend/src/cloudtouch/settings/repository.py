@@ -119,7 +119,7 @@ class SettingsRepository:
     async def set_manual_ips(self, ips: list[str]) -> None:
         """
         Replace all manual IPs with provided list.
-        
+
         Args:
             ips: List of IP addresses to set
         """
@@ -132,8 +132,7 @@ class SettingsRepository:
         # Add new IPs
         for ip in ips:
             await self._db.execute(
-                "INSERT INTO manual_device_ips (ip_address) VALUES (?)",
-                (ip,)
+                "INSERT INTO manual_device_ips (ip_address) VALUES (?)", (ip,)
             )
 
         await self._db.commit()

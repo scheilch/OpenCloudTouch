@@ -1,6 +1,12 @@
-import './PresetButton.css'
+import "./PresetButton.css";
 
-export default function PresetButton({ number, preset, onAssign, onClear, onPlay }) {
+export default function PresetButton({
+  number,
+  preset,
+  onAssign,
+  onClear,
+  onPlay,
+}) {
   return (
     <div className="preset-button">
       {preset ? (
@@ -9,7 +15,11 @@ export default function PresetButton({ number, preset, onAssign, onClear, onPlay
             <span className="preset-number">{number}</span>
             <span className="preset-name">{preset.station_name}</span>
           </button>
-          <button className="preset-clear" onClick={onClear} aria-label="Clear preset">
+          <button
+            className="preset-clear"
+            onClick={onClear}
+            aria-label="Clear preset"
+          >
             ✕
           </button>
         </>
@@ -20,5 +30,5 @@ export default function PresetButton({ number, preset, onAssign, onClear, onPlay
         </button>
       )}
     </div>
-  )
+  );
 }

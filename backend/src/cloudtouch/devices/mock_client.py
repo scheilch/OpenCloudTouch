@@ -7,7 +7,8 @@ Provides deterministic responses that simulate Bose SoundTouch HTTP API.
 import logging
 from typing import Optional
 
-from cloudtouch.devices.client import DeviceInfo, NowPlayingInfo, SoundTouchClient
+from cloudtouch.devices.client import (DeviceInfo, NowPlayingInfo,
+                                       SoundTouchClient)
 
 logger = logging.getLogger(__name__)
 
@@ -15,7 +16,7 @@ logger = logging.getLogger(__name__)
 class MockSoundTouchClient(SoundTouchClient):
     """
     Mock client that simulates SoundTouch HTTP API responses.
-    
+
     Used for:
     - CI/CD testing (no hardware needed)
     - Local development without network access
@@ -95,29 +96,29 @@ class MockSoundTouchClient(SoundTouchClient):
     def __init__(self, device_id: str, ip_address: Optional[str] = None):
         """
         Initialize mock client for a specific device.
-        
+
         Args:
             device_id: Device MAC address (must match MOCK_DEVICES keys)
             ip_address: Ignored (for interface compatibility)
-        
+
         Raises:
             ValueError: If device_id is not in MOCK_DEVICES
         """
         self.device_id = device_id
         self.ip_address = ip_address
-        
+
         if device_id not in self.MOCK_DEVICES:
             raise ValueError(
                 f"Unknown mock device: {device_id}. "
                 f"Available: {list(self.MOCK_DEVICES.keys())}"
             )
-        
+
         logger.info(f"[MOCK] Initialized mock client for device {device_id}")
 
     async def get_info(self) -> DeviceInfo:
         """
         Get mock device information.
-        
+
         Returns:
             DeviceInfo object with predefined device details
         """
@@ -127,7 +128,7 @@ class MockSoundTouchClient(SoundTouchClient):
     async def get_now_playing(self) -> NowPlayingInfo:
         """
         Get mock playback status.
-        
+
         Returns:
             NowPlayingInfo object with predefined playback details
         """

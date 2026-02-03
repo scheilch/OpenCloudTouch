@@ -78,7 +78,7 @@
   font-size: 16px;
   font-weight: var(--font-weight-bold);
   color: var(--color-text-primary);
-  font-family: 'Courier New', monospace;
+  font-family: "Courier New", monospace;
 }
 
 .status-badge {
@@ -93,7 +93,7 @@
 
 .status-badge.up-to-date {
   background-color: #2d8659;
-  color: #FFFFFF;
+  color: #ffffff;
 }
 
 .status-badge.update-available {
@@ -165,7 +165,7 @@
   font-size: 14px;
   font-weight: var(--font-weight-medium);
   color: var(--color-text-primary);
-  font-family: 'Courier New', monospace;
+  font-family: "Courier New", monospace;
   min-width: 80px;
   text-align: right;
 }
@@ -189,7 +189,11 @@
   display: flex;
   gap: var(--space-md);
   padding: var(--space-lg);
-  background: linear-gradient(135deg, rgba(255, 152, 0, 0.15) 0%, rgba(255, 107, 107, 0.15) 100%);
+  background: linear-gradient(
+    135deg,
+    rgba(255, 152, 0, 0.15) 0%,
+    rgba(255, 107, 107, 0.15) 100%
+  );
   border: 2px solid rgba(255, 152, 0, 0.4);
   border-radius: var(--border-radius-md);
   margin-bottom: var(--space-2xl);
@@ -287,7 +291,11 @@
   display: flex;
   gap: var(--space-md);
   padding: var(--space-lg);
-  background: linear-gradient(135deg, rgba(0, 102, 204, 0.1) 0%, rgba(0, 82, 163, 0.1) 100%);
+  background: linear-gradient(
+    135deg,
+    rgba(0, 102, 204, 0.1) 0%,
+    rgba(0, 82, 163, 0.1) 100%
+  );
   border: 1px solid rgba(0, 102, 204, 0.3);
   border-radius: var(--border-radius-md);
 }

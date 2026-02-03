@@ -24,9 +24,10 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent / "backend"))
 
 import httpx
-from cloudtouch.devices.discovery.manual import ManualDiscovery
+
 from cloudtouch.devices.client import HttpSoundTouchClient
-from cloudtouch.devices.repository import DeviceRepository, Device
+from cloudtouch.devices.discovery.manual import ManualDiscovery
+from cloudtouch.devices.repository import Device, DeviceRepository
 
 
 async def demo_api_endpoints():

@@ -4,17 +4,14 @@ Tests for RadioBrowser API Adapter
 TDD RED Phase: These tests will fail until implementation is complete.
 """
 
-import pytest
-from unittest.mock import AsyncMock, patch, MagicMock
+from unittest.mock import AsyncMock, MagicMock, patch
+
 import httpx
+import pytest
 
 from cloudtouch.radio.providers.radiobrowser import (
-    RadioBrowserAdapter,
-    RadioStation,
-    RadioBrowserError,
-    RadioBrowserTimeoutError,
-    RadioBrowserConnectionError,
-)
+    RadioBrowserAdapter, RadioBrowserConnectionError, RadioBrowserError,
+    RadioBrowserTimeoutError, RadioStation)
 
 
 class TestRadioStation:

@@ -13,14 +13,13 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 
-from cloudtouch.core.config import init_config, get_config
-from cloudtouch.db import DeviceRepository
-from cloudtouch.settings.repository import SettingsRepository
 from cloudtouch.api import devices_router
-from cloudtouch.radio.api.routes import router as radio_router
-from cloudtouch.settings.routes import router as settings_router
+from cloudtouch.core.config import get_config, init_config
 from cloudtouch.core.logging import setup_logging
-
+from cloudtouch.db import DeviceRepository
+from cloudtouch.radio.api.routes import router as radio_router
+from cloudtouch.settings.repository import SettingsRepository
+from cloudtouch.settings.routes import router as settings_router
 
 # Global instances (initialized in lifespan)
 device_repo: Optional[DeviceRepository] = None
@@ -52,7 +51,12 @@ async def lifespan(app: FastAPI):
 
     # Initialize settings repository (convert str to Path if needed)
     from pathlib import Path
-    db_path = Path(cfg.effective_db_path) if isinstance(cfg.effective_db_path, str) else cfg.effective_db_path
+
+    db_path = (
+        Path(cfg.effective_db_path)
+        if isinstance(cfg.effective_db_path, str)
+        else cfg.effective_db_path
+    )
     settings_repo = SettingsRepository(db_path)
     await settings_repo.initialize()
     logger.info("Settings repository initialized")
@@ -127,7 +131,9 @@ if static_dir.exists():
     from fastapi.responses import FileResponse
 
     # Serve static assets (CSS, JS, images)
-    app.mount("/assets", StaticFiles(directory=str(static_dir / "assets")), name="assets")
+    app.mount(
+        "/assets", StaticFiles(directory=str(static_dir / "assets")), name="assets"
+    )
 
     # Catch-all route for SPA (React Router) - must come AFTER API routes
     @app.get("/{full_path:path}")

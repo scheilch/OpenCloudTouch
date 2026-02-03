@@ -1,4 +1,4 @@
-import './NowPlaying.css'
+import "./NowPlaying.css";
 
 export default function NowPlaying({ nowPlaying }) {
   if (!nowPlaying) {
@@ -6,7 +6,7 @@ export default function NowPlaying({ nowPlaying }) {
       <div className="now-playing empty">
         <div className="np-placeholder">Kein Titel</div>
       </div>
-    )
+    );
   }
 
   return (
@@ -19,15 +19,21 @@ export default function NowPlaying({ nowPlaying }) {
         )}
       </div>
       <div className="np-info">
-        <div className="np-station">{nowPlaying.station || 'Unknown Station'}</div>
-        <div className="np-track">{nowPlaying.track || 'Unknown Track'}</div>
-        {nowPlaying.artist && <div className="np-artist">{nowPlaying.artist}</div>}
+        <div className="np-station">
+          {nowPlaying.station || "Unknown Station"}
+        </div>
+        <div className="np-track">{nowPlaying.track || "Unknown Track"}</div>
+        {nowPlaying.artist && (
+          <div className="np-artist">{nowPlaying.artist}</div>
+        )}
       </div>
       <div className="np-status">
-        <span className={`status-icon ${nowPlaying.play_status === 'PLAY_STATE' ? 'playing' : ''}`}>
-          {nowPlaying.play_status === 'PLAY_STATE' ? '▶' : '⏸'}
+        <span
+          className={`status-icon ${nowPlaying.play_status === "PLAY_STATE" ? "playing" : ""}`}
+        >
+          {nowPlaying.play_status === "PLAY_STATE" ? "▶" : "⏸"}
         </span>
       </div>
     </div>
-  )
+  );
 }

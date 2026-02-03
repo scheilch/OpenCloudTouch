@@ -10,14 +10,12 @@ Endpoint Matrix:
 - 1 ST10-specific endpoint (getGroup as GET)
 """
 
-import pytest
 from unittest.mock import MagicMock
 
-from cloudtouch.devices.capabilities import (
-    get_device_capabilities,
-    get_feature_flags_for_ui,
-)
+import pytest
 
+from cloudtouch.devices.capabilities import (get_device_capabilities,
+                                             get_feature_flags_for_ui)
 
 # Test Data: Device-specific capabilities based on SCHEMA_DIFFERENCES.md
 

@@ -3,23 +3,23 @@ Device API Routes
 Endpoints for device discovery and management
 """
 
-import logging
 import asyncio
-from typing import List, Dict, Any
+import logging
+from typing import Any, Dict, List
 
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, Depends, HTTPException
 
-from cloudtouch.discovery import DiscoveredDevice
+from cloudtouch.core.config import AppConfig, get_config
 from cloudtouch.devices.adapter import (
     BoseSoundTouchDiscoveryAdapter,
-    BoseSoundTouchClientAdapter,
     get_discovery_adapter,
     get_soundtouch_client,
 )
 from cloudtouch.devices.discovery.manual import ManualDiscovery
 from cloudtouch.devices.repository import Device, DeviceRepository
+from cloudtouch.devices.services import DeviceSyncService
+from cloudtouch.discovery import DiscoveredDevice
 from cloudtouch.settings.repository import SettingsRepository
-from cloudtouch.core.config import get_config, AppConfig
 
 logger = logging.getLogger(__name__)
 
@@ -69,7 +69,7 @@ async def _discover_via_ssdp(cfg: AppConfig) -> List[DiscoveredDevice]:
 async def _discover_via_manual_ips(cfg: AppConfig) -> List[DiscoveredDevice]:
     """
     Discover devices via manually configured IP addresses.
-    
+
     Merges IPs from:
     - Database (manual_device_ips table)
     - Environment variable (CT_MANUAL_DEVICE_IPS)
@@ -93,7 +93,9 @@ async def _discover_via_manual_ips(cfg: AppConfig) -> List[DiscoveredDevice]:
     if not all_ips:
         return []
 
-    logger.info(f"Using manual device IPs: {all_ips} (DB: {len(db_ips)}, ENV: {len(env_ips)})")
+    logger.info(
+        f"Using manual device IPs: {all_ips} (DB: {len(db_ips)}, ENV: {len(env_ips)})"
+    )
     manual = ManualDiscovery(all_ips)
     try:
         devices = await manual.discover()
@@ -164,58 +166,17 @@ async def sync_devices(
         try:
             cfg = get_config()
 
-            # Discover devices
-            devices: List[DiscoveredDevice] = []
+            # Use service layer for business logic
+            service = DeviceSyncService(
+                repository=repo,
+                discovery_timeout=cfg.discovery_timeout,
+                manual_ips=cfg.manual_device_ips_list,
+                discovery_enabled=cfg.discovery_enabled,
+            )
 
-            # Real discovery
-            if cfg.discovery_enabled:
-                discovery = get_discovery_adapter(timeout=cfg.discovery_timeout)
-                try:
-                    discovered_devices = await discovery.discover()
-                    devices.extend(discovered_devices)
-                except Exception as e:
-                    logger.error(f"Discovery failed: {e}")
+            result = await service.sync()
+            return result.to_dict()
 
-            # Manual IPs
-            manual_ips = cfg.manual_device_ips_list
-            if manual_ips:
-                manual = ManualDiscovery(manual_ips)
-                manual_devices = await manual.discover()
-                devices.extend(manual_devices)
-
-            # Query each device for detailed info and save to DB
-            synced = 0
-            failed = 0
-
-            for discovered in devices:
-                try:
-                    # Query device /info endpoint (uses factory for mock/real)
-                    client = get_soundtouch_client(discovered.base_url)
-                    info = await client.get_info()
-
-                    device = Device(
-                        device_id=info.device_id,
-                        ip=discovered.ip,
-                        name=info.name,
-                        model=info.type,
-                        mac_address=info.mac_address,
-                        firmware_version=info.firmware_version,
-                    )
-
-                    await repo.upsert(device)
-                    synced += 1
-                    logger.info(f"Synced device: {device.name} ({device.device_id})")
-
-                except Exception as e:
-                    failed += 1
-                    device_info = getattr(discovered, 'ip', str(discovered))
-                    logger.error(f"Failed to sync device {device_info}: {e}")
-
-            return {
-                "discovered": len(devices),
-                "synced": synced,
-                "failed": failed,
-            }
         finally:
             _discovery_in_progress = False
 
@@ -224,7 +185,7 @@ async def sync_devices(
 async def get_devices(repo: DeviceRepository = Depends(get_device_repo)):
     """
     Get all devices from database.
-    
+
     Returns:
         List of devices with details
     """
@@ -237,19 +198,33 @@ async def get_devices(repo: DeviceRepository = Depends(get_device_repo)):
 
 
 @router.delete("")
-async def delete_all_devices(repo: DeviceRepository = Depends(get_device_repo)):
+async def delete_all_devices(
+    repo: DeviceRepository = Depends(get_device_repo),
+    cfg: AppConfig = Depends(get_config),
+):
     """
     Delete all devices from database.
-    
+
     **Testing/Development endpoint only.**
     Use for cleaning database before E2E tests or manual testing.
     
+    **Protected**: Requires CT_ALLOW_DANGEROUS_OPERATIONS=true
+
     Returns:
         Confirmation message
+        
+    Raises:
+        HTTPException(403): If dangerous operations are disabled in production
     """
+    if not cfg.allow_dangerous_operations:
+        raise HTTPException(
+            status_code=403,
+            detail="Dangerous operations disabled. Set CT_ALLOW_DANGEROUS_OPERATIONS=true to enable (testing only)",
+        )
+
     await repo.delete_all()
     logger.info("All devices deleted from database")
-    
+
     return {"message": "All devices deleted"}
 
 
@@ -307,11 +282,10 @@ async def get_device_capabilities_endpoint(
             "advanced": {...}
         }
     """
-    from cloudtouch.devices.capabilities import (
-        get_device_capabilities,
-        get_feature_flags_for_ui,
-    )
-    from bosesoundtouchapi import SoundTouchDevice, SoundTouchClient
+    from bosesoundtouchapi import SoundTouchClient, SoundTouchDevice
+
+    from cloudtouch.devices.capabilities import (get_device_capabilities,
+                                                 get_feature_flags_for_ui)
 
     # Get device from DB
     device = await repo.get_by_device_id(device_id)

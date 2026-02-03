@@ -1,22 +1,24 @@
-import { useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import './DeviceSwiper.css'
+import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import "./DeviceSwiper.css";
 
-export default function DeviceSwiper({ devices, currentIndex, onIndexChange, children }) {
-  const [dragDirection, setDragDirection] = useState(0)
+export default function DeviceSwiper({
+  devices,
+  currentIndex,
+  onIndexChange,
+  children,
+}) {
+  const [dragDirection, setDragDirection] = useState(0);
 
   const handleDragEnd = (event, info) => {
-    const swipeThreshold = 50
-    const swipeVelocity = 500
+    const swipeThreshold = 50;
+    const swipeVelocity = 500;
 
-    if (
-      info.offset.x > swipeThreshold ||
-      info.velocity.x > swipeVelocity
-    ) {
+    if (info.offset.x > swipeThreshold || info.velocity.x > swipeVelocity) {
       // Swipe right - previous device
       if (currentIndex > 0) {
-        onIndexChange(currentIndex - 1)
-        setDragDirection(-1)
+        onIndexChange(currentIndex - 1);
+        setDragDirection(-1);
       }
     } else if (
       info.offset.x < -swipeThreshold ||
@@ -24,43 +26,43 @@ export default function DeviceSwiper({ devices, currentIndex, onIndexChange, chi
     ) {
       // Swipe left - next device
       if (currentIndex < devices.length - 1) {
-        onIndexChange(currentIndex + 1)
-        setDragDirection(1)
+        onIndexChange(currentIndex + 1);
+        setDragDirection(1);
       }
     }
-  }
+  };
 
   const goToPrevious = () => {
     if (currentIndex > 0) {
-      onIndexChange(currentIndex - 1)
-      setDragDirection(-1)
+      onIndexChange(currentIndex - 1);
+      setDragDirection(-1);
     }
-  }
+  };
 
   const goToNext = () => {
     if (currentIndex < devices.length - 1) {
-      onIndexChange(currentIndex + 1)
-      setDragDirection(1)
+      onIndexChange(currentIndex + 1);
+      setDragDirection(1);
     }
-  }
+  };
 
   const variants = {
     enter: (direction) => ({
       x: direction > 0 ? 1000 : -1000,
       opacity: 0,
-      scale: 0.8
+      scale: 0.8,
     }),
     center: {
       x: 0,
       opacity: 1,
-      scale: 1
+      scale: 1,
     },
     exit: (direction) => ({
       x: direction < 0 ? 1000 : -1000,
       opacity: 0,
-      scale: 0.8
-    })
-  }
+      scale: 0.8,
+    }),
+  };
 
   return (
     <div className="device-swiper">
@@ -94,9 +96,9 @@ export default function DeviceSwiper({ devices, currentIndex, onIndexChange, chi
             animate="center"
             exit="exit"
             transition={{
-              x: { type: 'spring', stiffness: 300, damping: 30 },
+              x: { type: "spring", stiffness: 300, damping: 30 },
               opacity: { duration: 0.2 },
-              scale: { duration: 0.2 }
+              scale: { duration: 0.2 },
             }}
             drag="x"
             dragConstraints={{ left: 0, right: 0 }}
@@ -114,10 +116,10 @@ export default function DeviceSwiper({ devices, currentIndex, onIndexChange, chi
         {devices.map((device, index) => (
           <button
             key={device.device_id}
-            className={`dot ${index === currentIndex ? 'active' : ''}`}
+            className={`dot ${index === currentIndex ? "active" : ""}`}
             onClick={() => {
-              setDragDirection(index > currentIndex ? 1 : -1)
-              onIndexChange(index)
+              setDragDirection(index > currentIndex ? 1 : -1);
+              onIndexChange(index);
             }}
             role="tab"
             aria-selected={index === currentIndex}
@@ -126,5 +128,5 @@ export default function DeviceSwiper({ devices, currentIndex, onIndexChange, chi
         ))}
       </div>
     </div>
-  )
+  );
 }

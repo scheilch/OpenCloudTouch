@@ -1,15 +1,16 @@
 """Tests for main application module (startup, lifecycle)."""
 
-import pytest
 from unittest.mock import AsyncMock, MagicMock, patch
+
+import pytest
 from fastapi.testclient import TestClient
 
 
 @pytest.mark.asyncio
 async def test_lifespan_initialization():
     """Test lifespan context manager initializes config and DB."""
-    from cloudtouch.main import lifespan, app
     from cloudtouch.core.config import AppConfig
+    from cloudtouch.main import app, lifespan
 
     with patch("cloudtouch.main.init_config") as mock_init_config, patch(
         "cloudtouch.main.setup_logging"
@@ -83,7 +84,7 @@ def test_cors_headers_present():
 @pytest.mark.asyncio
 async def test_lifespan_error_handling():
     """Test lifespan handles errors gracefully."""
-    from cloudtouch.main import lifespan, app
+    from cloudtouch.main import app, lifespan
 
     with patch("cloudtouch.main.init_config"), patch(
         "cloudtouch.main.setup_logging"

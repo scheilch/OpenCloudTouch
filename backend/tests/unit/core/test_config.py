@@ -2,8 +2,9 @@
 Unit tests for configuration module
 """
 
-import pytest
 from pathlib import Path
+
+import pytest
 
 from cloudtouch.core.config import AppConfig, init_config
 
@@ -113,6 +114,7 @@ def test_config_init():
 def test_config_yaml_loading():
     """Test loading config from YAML file."""
     import tempfile
+
     import yaml
 
     # Create temporary YAML config
@@ -185,4 +187,3 @@ def test_effective_db_path_production():
     """Test effective_db_path returns production path by default."""
     config = AppConfig()
     assert config.effective_db_path == "/data/ct.db"
-

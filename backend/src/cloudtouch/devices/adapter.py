@@ -7,12 +7,14 @@ import logging
 import os
 from typing import List
 
-from bosesoundtouchapi import SoundTouchClient as BoseClient, SoundTouchDevice
+from bosesoundtouchapi import SoundTouchClient as BoseClient
+from bosesoundtouchapi import SoundTouchDevice
 
-from cloudtouch.discovery import DeviceDiscovery, DiscoveredDevice
-from cloudtouch.devices.client import SoundTouchClient, DeviceInfo, NowPlayingInfo
-from cloudtouch.core.exceptions import DiscoveryError, DeviceConnectionError
+from cloudtouch.core.exceptions import DeviceConnectionError, DiscoveryError
+from cloudtouch.devices.client import (DeviceInfo, NowPlayingInfo,
+                                       SoundTouchClient)
 from cloudtouch.devices.discovery.ssdp import SSDPDiscovery
+from cloudtouch.discovery import DeviceDiscovery, DiscoveredDevice
 
 logger = logging.getLogger(__name__)
 
@@ -108,11 +110,7 @@ class BoseSoundTouchClientAdapter(SoundTouchClient):
             return self.ip
 
         network_info = info.NetworkInfo[0]
-        return (
-            network_info.IpAddress
-            if hasattr(network_info, "IpAddress")
-            else self.ip
-        )
+        return network_info.IpAddress if hasattr(network_info, "IpAddress") else self.ip
 
     async def get_info(self) -> DeviceInfo:
         """
@@ -204,18 +202,19 @@ class BoseSoundTouchClientAdapter(SoundTouchClient):
 def get_discovery_adapter(timeout: int = 10) -> DeviceDiscovery:
     """
     Factory function to get discovery adapter based on CT_MOCK_MODE.
-    
+
     Args:
         timeout: Discovery timeout in seconds
-        
+
     Returns:
         DeviceDiscovery implementation (Mock or Real)
     """
     mock_mode = os.getenv("CT_MOCK_MODE", "false").lower() == "true"
-    
+
     if mock_mode:
         logger.info("[MOCK MODE] Using MockDiscoveryAdapter")
         from cloudtouch.devices.discovery.mock import MockDiscoveryAdapter
+
         return MockDiscoveryAdapter(timeout=timeout)
     else:
         logger.info("[REAL MODE] Using BoseSoundTouchDiscoveryAdapter")
@@ -226,41 +225,42 @@ def get_discovery_adapter(timeout: int = 10) -> DeviceDiscovery:
 def get_soundtouch_client(base_url: str, timeout: float = 5.0) -> SoundTouchClient:
     """
     Factory function to get SoundTouch client based on CT_MOCK_MODE.
-    
+
     Args:
         base_url: Base URL of device (e.g., http://192.168.1.100:8090)
         timeout: Request timeout in seconds
-        
+
     Returns:
         SoundTouchClient implementation (Mock or Real)
     """
     mock_mode = os.getenv("CT_MOCK_MODE", "false").lower() == "true"
-    
+
     if mock_mode:
         # Extract device_id from base_url or use IP as fallback
         from urllib.parse import urlparse
+
         parsed = urlparse(base_url)
         ip = parsed.hostname or base_url.split("://")[1].split(":")[0]
-        
+
         # For mock mode, we use MAC as device_id
         # In production, this would come from discovery
         # For testing, try to extract from known mocks
         from cloudtouch.devices.mock_client import MockSoundTouchClient
-        
+
         # Try to find matching mock device by IP
         device_id = None
         for mac, device_data in MockSoundTouchClient.MOCK_DEVICES.items():
             if device_data["info"].ip_address == ip:
                 device_id = mac
                 break
-        
+
         if not device_id:
             # Fallback: Use first mock device
             device_id = list(MockSoundTouchClient.MOCK_DEVICES.keys())[0]
             logger.warning(
                 f"[MOCK MODE] No mock device found for IP {ip}, using {device_id}"
             )
-        
+
         logger.info(f"[MOCK MODE] Using MockSoundTouchClient for {device_id}")
         return MockSoundTouchClient(device_id=device_id, ip_address=ip)
     else:

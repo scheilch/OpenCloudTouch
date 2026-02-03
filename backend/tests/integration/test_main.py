@@ -5,8 +5,8 @@ Unit tests for SoundTouchBridge main application
 import pytest
 from fastapi.testclient import TestClient
 
-from cloudtouch.main import app
 from cloudtouch.core.config import init_config
+from cloudtouch.main import app
 
 
 @pytest.fixture(scope="module")

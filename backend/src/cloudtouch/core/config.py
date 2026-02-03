@@ -35,13 +35,15 @@ class AppConfig(BaseSettings):
     )
 
     # Database
-    db_path: str = Field(default="", description="SQLite database path (auto-configured if empty)")
-    
+    db_path: str = Field(
+        default="", description="SQLite database path (auto-configured if empty)"
+    )
+
     @property
     def effective_db_path(self) -> str:
         """
         Get effective database path based on environment.
-        
+
         Priority:
         1. Explicit CT_DB_PATH (if set)
         2. CI=true → ":memory:"
@@ -51,15 +53,15 @@ class AppConfig(BaseSettings):
         # Explicit override
         if self.db_path:
             return self.db_path
-        
+
         # CI: Use in-memory DB
         if os.getenv("CI", "false").lower() == "true":
             return ":memory:"
-        
+
         # Mock mode: Use test DB in data-local
         if self.mock_mode:
             return "data-local/ct-test.db"
-        
+
         # Production: Use persistent DB in data/
         return "/data/ct.db"
 
@@ -111,17 +113,23 @@ class AppConfig(BaseSettings):
         default=True, description="Enable group management features"
     )
 
+    # Production Safety
+    allow_dangerous_operations: bool = Field(
+        default=False,
+        description="Allow dangerous operations like DELETE /api/devices (testing only)",
+    )
+
     @field_validator("log_level")
     @classmethod
     def validate_log_level(cls, v: str) -> str:
         """Validate and normalize log level.
-        
+
         Args:
             v: Log level string (case-insensitive).
-            
+
         Returns:
             Uppercase log level string.
-            
+
         Raises:
             ValueError: If log level is not in allowed values.
         """
@@ -135,13 +143,13 @@ class AppConfig(BaseSettings):
     @classmethod
     def validate_log_format(cls, v: str) -> str:
         """Validate and normalize log format.
-        
+
         Args:
             v: Log format string (case-insensitive).
-            
+
         Returns:
             Lowercase log format string ('text' or 'json').
-            
+
         Raises:
             ValueError: If log format is not in allowed values.
         """

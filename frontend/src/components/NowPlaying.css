@@ -1,6 +1,10 @@
 /* Now Playing - Device Card Display */
 .now-playing {
-  background: linear-gradient(135deg, var(--color-bg-card) 0%, rgba(0, 102, 204, 0.1) 100%);
+  background: linear-gradient(
+    135deg,
+    var(--color-bg-card) 0%,
+    rgba(0, 102, 204, 0.1) 100%
+  );
   border: 1px solid var(--color-border);
   border-radius: var(--border-radius-xl);
   padding: var(--space-lg);

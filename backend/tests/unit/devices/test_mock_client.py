@@ -15,9 +15,9 @@ class TestMockSoundTouchClient:
     async def test_get_info_returns_device_info(self):
         """Test that get_info returns DeviceInfo object."""
         client = MockSoundTouchClient(device_id="AABBCC112233")
-        
+
         info = await client.get_info()
-        
+
         assert isinstance(info, DeviceInfo)
         assert info.device_id == "AABBCC112233"
         assert info.name == "Living Room"
@@ -30,9 +30,9 @@ class TestMockSoundTouchClient:
     async def test_get_now_playing_returns_playback_info(self):
         """Test that get_now_playing returns NowPlayingInfo object."""
         client = MockSoundTouchClient(device_id="AABBCC112233")
-        
+
         now_playing = await client.get_now_playing()
-        
+
         assert isinstance(now_playing, NowPlayingInfo)
         assert now_playing.source == "INTERNET_RADIO"
         assert now_playing.state == "PLAY_STATE"
@@ -43,10 +43,10 @@ class TestMockSoundTouchClient:
         """Test that different devices return different data."""
         client1 = MockSoundTouchClient(device_id="AABBCC112233")
         client2 = MockSoundTouchClient(device_id="DDEEFF445566")
-        
+
         info1 = await client1.get_info()
         info2 = await client2.get_info()
-        
+
         assert info1.name == "Living Room"
         assert info2.name == "Kitchen"
         assert info1.device_id != info2.device_id
@@ -55,9 +55,9 @@ class TestMockSoundTouchClient:
     async def test_bluetooth_device_response(self):
         """Test device playing via Bluetooth."""
         client = MockSoundTouchClient(device_id="DDEEFF445566")
-        
+
         now_playing = await client.get_now_playing()
-        
+
         assert now_playing.source == "BLUETOOTH"
         assert now_playing.artist == "The Beatles"
         assert now_playing.track == "Here Comes The Sun"
@@ -67,9 +67,9 @@ class TestMockSoundTouchClient:
     async def test_standby_device_response(self):
         """Test device in standby mode."""
         client = MockSoundTouchClient(device_id="112233445566")
-        
+
         now_playing = await client.get_now_playing()
-        
+
         assert now_playing.source == "STANDBY"
         assert now_playing.state == "STOP_STATE"
         assert now_playing.artist is None
@@ -85,18 +85,18 @@ class TestMockSoundTouchClient:
     async def test_close_is_noop(self):
         """Test that close() doesn't raise errors."""
         client = MockSoundTouchClient(device_id="AABBCC112233")
-        
+
         await client.close()  # Should not raise
 
     @pytest.mark.asyncio
     async def test_all_mock_devices_have_required_fields(self):
         """Test that all mock devices have complete DeviceInfo."""
         device_ids = ["AABBCC112233", "DDEEFF445566", "112233445566"]
-        
+
         for device_id in device_ids:
             client = MockSoundTouchClient(device_id=device_id)
             info = await client.get_info()
-            
+
             assert info.device_id
             assert info.name
             assert info.type
@@ -108,10 +108,10 @@ class TestMockSoundTouchClient:
     async def test_all_mock_devices_have_now_playing(self):
         """Test that all mock devices have NowPlayingInfo."""
         device_ids = ["AABBCC112233", "DDEEFF445566", "112233445566"]
-        
+
         for device_id in device_ids:
             client = MockSoundTouchClient(device_id=device_id)
             now_playing = await client.get_now_playing()
-            
+
             assert now_playing.source
             assert now_playing.state

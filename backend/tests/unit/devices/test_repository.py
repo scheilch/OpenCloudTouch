@@ -2,9 +2,10 @@
 Tests for Device Repository
 """
 
-import pytest
 import tempfile
 from pathlib import Path
+
+import pytest
 
 from cloudtouch.db import Device, DeviceRepository
 

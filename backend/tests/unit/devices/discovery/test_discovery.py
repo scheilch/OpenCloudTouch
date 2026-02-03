@@ -4,12 +4,11 @@ Tests for Device Discovery
 
 import tempfile
 from pathlib import Path
-from unittest.mock import AsyncMock, patch
 
 import pytest
 
-from cloudtouch.discovery import DiscoveredDevice
 from cloudtouch.devices.discovery.manual import ManualDiscovery
+from cloudtouch.discovery import DiscoveredDevice
 from cloudtouch.settings.repository import SettingsRepository
 
 
@@ -108,7 +107,12 @@ async def test_discovery_integration_with_settings_repo():
         # Assert
         assert len(devices) == 4
         device_ips = {d.ip for d in devices}
-        assert device_ips == {"192.168.1.10", "192.168.1.20", "192.168.1.30", "10.0.0.5"}
+        assert device_ips == {
+            "192.168.1.10",
+            "192.168.1.20",
+            "192.168.1.30",
+            "10.0.0.5",
+        }
 
         # Cleanup
         await repo.close()

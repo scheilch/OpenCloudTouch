@@ -1,30 +1,30 @@
-import { useState } from 'react'
-import { motion } from 'framer-motion'
-import './Firmware.css'
+import { useState } from "react";
+import { motion } from "framer-motion";
+import "./Firmware.css";
 
 export default function Firmware({ devices = [] }) {
-  const [currentDeviceIndex] = useState(0)
+  const [currentDeviceIndex] = useState(0);
 
-  const currentDevice = devices[currentDeviceIndex]
+  const currentDevice = devices[currentDeviceIndex];
 
   const getFirmwareStatus = (firmware) => {
     // Mock logic: versions ending with .6 are up-to-date
-    const version = firmware?.split('.')[2] || '0'
-    return parseInt(version) >= 12 ? 'up-to-date' : 'update-available'
-  }
+    const version = firmware?.split(".")[2] || "0";
+    return parseInt(version) >= 12 ? "up-to-date" : "update-available";
+  };
 
   const parseFirmwareVersion = (firmware) => {
-    if (!firmware) return 'Unknown'
-    const parts = firmware.split('.')
-    return `${parts[0]}.${parts[1]}.${parts[2]}`
-  }
+    if (!firmware) return "Unknown";
+    const parts = firmware.split(".");
+    return `${parts[0]}.${parts[1]}.${parts[2]}`;
+  };
 
   if (devices.length === 0) {
     return (
       <div className="empty-container">
         <p className="empty-message">Keine Geräte gefunden</p>
       </div>
-    )
+    );
   }
 
   return (
@@ -32,7 +32,7 @@ export default function Firmware({ devices = [] }) {
       <h1 className="page-title">Firmware Updates</h1>
 
       {/* Current Device Firmware */}
-      <motion.section 
+      <motion.section
         className="current-device-section"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -43,19 +43,25 @@ export default function Firmware({ devices = [] }) {
             <span className="firmware-icon">📱</span>
             <div className="firmware-device-info">
               <h3 className="firmware-device-name">{currentDevice.name}</h3>
-              <span className="firmware-device-model">{currentDevice.model}</span>
+              <span className="firmware-device-model">
+                {currentDevice.model}
+              </span>
             </div>
           </div>
-          
+
           <div className="firmware-details">
             <div className="firmware-detail-row">
               <span className="detail-label">Aktuelle Version:</span>
-              <span className="detail-value">{parseFirmwareVersion(currentDevice.firmware)}</span>
+              <span className="detail-value">
+                {parseFirmwareVersion(currentDevice.firmware)}
+              </span>
             </div>
             <div className="firmware-detail-row">
               <span className="detail-label">Status:</span>
-              <span className={`status-badge ${getFirmwareStatus(currentDevice.firmware)}`}>
-                {getFirmwareStatus(currentDevice.firmware) === 'up-to-date' ? (
+              <span
+                className={`status-badge ${getFirmwareStatus(currentDevice.firmware)}`}
+              >
+                {getFirmwareStatus(currentDevice.firmware) === "up-to-date" ? (
                   <>✓ Aktuell</>
                 ) : (
                   <>⚠️ Update verfügbar</>
@@ -67,7 +73,7 @@ export default function Firmware({ devices = [] }) {
       </motion.section>
 
       {/* All Devices Overview */}
-      <motion.section 
+      <motion.section
         className="all-devices-section"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -76,8 +82,8 @@ export default function Firmware({ devices = [] }) {
         <h2 className="section-title">Alle Geräte</h2>
         <div className="firmware-list">
           {devices.map((device, index) => {
-            const status = getFirmwareStatus(device.firmware)
-            
+            const status = getFirmwareStatus(device.firmware);
+
             return (
               <motion.div
                 key={device.device_id}
@@ -88,28 +94,34 @@ export default function Firmware({ devices = [] }) {
               >
                 <div className="firmware-item-left">
                   <span className="firmware-item-icon">
-                    {device.model.includes('ST300') ? '📺' : device.model.includes('ST30') ? '🔊' : '📻'}
+                    {device.model.includes("ST300")
+                      ? "📺"
+                      : device.model.includes("ST30")
+                        ? "🔊"
+                        : "📻"}
                   </span>
                   <div className="firmware-item-info">
                     <span className="firmware-item-name">{device.name}</span>
                     <span className="firmware-item-model">{device.model}</span>
                   </div>
                 </div>
-                
+
                 <div className="firmware-item-right">
-                  <span className="firmware-version">{parseFirmwareVersion(device.firmware)}</span>
+                  <span className="firmware-version">
+                    {parseFirmwareVersion(device.firmware)}
+                  </span>
                   <span className={`status-icon ${status}`}>
-                    {status === 'up-to-date' ? '✓' : '⚠️'}
+                    {status === "up-to-date" ? "✓" : "⚠️"}
                   </span>
                 </div>
               </motion.div>
-            )
+            );
           })}
         </div>
       </motion.section>
 
       {/* Warning Box */}
-      <motion.div 
+      <motion.div
         className="warning-box"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -119,15 +131,15 @@ export default function Firmware({ devices = [] }) {
         <div className="warning-content">
           <h3 className="warning-title">Experimentelle Funktion</h3>
           <p className="warning-text">
-            Firmware-Updates sind experimentell und können Ihr Gerät beschädigen.
-            Verwenden Sie nur offizielle Bose Firmware-Dateien.
-            Der Upload ist derzeit deaktiviert.
+            Firmware-Updates sind experimentell und können Ihr Gerät
+            beschädigen. Verwenden Sie nur offizielle Bose Firmware-Dateien. Der
+            Upload ist derzeit deaktiviert.
           </p>
         </div>
       </motion.div>
 
       {/* Upload Section (Disabled) */}
-      <motion.section 
+      <motion.section
         className="upload-section"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -136,7 +148,9 @@ export default function Firmware({ devices = [] }) {
         <h2 className="section-title">Firmware hochladen</h2>
         <div className="upload-card disabled">
           <div className="upload-icon">📤</div>
-          <p className="upload-text">Firmware-Upload ist derzeit nicht verfügbar</p>
+          <p className="upload-text">
+            Firmware-Upload ist derzeit nicht verfügbar
+          </p>
           <button className="upload-button" disabled>
             <span className="button-icon">📁</span>
             <span>Firmware auswählen</span>
@@ -148,7 +162,7 @@ export default function Firmware({ devices = [] }) {
       </motion.section>
 
       {/* Info Box */}
-      <motion.div 
+      <motion.div
         className="info-box"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -158,13 +172,17 @@ export default function Firmware({ devices = [] }) {
         <div className="info-content">
           <h4 className="info-title">Firmware-Hinweise</h4>
           <ul className="info-list">
-            <li>Firmware-Updates sollten nur bei Problemen durchgeführt werden</li>
-            <li>Während des Updates darf das Gerät nicht ausgeschaltet werden</li>
+            <li>
+              Firmware-Updates sollten nur bei Problemen durchgeführt werden
+            </li>
+            <li>
+              Während des Updates darf das Gerät nicht ausgeschaltet werden
+            </li>
             <li>Der Update-Prozess kann 5-10 Minuten dauern</li>
             <li>Nach dem Update startet das Gerät automatisch neu</li>
           </ul>
         </div>
       </motion.div>
     </div>
-  )
+  );
 }

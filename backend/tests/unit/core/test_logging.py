@@ -1,16 +1,11 @@
 """Tests for structured logging configuration."""
 
-import logging
 import json
+import logging
 import sys
 
-
-from cloudtouch.core.logging import (
-    StructuredFormatter,
-    ContextFormatter,
-    setup_logging,
-    get_logger,
-)
+from cloudtouch.core.logging import (ContextFormatter, StructuredFormatter,
+                                     get_logger, setup_logging)
 
 
 class TestStructuredFormatter:

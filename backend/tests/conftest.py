@@ -5,7 +5,6 @@ Suppress common warnings to keep test output clean.
 
 import warnings
 
-
 # Suppress specific deprecation warnings
 warnings.filterwarnings(
     "ignore", category=DeprecationWarning, message=".*datetime.datetime.utcnow.*"

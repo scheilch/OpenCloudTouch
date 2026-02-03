@@ -4,13 +4,16 @@ Tests for Radio API endpoints
 TDD RED Phase: These tests will fail until FastAPI endpoints are implemented.
 """
 
-import pytest
-from fastapi.testclient import TestClient
 from unittest.mock import AsyncMock
 
+import pytest
+from fastapi.testclient import TestClient
+from httpx import ASGITransport
+
 from cloudtouch.main import app
-from cloudtouch.radio.providers.radiobrowser import RadioStation, RadioBrowserError
 from cloudtouch.radio.api.routes import get_radiobrowser_adapter
+from cloudtouch.radio.providers.radiobrowser import (RadioBrowserError,
+                                                     RadioStation)
 
 
 @pytest.fixture
@@ -315,7 +318,8 @@ class TestRadioAPIErrorHandling:
         Use case: RadioBrowser API is slow/unresponsive.
         Expected: User sees timeout error, not 500 Internal Server Error.
         """
-        from cloudtouch.radio.providers.radiobrowser import RadioBrowserTimeoutError
+        from cloudtouch.radio.providers.radiobrowser import \
+            RadioBrowserTimeoutError
 
         mock_adapter.search_by_name.side_effect = RadioBrowserTimeoutError(
             "API timeout after 10s"
@@ -338,7 +342,8 @@ class TestRadioAPIErrorHandling:
 
         Regression: Network errors should be distinguishable from code bugs.
         """
-        from cloudtouch.radio.providers.radiobrowser import RadioBrowserConnectionError
+        from cloudtouch.radio.providers.radiobrowser import \
+            RadioBrowserConnectionError
 
         mock_adapter.search_by_name.side_effect = RadioBrowserConnectionError(
             "Cannot connect to api.radio-browser.info"
@@ -363,7 +368,8 @@ class TestRadioAPIErrorHandling:
         first, so timeout returns 500 instead of 504.
         This test documents actual behavior, not ideal behavior.
         """
-        from cloudtouch.radio.providers.radiobrowser import RadioBrowserTimeoutError
+        from cloudtouch.radio.providers.radiobrowser import \
+            RadioBrowserTimeoutError
 
         mock_adapter.get_station_by_uuid.side_effect = RadioBrowserTimeoutError(
             "API timeout"
@@ -383,7 +389,8 @@ class TestRadioAPIErrorHandling:
 
         After fixing exception order: Connection error correctly returns 503.
         """
-        from cloudtouch.radio.providers.radiobrowser import RadioBrowserConnectionError
+        from cloudtouch.radio.providers.radiobrowser import \
+            RadioBrowserConnectionError
 
         mock_adapter.get_station_by_uuid.side_effect = RadioBrowserConnectionError(
             "Network error"
@@ -592,11 +599,15 @@ class TestConcurrentRadioRequests:
         app.dependency_overrides[get_radiobrowser_adapter] = lambda: mock_adapter
         try:
             import asyncio
+
             from httpx import AsyncClient
 
             # Create 5 concurrent requests
             async def fetch_station(station_uuid):
-                async with AsyncClient(app=app, base_url="http://test") as ac:
+                transport = ASGITransport(app=app)
+                async with AsyncClient(
+                    transport=transport, base_url="http://test"
+                ) as ac:
                     response = await ac.get(f"/api/radio/station/{station_uuid}")
                     return response
 
@@ -638,10 +649,14 @@ class TestConcurrentRadioRequests:
         app.dependency_overrides[get_radiobrowser_adapter] = lambda: mock_adapter
         try:
             import asyncio
+
             from httpx import AsyncClient
 
             async def search(query):
-                async with AsyncClient(app=app, base_url="http://test") as ac:
+                transport = ASGITransport(app=app)
+                async with AsyncClient(
+                    transport=transport, base_url="http://test"
+                ) as ac:
                     response = await ac.get("/api/radio/search", params={"q": query})
                     return (query, response)
 
