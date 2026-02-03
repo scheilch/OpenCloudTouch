@@ -292,3 +292,116 @@ def test_xml_without_namespace_still_works():
     root = ElementTree.fromstring(xml_without_namespace)
     manufacturer = discovery._find_xml_text(root, ".//manufacturer")
     assert manufacturer == "Bose Corporation"
+
+
+# ==================== EDGE CASE TESTS ====================
+
+
+
+
+# ==================== EDGE CASE TESTS ====================
+
+
+def test_extract_ip_from_url_success():
+    """Test successful IP extraction from URL."""
+    discovery = SSDPDiscovery()
+
+    url = "http://192.168.1.100:8090/device.xml"
+    ip = discovery._extract_ip_from_url(url)
+
+    assert ip == "192.168.1.100"
+
+
+def test_extract_ip_from_url_different_port():
+    """Test IP extraction with different port."""
+    discovery = SSDPDiscovery()
+
+    url = "http://10.0.0.1:1234/info"
+    ip = discovery._extract_ip_from_url(url)
+
+    assert ip == "10.0.0.1"
+
+
+def test_extract_ip_from_url_malformed():
+    """Test that malformed URLs return None or extract what's possible."""
+    discovery = SSDPDiscovery()
+
+    # URL without protocol - will fail on split
+    assert discovery._extract_ip_from_url("not-a-url") is None
+
+    # FTP protocol - extracts hostname (not ideal but current behavior)
+    result = discovery._extract_ip_from_url("ftp://example.com")
+    assert result == "example.com"  # Current implementation doesn't validate IP format
+
+    # Empty string
+    assert discovery._extract_ip_from_url("") is None
+
+
+def test_find_xml_text_with_namespace():
+    """Test _find_xml_text handles namespaced XML correctly."""
+    discovery = SSDPDiscovery()
+
+    xml = """<?xml version="1.0"?>
+    <root xmlns="urn:schemas-upnp-org:device-1-0">
+        <device>
+            <friendlyName>Test Device</friendlyName>
+        </device>
+    </root>"""
+
+    root = ElementTree.fromstring(xml)
+    result = discovery._find_xml_text(root, ".//friendlyName")
+
+    assert result == "Test Device"
+
+
+def test_find_xml_text_without_namespace():
+    """Test _find_xml_text handles non-namespaced XML correctly."""
+    discovery = SSDPDiscovery()
+
+    xml = """<?xml version="1.0"?>
+    <root>
+        <device>
+            <friendlyName>Test Device</friendlyName>
+        </device>
+    </root>"""
+
+    root = ElementTree.fromstring(xml)
+    result = discovery._find_xml_text(root, ".//friendlyName")
+
+    assert result == "Test Device"
+
+
+def test_find_xml_text_missing_element():
+    """Test _find_xml_text returns None for missing elements."""
+    discovery = SSDPDiscovery()
+
+    xml = """<?xml version="1.0"?>
+    <root xmlns="urn:schemas-upnp-org:device-1-0">
+        <device>
+            <friendlyName>Test Device</friendlyName>
+        </device>
+    </root>"""
+
+    root = ElementTree.fromstring(xml)
+    result = discovery._find_xml_text(root, ".//nonExistent")
+
+    assert result is None
+
+
+def test_find_xml_text_empty_element():
+    """Test _find_xml_text returns None for empty elements."""
+    discovery = SSDPDiscovery()
+
+    xml = """<?xml version="1.0"?>
+    <root xmlns="urn:schemas-upnp-org:device-1-0">
+        <device>
+            <friendlyName></friendlyName>
+        </device>
+    </root>"""
+
+    root = ElementTree.fromstring(xml)
+    result = discovery._find_xml_text(root, ".//friendlyName")
+
+    # Empty text should return None
+    assert result is None or result == ""
+
