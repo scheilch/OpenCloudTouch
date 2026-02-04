@@ -250,7 +250,7 @@ class SSDPDiscovery:
                 return elem.text.strip()
 
         # Fallback: Try without namespace (for non-namespaced XML)
-        elem = root.find(path)  # type: ignore[assignment]
+        elem = root.find(path)
         if elem is not None and elem.text:
             return elem.text.strip()
 

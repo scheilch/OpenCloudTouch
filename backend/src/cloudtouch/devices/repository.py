@@ -6,7 +6,7 @@ Uses aiosqlite for async SQLite operations
 import logging
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import List, Optional
+from typing import Any, List, Optional
 
 import aiosqlite
 
@@ -57,7 +57,7 @@ class Device:
             return ".".join(parts[:3])
         return firmware_version.split()[0] if firmware_version else "unknown"
 
-    def to_dict(self) -> dict:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary for API responses."""
         return {
             "id": self.id,
