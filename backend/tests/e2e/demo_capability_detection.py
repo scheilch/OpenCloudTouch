@@ -28,10 +28,12 @@ from pathlib import Path
 # Add backend to path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from cloudtouch.devices.capabilities import (DeviceCapabilities,
-                                             get_device_capabilities,
-                                             get_feature_flags_for_ui,
-                                             safe_api_call)
+from cloudtouch.devices.capabilities import (
+    DeviceCapabilities,
+    get_device_capabilities,
+    get_feature_flags_for_ui,
+    safe_api_call,
+)
 
 
 def print_section(title: str):

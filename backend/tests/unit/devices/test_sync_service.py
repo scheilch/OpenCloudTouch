@@ -5,8 +5,7 @@ from unittest.mock import AsyncMock, MagicMock
 import pytest
 
 from cloudtouch.db import Device
-from cloudtouch.devices.services.sync_service import (DeviceSyncService,
-                                                      SyncResult)
+from cloudtouch.devices.services.sync_service import DeviceSyncService, SyncResult
 from cloudtouch.discovery import DiscoveredDevice
 
 

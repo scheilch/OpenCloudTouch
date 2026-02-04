@@ -7,8 +7,7 @@ Provides deterministic responses that simulate Bose SoundTouch HTTP API.
 import logging
 from typing import Optional
 
-from cloudtouch.devices.client import (DeviceInfo, NowPlayingInfo,
-                                       SoundTouchClient)
+from cloudtouch.devices.client import DeviceInfo, NowPlayingInfo, SoundTouchClient
 
 logger = logging.getLogger(__name__)
 

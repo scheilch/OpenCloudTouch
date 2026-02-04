@@ -10,8 +10,12 @@ import httpx
 import pytest
 
 from cloudtouch.radio.providers.radiobrowser import (
-    RadioBrowserAdapter, RadioBrowserConnectionError, RadioBrowserError,
-    RadioBrowserTimeoutError, RadioStation)
+    RadioBrowserAdapter,
+    RadioBrowserConnectionError,
+    RadioBrowserError,
+    RadioBrowserTimeoutError,
+    RadioStation,
+)
 
 
 class TestRadioStation:

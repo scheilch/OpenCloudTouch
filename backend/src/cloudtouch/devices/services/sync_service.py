@@ -8,8 +8,7 @@ from dataclasses import dataclass
 from typing import List, Optional
 
 from cloudtouch.db import Device
-from cloudtouch.devices.adapter import (get_discovery_adapter,
-                                        get_soundtouch_client)
+from cloudtouch.devices.adapter import get_discovery_adapter, get_soundtouch_client
 from cloudtouch.devices.discovery.manual import ManualDiscovery
 from cloudtouch.devices.repository import DeviceRepository
 from cloudtouch.discovery import DiscoveredDevice

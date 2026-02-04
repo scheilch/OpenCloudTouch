@@ -297,8 +297,6 @@ def test_xml_without_namespace_still_works():
 # ==================== EDGE CASE TESTS ====================
 
 
-
-
 # ==================== EDGE CASE TESTS ====================
 
 
@@ -404,4 +402,3 @@ def test_find_xml_text_empty_element():
 
     # Empty text should return None
     assert result is None or result == ""
-

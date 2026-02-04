@@ -635,7 +635,9 @@ class TestDeleteAllDevicesEndpoint:
         # Should NOT call delete_all when blocked
         mock_repo.delete_all.assert_not_called()
 
-    def test_delete_all_devices_success_when_enabled(self, client, mock_repo, monkeypatch):
+    def test_delete_all_devices_success_when_enabled(
+        self, client, mock_repo, monkeypatch
+    ):
         """Test DELETE /api/devices succeeds when dangerous operations enabled."""
         # Enable dangerous operations via env var
         monkeypatch.setenv("CT_ALLOW_DANGEROUS_OPERATIONS", "true")

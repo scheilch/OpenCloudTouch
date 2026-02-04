@@ -11,8 +11,12 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel
 
 from cloudtouch.radio.providers.radiobrowser import (
-    RadioBrowserAdapter, RadioBrowserConnectionError, RadioBrowserError,
-    RadioBrowserTimeoutError, RadioStation)
+    RadioBrowserAdapter,
+    RadioBrowserConnectionError,
+    RadioBrowserError,
+    RadioBrowserTimeoutError,
+    RadioStation,
+)
 
 # Router
 router = APIRouter(prefix="/api/radio", tags=["radio"])

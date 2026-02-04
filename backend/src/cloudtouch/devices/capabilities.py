@@ -7,7 +7,7 @@ are not supported.
 """
 
 from dataclasses import dataclass, field
-from typing import List, Optional, Set
+from typing import Any, List, Optional, Set
 
 from bosesoundtouchapi import SoundTouchClient, SoundTouchError
 
@@ -202,7 +202,7 @@ async def safe_api_call(
         raise
 
 
-def get_feature_flags_for_ui(capabilities: DeviceCapabilities) -> dict:
+def get_feature_flags_for_ui(capabilities: DeviceCapabilities) -> dict[str, Any]:
     """
     Convert DeviceCapabilities to UI feature flags.
 

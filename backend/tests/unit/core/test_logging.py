@@ -4,8 +4,12 @@ import json
 import logging
 import sys
 
-from cloudtouch.core.logging import (ContextFormatter, StructuredFormatter,
-                                     get_logger, setup_logging)
+from cloudtouch.core.logging import (
+    ContextFormatter,
+    StructuredFormatter,
+    get_logger,
+    setup_logging,
+)
 
 
 class TestStructuredFormatter:

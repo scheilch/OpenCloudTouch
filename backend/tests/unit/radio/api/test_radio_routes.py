@@ -12,8 +12,7 @@ from httpx import ASGITransport
 
 from cloudtouch.main import app
 from cloudtouch.radio.api.routes import get_radiobrowser_adapter
-from cloudtouch.radio.providers.radiobrowser import (RadioBrowserError,
-                                                     RadioStation)
+from cloudtouch.radio.providers.radiobrowser import RadioBrowserError, RadioStation
 
 
 @pytest.fixture
@@ -318,8 +317,7 @@ class TestRadioAPIErrorHandling:
         Use case: RadioBrowser API is slow/unresponsive.
         Expected: User sees timeout error, not 500 Internal Server Error.
         """
-        from cloudtouch.radio.providers.radiobrowser import \
-            RadioBrowserTimeoutError
+        from cloudtouch.radio.providers.radiobrowser import RadioBrowserTimeoutError
 
         mock_adapter.search_by_name.side_effect = RadioBrowserTimeoutError(
             "API timeout after 10s"
@@ -342,8 +340,7 @@ class TestRadioAPIErrorHandling:
 
         Regression: Network errors should be distinguishable from code bugs.
         """
-        from cloudtouch.radio.providers.radiobrowser import \
-            RadioBrowserConnectionError
+        from cloudtouch.radio.providers.radiobrowser import RadioBrowserConnectionError
 
         mock_adapter.search_by_name.side_effect = RadioBrowserConnectionError(
             "Cannot connect to api.radio-browser.info"
@@ -368,8 +365,7 @@ class TestRadioAPIErrorHandling:
         first, so timeout returns 500 instead of 504.
         This test documents actual behavior, not ideal behavior.
         """
-        from cloudtouch.radio.providers.radiobrowser import \
-            RadioBrowserTimeoutError
+        from cloudtouch.radio.providers.radiobrowser import RadioBrowserTimeoutError
 
         mock_adapter.get_station_by_uuid.side_effect = RadioBrowserTimeoutError(
             "API timeout"
@@ -389,8 +385,7 @@ class TestRadioAPIErrorHandling:
 
         After fixing exception order: Connection error correctly returns 503.
         """
-        from cloudtouch.radio.providers.radiobrowser import \
-            RadioBrowserConnectionError
+        from cloudtouch.radio.providers.radiobrowser import RadioBrowserConnectionError
 
         mock_adapter.get_station_by_uuid.side_effect = RadioBrowserConnectionError(
             "Network error"
