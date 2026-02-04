@@ -14,8 +14,10 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from cloudtouch.devices.capabilities import (get_device_capabilities,
-                                             get_feature_flags_for_ui)
+from cloudtouch.devices.capabilities import (
+    get_device_capabilities,
+    get_feature_flags_for_ui,
+)
 
 # Test Data: Device-specific capabilities based on SCHEMA_DIFFERENCES.md
 

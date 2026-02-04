@@ -195,12 +195,12 @@ async def delete_all_devices(
 
     **Testing/Development endpoint only.**
     Use for cleaning database before E2E tests or manual testing.
-    
+
     **Protected**: Requires CT_ALLOW_DANGEROUS_OPERATIONS=true
 
     Returns:
         Confirmation message
-        
+
     Raises:
         HTTPException(403): If dangerous operations are disabled in production
     """
@@ -272,8 +272,10 @@ async def get_device_capabilities_endpoint(
     """
     from bosesoundtouchapi import SoundTouchClient, SoundTouchDevice
 
-    from cloudtouch.devices.capabilities import (get_device_capabilities,
-                                                 get_feature_flags_for_ui)
+    from cloudtouch.devices.capabilities import (
+        get_device_capabilities,
+        get_feature_flags_for_ui,
+    )
 
     # Get device from DB
     device = await repo.get_by_device_id(device_id)

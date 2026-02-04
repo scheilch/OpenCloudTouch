@@ -448,4 +448,3 @@ def test_get_soundtouch_client_mock_mode_unknown_ip():
         # Should fallback to first mock device but keep provided IP
         assert isinstance(client, MockSoundTouchClient)
         assert client.ip_address == "10.0.0.1"  # IP from base_url preserved
-

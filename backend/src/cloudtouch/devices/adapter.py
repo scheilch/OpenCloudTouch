@@ -11,8 +11,7 @@ from bosesoundtouchapi import SoundTouchClient as BoseClient
 from bosesoundtouchapi import SoundTouchDevice
 
 from cloudtouch.core.exceptions import DeviceConnectionError, DiscoveryError
-from cloudtouch.devices.client import (DeviceInfo, NowPlayingInfo,
-                                       SoundTouchClient)
+from cloudtouch.devices.client import DeviceInfo, NowPlayingInfo, SoundTouchClient
 from cloudtouch.devices.discovery.ssdp import SSDPDiscovery
 from cloudtouch.discovery import DeviceDiscovery, DiscoveredDevice
 
