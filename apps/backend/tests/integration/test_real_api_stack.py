@@ -19,7 +19,11 @@ from unittest.mock import AsyncMock, patch
 import pytest
 from httpx import ASGITransport, AsyncClient
 
-from opencloudtouch.core.dependencies import clear_dependencies, set_device_repo, set_settings_repo
+from opencloudtouch.core.dependencies import (
+    clear_dependencies,
+    set_device_repo,
+    set_settings_repo,
+)
 from opencloudtouch.db import DeviceRepository
 from opencloudtouch.devices.client import DeviceInfo
 from opencloudtouch.discovery import DiscoveredDevice

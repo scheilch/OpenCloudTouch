@@ -416,9 +416,7 @@ async def test_fetch_device_descriptions_http_timeout():
 
     with patch("httpx.AsyncClient") as mock_client:
         mock_client_instance = AsyncMock()
-        mock_client_instance.get.side_effect = httpx.TimeoutException(
-            "Request timeout"
-        )
+        mock_client_instance.get.side_effect = httpx.TimeoutException("Request timeout")
         mock_client_instance.__aenter__.return_value = mock_client_instance
         mock_client_instance.__aexit__.return_value = None
         mock_client.return_value = mock_client_instance

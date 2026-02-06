@@ -170,9 +170,7 @@ class BoseSoundTouchClientAdapter(SoundTouchClient):
             state = now_playing.PlayStatus if now_playing.PlayStatus else "STOP_STATE"
 
             # Extract content info (ContentItem has source info)
-            (
-                now_playing.ContentItem if hasattr(now_playing, "ContentItem") else None
-            )
+            (now_playing.ContentItem if hasattr(now_playing, "ContentItem") else None)
 
             return NowPlayingInfo(
                 source=now_playing.Source if now_playing.Source else "UNKNOWN",
