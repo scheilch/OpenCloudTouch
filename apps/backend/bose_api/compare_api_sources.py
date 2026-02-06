@@ -10,7 +10,6 @@ import re
 from pathlib import Path
 from typing import Dict
 
-
 SCRIPT_DIR = Path(__file__).parent
 
 

@@ -12,7 +12,6 @@ from typing import Dict
 from xml.etree import ElementTree as ET
 from xml.dom import minidom
 
-
 DEVICES = {
     "78": {"name": "living_room", "model": "SoundTouch 30 Series III"},
     "79": {"name": "kitchen", "model": "SoundTouch 10"},
