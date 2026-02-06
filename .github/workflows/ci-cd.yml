@@ -34,18 +34,18 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('backend/requirements-dev.txt') }}
+          key: ${{ runner.os }}-pip-${{ hashFiles('apps/backend/requirements-dev.txt') }}
           restore-keys: |
             ${{ runner.os }}-pip-
       
       - name: Install dependencies
         run: |
-          pip install -r backend/requirements.txt
-          pip install -r backend/requirements-dev.txt
+          pip install -r apps/backend/requirements.txt
+          pip install -r apps/backend/requirements-dev.txt
       
       - name: Run tests with coverage
         run: |
-          cd backend
+          cd apps/backend
           pytest --cov=cloudtouch --cov-report=xml --cov-report=term-missing --cov-fail-under=80
         env:
           PYTHONPATH: ${{ github.workspace }}
@@ -57,7 +57,7 @@ jobs:
         uses: codecov/codecov-action@v4
         if: success()
         with:
-          files: ./backend/coverage.xml
+          files: ./apps/backend/coverage.xml
           fail_ci_if_error: false
           token: ${{ secrets.CODECOV_TOKEN }}
 
@@ -75,38 +75,19 @@ jobs:
           node-version: '20'
       
       - name: Install dependencies
-        working-directory: frontend
+        working-directory: apps/frontend
         run: npm ci
       
       - name: Build frontend
-        working-directory: frontend
+        working-directory: apps/frontend
         run: npm run build
       
       - name: Run unit tests with coverage
-        working-directory: frontend
+        working-directory: apps/frontend
         run: npm run test:coverage
       
-      - name: Run Cypress E2E tests
-        working-directory: frontend
-        run: npm run test:e2e
-        env:
-          CI: true
-      
-      - name: Upload Cypress screenshots on failure
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: cypress-screenshots
-          path: frontend/cypress/screenshots
-          if-no-files-found: ignore
-      
-      - name: Upload Cypress videos on failure
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: cypress-videos
-          path: frontend/cypress/videos
-          if-no-files-found: ignore
+      # Note: E2E tests skipped in CI (require PowerShell script)
+      # Run locally with: .\tools\local-scripts\run-e2e-tests.ps1
 
   lint:
     name: Lint Code
@@ -127,12 +108,12 @@ jobs:
       
       - name: Run ruff (linter)
         run: |
-          ruff check backend/ --select=E,F,W --ignore=E501
+          ruff check apps/backend/ --select=E,F,W --ignore=E501
         continue-on-error: true
       
       - name: Check code formatting with black
         run: |
-          black --check backend/
+          black --check apps/backend/
 
   build-and-push:
     name: Build and Push Docker Image

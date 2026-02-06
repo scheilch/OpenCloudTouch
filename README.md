@@ -114,7 +114,7 @@ Discovery (SSDP/UPnP) und lokale Gerätekommunikation funktionieren damit am sta
 
 ```
 soundtouch-bridge/
-├── backend/                    # Python Backend (FastAPI)
+├── apps/apps/backend/                    # Python Backend (FastAPI)
 │   ├── src/soundtouch_bridge/ # Main package (pip-installable)
 │   │   ├── core/              # Config, Logging, Exceptions
 │   │   ├── devices/           # Device discovery, client, API
@@ -127,7 +127,7 @@ soundtouch-bridge/
 │   ├── pyproject.toml         # Python packaging (PEP 517/518)
 │   ├── pytest.ini             # Test configuration
 │   └── Dockerfile             # Backend container image
-├── frontend/                  # React Frontend (Vite)
+├── apps/apps/frontend/                  # React Frontend (Vite)
 │   ├── src/                   # React components, hooks, services
 │   ├── tests/                 # Frontend tests
 │   └── package.json           # NPM dependencies
@@ -149,7 +149,7 @@ soundtouch-bridge/
 ### Backend
 
 ```bash
-cd backend
+cd apps/backend
 python -m venv .venv
 .venv\Scripts\activate  # Windows
 # source venv/bin/activate  # Linux/Mac
@@ -162,7 +162,7 @@ Backend läuft auf: http://localhost:8000
 ### Frontend
 
 ```bash
-cd frontend
+cd apps/frontend
 npm install
 npm run dev
 ```
@@ -173,14 +173,14 @@ Frontend läuft auf: http://localhost:3000 (proxied zu Backend auf Port 8000)
 
 ```bash
 # Backend: All tests with coverage
-cd backend
+cd apps/backend
 pytest -v --cov=backend --cov-report=html
 
 # Backend: Specific test file
 pytest tests/test_radiobrowser_adapter.py -v
 
 # Frontend: All tests
-cd frontend
+cd apps/frontend
 npm test
 
 # Frontend: Watch mode
@@ -362,15 +362,15 @@ Fokus: **Knopf drücken → Sender spielt → Anzeige**
 - **Aktuell**: 96% (296 Tests)
 - **Arten**: Unit Tests, Integration Tests
 - **Technologie**: pytest + pytest-cov + pytest-asyncio
-- **Kommando**: `cd backend && pytest --cov=cloudtouch --cov-report=term-missing --cov-fail-under=80`
+- **Kommando**: `cd apps/backend && pytest --cov=cloudtouch --cov-report=term-missing --cov-fail-under=80`
 
 ### Frontend
 - **Aktuell**: 52% (87 Tests) ⚠️ UNTER 80% THRESHOLD
 - **Arten**: Unit Tests (Vitest), E2E Tests (Cypress)
 - **Technologie**: Vitest + @testing-library/react, Cypress
 - **Kommandos**:
-  - Unit Tests: `cd frontend && npm run test:coverage`
-  - E2E Tests: `cd frontend && npm run test:e2e`
+  - Unit Tests: `cd apps/frontend && npm run test:coverage`
+  - E2E Tests: `cd apps/frontend && npm run test:e2e`
 
 ### CI/CD & Pre-commit
 - **Pre-commit Hook** (`pre-commit.ps1`):

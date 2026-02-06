@@ -5,10 +5,10 @@ Alle Deployment-bezogenen Dateien für SoundTouchBridge Container-Deployment.
 ## 📁 Files
 
 - **docker-compose.yml**: Docker Compose Konfiguration für Development
-- **Dockerfile**: siehe `backend/Dockerfile` (wird von Compose referenziert)
-- **deploy-to-truenas.ps1**: TrueNAS Scale Deployment-Script (SSH-basiert)
-- **export-image.ps1**: Container Image Build & Export (Podman)
-- **run-container.ps1**: Lokaler Container Start (Podman)
+- **Dockerfile**: Root-Dockerfile (`../Dockerfile`) wird von Compose genutzt
+
+
+> Hinweis: PowerShell-Deploy-Skripte liegen jetzt unter `tools/local-scripts/`.
 
 ## 🚀 Usage
 
@@ -20,7 +20,7 @@ cd deployment/
 docker-compose up --build
 
 # ODER: Podman lokal
-.\run-container.ps1 -Port 7777 -ManualIPs "192.168.1.100"
+siehe `tools/local-scripts/` (z. B. `run-container.ps1`)iner.ps1 -Port 7777 -ManualIPs "192.168.1.100"
 ```
 
 ### TrueNAS Deployment
@@ -42,14 +42,14 @@ Alle Scripts verwenden folgende Pfade (relativ zu `deployment/`):
 
 ```
 deployment/
-├── docker-compose.yml      → context: .., dockerfile: backend/Dockerfile
-├── export-image.ps1        → podman build -f ../backend/Dockerfile ..
-├── run-container.ps1       → podman build -f ../backend/Dockerfile ..
+├── docker-compose.yml      → context: .., dockerfile: Dockerfile
+├── export-image.ps1        → podman build -t cloudtouch:latest ..
+├── run-container.ps1       → podman build -f ../Dockerfile ..
 └── deploy-to-truenas.ps1   → ruft export-image.ps1 auf
 ```
 
 **Build Context**: `..` (Parent directory = Repository Root)  
-**Dockerfile**: `../backend/Dockerfile`
+**Dockerfile**: `../Dockerfile`
 
 ## 🔧 Konfiguration
 
@@ -86,10 +86,10 @@ CT_DB_PATH=/data/ct.db
 .\export-image.ps1
 
 # Container starten (mit Build)
-.\run-container.ps1
+siehe `tools/local-scripts/` (z. B. `run-container.ps1`)iner.ps1
 
 # Container starten (ohne Build, existing image)
-.\run-container.ps1 -NoBuild
+siehe `tools/local-scripts/` (z. B. `run-container.ps1`)iner.ps1 -NoBuild
 ```
 
 ## 🛠️ Troubleshooting
@@ -109,7 +109,7 @@ docker-compose build --no-cache
 Windows Container können kein SSDP:
 ```bash
 # Manual IPs verwenden
-.\run-container.ps1 -ManualIPs "192.168.1.100,192.168.1.101"
+siehe `tools/local-scripts/` (z. B. `run-container.ps1`)iner.ps1 -ManualIPs "192.168.1.100,192.168.1.101"
 ```
 
 ### TrueNAS SSH Fehler
@@ -125,5 +125,5 @@ ssh siggiaze@hera "docker ps -a | grep soundtouch"
 ## 📄 Related Docs
 
 - [Main README](../README.md): Projektübersicht
-- [Backend README](../backend/README.md): Backend-spezifische Docs
+- [Backend README](../apps/backend/README.md): Backend-spezifische Docs
 - [TRUENAS-DEPLOY.md](../TRUENAS-DEPLOY.md): TrueNAS Deployment Guide

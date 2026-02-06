@@ -1,0 +1,41 @@
+# Dependencies
+node_modules
+.venv
+venv
+
+# Build outputs
+dist
+build
+htmlcov
+coverage
+.coverage
+*.egg-info
+
+# Databases
+*.db
+*.db-journal
+
+# Logs
+*.log
+
+# Environment
+.env
+.env.local
+
+# Cache
+.cache
+.pytest_cache
+.ruff_cache
+__pycache__
+
+# IDE
+.vscode
+.idea
+
+# Personal
+deployment/local
+AGENTS.md
+docs/agent-prompts
+
+# Generated
+package-lock.json

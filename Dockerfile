@@ -10,10 +10,10 @@ FROM node:20-alpine AS frontend-builder
 
 WORKDIR /app/frontend
 
-COPY frontend/package*.json ./
+COPY apps/frontend/package*.json ./
 RUN npm ci
 
-COPY frontend/ ./
+COPY apps/frontend/ ./
 RUN npm run build
 
 # Stage 2: Build Backend + Runtime
@@ -28,11 +28,11 @@ RUN apt-get update && \
 WORKDIR /app
 
 # Install Python dependencies
-COPY backend/requirements.txt ./
+COPY apps/backend/requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy backend source (as package)
-COPY backend/src/cloudtouch ./cloudtouch
+COPY apps/backend/src/cloudtouch ./cloudtouch
 
 # Copy frontend build from previous stage
 COPY --from=frontend-builder /app/frontend/dist ./frontend/dist
