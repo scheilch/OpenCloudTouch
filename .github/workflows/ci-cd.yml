@@ -75,18 +75,13 @@ jobs:
           node-version: '20'
       
       - name: Install dependencies
-        working-directory: apps/frontend
-        run: |
-          rm -rf node_modules package-lock.json
-          npm install
+        run: npm install
       
       - name: Build frontend
-        working-directory: apps/frontend
         run: npm run build
       
       - name: Run unit tests with coverage
-        working-directory: apps/frontend
-        run: npm run test:coverage
+        run: npm run test:coverage --workspace=apps/frontend
 
   e2e-tests:
     name: E2E Tests

@@ -4,6 +4,7 @@ Analyze supported URLs across all SoundTouch devices and fetch API schemas.
 
 Compares supportedURLs.xml from all devices and identifies model-specific endpoints.
 """
+
 import xml.etree.ElementTree as ET
 from pathlib import Path
 from collections import defaultdict

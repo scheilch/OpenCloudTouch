@@ -3,7 +3,18 @@
 Suppress common warnings to keep test output clean.
 """
 
+import logging
+import sys
 import warnings
+
+# Fix Windows asyncio cleanup issues
+# The asyncio module logs debug messages during event loop cleanup that
+# can fail when pytest closes stdout. Suppress asyncio logging.
+if sys.platform == "win32":
+    import asyncio
+    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+    # Suppress asyncio debug logging that causes issues during pytest cleanup
+    logging.getLogger("asyncio").setLevel(logging.CRITICAL)
 
 # Suppress specific deprecation warnings
 warnings.filterwarnings(
