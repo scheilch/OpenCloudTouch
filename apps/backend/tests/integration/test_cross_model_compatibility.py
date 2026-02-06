@@ -1,4 +1,4 @@
-"""
+﻿"""
 Cross-Model Compatibility Tests (10.1)
 
 Tests endpoint availability across SoundTouch 30, 10, and 300 models.
@@ -14,7 +14,7 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from cloudtouch.devices.capabilities import (
+from opencloudtouch.devices.capabilities import (
     get_device_capabilities,
     get_feature_flags_for_ui,
 )

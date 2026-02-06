@@ -1,6 +1,6 @@
 # Frontend Development Modes
 
-CloudTouch Frontend unterstützt zwei Development-Modi:
+OpenCloudTouch Frontend unterstützt zwei Development-Modi:
 
 ## 🎭 Mock Mode (Standard für Entwicklung)
 
@@ -35,7 +35,7 @@ npm run dev:mock    # Explizit Mock-Mode
 # Terminal 1: Backend starten
 cd ../backend
 pip install -e .
-python -m cloudtouch
+python -m opencloudtouch
 
 # Terminal 2: Frontend OHNE Mock
 npm run dev:live
@@ -202,7 +202,7 @@ VITE_MOCK_MODE=false npm run dev:live
 
 ## 📋 Checkliste: Was wurde migriert?
 
-✅ **Backend**: Mock-Code entfernt (`CT_MOCK_MODE`, `MockDiscovery`)  
+✅ **Backend**: Mock-Code entfernt (`OCT_MOCK_MODE`, `MockDiscovery`)  
 ✅ **Frontend**: Cypress Tests mit Intercept Mocking  
 ✅ **Frontend**: Development Mock-Interceptor für `npm run dev`  
 ✅ **Tests**: 218/218 Backend Tests passing (100%)  
@@ -221,7 +221,7 @@ npm run dev              # Mock-Mode, schnell, ohne Backend
 **Feature-Entwicklung (Full Stack)**:
 ```bash
 # Terminal 1: Backend
-cd apps/backend && python -m cloudtouch
+cd apps/backend && python -m opencloudtouch
 
 # Terminal 2: Frontend Live
 cd apps/frontend && npm run dev:live

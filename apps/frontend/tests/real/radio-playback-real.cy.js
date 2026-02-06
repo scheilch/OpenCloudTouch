@@ -1,9 +1,9 @@
 /**
  * Real Device E2E Tests - Radio Playback
- * Requires REAL Bose SoundTouch devices (CT_MOCK_MODE=false)
+ * Requires REAL Bose SoundTouch devices (OCT_MOCK_MODE=false)
  * 
  * Prerequisites:
- * - Backend running with CT_MOCK_MODE=false
+ * - Backend running with OCT_MOCK_MODE=false
  * - At least 1 real SoundTouch device on network
  * - Device powered on and supports INTERNET_RADIO source
  * 

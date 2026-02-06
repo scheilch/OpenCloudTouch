@@ -1,6 +1,8 @@
 # Deployment Scripts
 
-Alle Deployment-bezogenen Dateien für SoundTouchBridge Container-Deployment.
+Alle Deployment-bezogenen Dateien für OpenCloudTouch Container-Deployment.
+
+> **Trademark Notice**: OpenCloudTouch (OCT) is not affiliated with Bose Corporation. Bose® and SoundTouch® are registered trademarks of Bose Corporation. See [TRADEMARK.md](../TRADEMARK.md) for details.
 
 ## 📁 Files
 
@@ -43,7 +45,7 @@ Alle Scripts verwenden folgende Pfade (relativ zu `deployment/`):
 ```
 deployment/
 ├── docker-compose.yml      → context: .., dockerfile: Dockerfile
-├── export-image.ps1        → podman build -t cloudtouch:latest ..
+├── export-image.ps1        → podman build -t opencloudtouch:latest ..
 ├── run-container.ps1       → podman build -f ../Dockerfile ..
 └── deploy-to-truenas.ps1   → ruft export-image.ps1 auf
 ```
@@ -57,16 +59,16 @@ deployment/
 
 ```bash
 # SSDP Discovery
-CT_DISCOVERY_TIMEOUT=10
+OCT_DISCOVERY_TIMEOUT=10
 
 # Manual Device IPs (wenn SSDP nicht funktioniert)
-CT_MANUAL_DEVICE_IPS="192.168.1.100,192.168.1.101"
+OCT_MANUAL_DEVICE_IPS="192.168.1.100,192.168.1.101"
 
 # Logging
-CT_LOG_LEVEL=INFO
+OCT_LOG_LEVEL=INFO
 
 # Database
-CT_DB_PATH=/data/ct.db
+OCT_DB_PATH=/data/oct.db
 ```
 
 ### Ports
@@ -119,7 +121,7 @@ siehe `tools/local-scripts/` (z. B. `run-container.ps1`)iner.ps1 -ManualIPs "192
 ssh siggiaze@hera "docker version"
 
 # Podman Container prüfen
-ssh siggiaze@hera "docker ps -a | grep soundtouch"
+ssh siggiaze@hera "docker ps -a | grep opencloudtouch"
 ```
 
 ## 📄 Related Docs

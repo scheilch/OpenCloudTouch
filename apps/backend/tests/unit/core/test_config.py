@@ -1,4 +1,4 @@
-"""
+﻿"""
 Unit tests for configuration module
 """
 
@@ -6,7 +6,7 @@ from pathlib import Path
 
 import pytest
 
-from cloudtouch.core.config import AppConfig, init_config
+from opencloudtouch.core.config import AppConfig, init_config
 
 
 def test_config_defaults():
@@ -17,12 +17,12 @@ def test_config_defaults():
     assert config.port == 7777
     assert config.log_level == "INFO"
     assert config.db_path == ""  # Empty by default
-    assert config.effective_db_path == "/data/ct.db"  # Production default
+    assert config.effective_db_path == "/data/oct.db"  # Production default
     assert config.discovery_enabled is True
     assert config.discovery_timeout == 10
     assert config.manual_device_ips_list == []
-    assert config.soundtouch_http_port == 8090
-    assert config.soundtouch_ws_port == 8080
+    assert config.device_http_port == 8090
+    assert config.device_ws_port == 8080
 
     # Feature toggles (9.3.6)
     assert config.enable_hdmi_controls is True
@@ -55,8 +55,8 @@ def test_config_feature_toggles_from_env():
     import os
 
     # Set ENV variables
-    os.environ["CT_ENABLE_HDMI_CONTROLS"] = "false"
-    os.environ["CT_ENABLE_ADVANCED_AUDIO"] = "false"
+    os.environ["OCT_ENABLE_HDMI_CONTROLS"] = "false"
+    os.environ["OCT_ENABLE_ADVANCED_AUDIO"] = "false"
 
     config = AppConfig()
 
@@ -65,8 +65,8 @@ def test_config_feature_toggles_from_env():
     assert config.enable_zone_management is True  # Not set, default True
 
     # Clean up
-    del os.environ["CT_ENABLE_HDMI_CONTROLS"]
-    del os.environ["CT_ENABLE_ADVANCED_AUDIO"]
+    del os.environ["OCT_ENABLE_HDMI_CONTROLS"]
+    del os.environ["OCT_ENABLE_ADVANCED_AUDIO"]
 
 
 def test_config_log_level_validation():
@@ -86,12 +86,12 @@ def test_config_log_level_validation():
 
 
 def test_config_env_prefix():
-    """Test that ENV variables are recognized with CT_ prefix."""
+    """Test that ENV variables are recognized with OCT_ prefix."""
     import os
 
     # Set ENV variable
-    os.environ["CT_PORT"] = "9000"
-    os.environ["CT_LOG_LEVEL"] = "DEBUG"
+    os.environ["OCT_PORT"] = "9000"
+    os.environ["OCT_LOG_LEVEL"] = "DEBUG"
 
     config = AppConfig()
 
@@ -99,8 +99,8 @@ def test_config_env_prefix():
     assert config.log_level == "DEBUG"
 
     # Clean up
-    del os.environ["CT_PORT"]
-    del os.environ["CT_LOG_LEVEL"]
+    del os.environ["OCT_PORT"]
+    del os.environ["OCT_LOG_LEVEL"]
 
 
 def test_config_init():
@@ -151,17 +151,17 @@ def test_config_yaml_nonexistent():
 
 def test_get_config_not_initialized():
     """Test get_config raises error when not initialized."""
-    import cloudtouch.core.config
+    import opencloudtouch.core.config
 
     # Temporarily set config to None
-    original = cloudtouch.core.config.config
-    cloudtouch.core.config.config = None
+    original = opencloudtouch.core.config.config
+    opencloudtouch.core.config.config = None
 
     try:
         with pytest.raises(RuntimeError, match="Config not initialized"):
-            cloudtouch.core.config.get_config()
+            opencloudtouch.core.config.get_config()
     finally:
-        cloudtouch.core.config.config = original
+        opencloudtouch.core.config.config = original
 
 
 def test_effective_db_path_explicit():
@@ -180,10 +180,10 @@ def test_effective_db_path_ci_mode(monkeypatch):
 def test_effective_db_path_mock_mode():
     """Test effective_db_path returns test DB in mock mode."""
     config = AppConfig(mock_mode=True)
-    assert config.effective_db_path == "data-local/ct-test.db"
+    assert config.effective_db_path == "data-local/oct-test.db"
 
 
 def test_effective_db_path_production():
     """Test effective_db_path returns production path by default."""
     config = AppConfig()
-    assert config.effective_db_path == "/data/ct.db"
+    assert config.effective_db_path == "/data/oct.db"

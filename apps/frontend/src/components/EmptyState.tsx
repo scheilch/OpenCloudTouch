@@ -138,7 +138,7 @@ export default function EmptyState({ onRefreshDevices }: EmptyStateProps) {
       } else {
         // Show toast notification
         showToast(
-          "Keine Geräte gefunden. Prüfe ob deine SoundTouch Geräte eingeschaltet und im gleichen Netzwerk sind.",
+          "Keine Geräte gefunden. Prüfe ob deine Geräte eingeschaltet und im gleichen Netzwerk sind.",
           "warning",
         );
       }
@@ -205,10 +205,10 @@ export default function EmptyState({ onRefreshDevices }: EmptyStateProps) {
         </div>
 
         <h1 className="empty-state-title" data-test="welcome-title">
-          Willkommen bei CloudTouch
+          Willkommen bei OpenCloudTouch
         </h1>
         <p className="empty-state-description">
-          Noch keine Bose SoundTouch Geräte gefunden.
+          Noch keine Geräte gefunden.
         </p>
 
         <div className="empty-state-steps">
@@ -217,7 +217,7 @@ export default function EmptyState({ onRefreshDevices }: EmptyStateProps) {
             <div className="step-content">
               <h3>Geräte einschalten</h3>
               <p>
-                Stelle sicher, dass deine SoundTouch Geräte eingeschaltet und
+                Stelle sicher, dass deine Geräte eingeschaltet und
                 mit dem gleichen Netzwerk verbunden sind.
               </p>
             </div>
@@ -284,9 +284,9 @@ export default function EmptyState({ onRefreshDevices }: EmptyStateProps) {
           <details>
             <summary>Keine Geräte gefunden?</summary>
             <ul>
-              <li>Prüfe ob die Geräte im gleichen WLAN sind wie CloudTouch</li>
+              <li>Prüfe ob die Geräte im gleichen WLAN sind wie OpenCloudTouch</li>
               <li>Firewall-Regeln könnten die Geräteerkennung blockieren</li>
-              <li>Starte die Geräte und CloudTouch neu</li>
+              <li>Starte die Geräte und OpenCloudTouch neu</li>
               <li>
                 Füge Geräte-IPs{" "}
                 <button
@@ -336,7 +336,7 @@ export default function EmptyState({ onRefreshDevices }: EmptyStateProps) {
             </div>
 
             <p className="modal-description">
-              Geben Sie die IP-Adressen Ihrer SoundTouch-Geräte ein (eine pro
+              Geben Sie die IP-Adressen Ihrer Geräte ein (eine pro
               Zeile oder kommagetrennt).
             </p>
 
@@ -365,7 +365,7 @@ export default function EmptyState({ onRefreshDevices }: EmptyStateProps) {
                 />
               </svg>
               <span>
-                Die IP-Adresse finden Sie in der Bose SoundTouch App unter
+                Die IP-Adresse finden Sie in der zugehörigen App unter
                 Einstellungen → Info oder in Ihrem Router.
               </span>
             </div>

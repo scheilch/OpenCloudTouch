@@ -2,10 +2,10 @@
 
 ## Overview
 
-CloudTouch uses **npm workspaces** for monorepo dependency management.
+OpenCloudTouch uses **npm workspaces** for monorepo dependency management.
 
 ```
-cloudtouch/
+opencloudtouch/
 ├── package.json              # Root workspace (shared deps)
 └── apps/
     └── frontend/

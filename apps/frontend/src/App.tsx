@@ -29,7 +29,7 @@ function AppRouter({ devices, isLoading, error, onRefreshDevices, onRetry }: App
       <div className="app">
         <div className="loading-container">
           <div className="spinner" />
-          <p className="loading-message">CloudTouch wird geladen...</p>
+          <p className="loading-message">OpenCloudTouch wird geladen...</p>
         </div>
       </div>
     );

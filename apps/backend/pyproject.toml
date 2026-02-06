@@ -3,9 +3,9 @@ requires = ["setuptools>=68.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "cloudtouch"
+name = "opencloudtouch"
 version = "0.2.0"
-description = "Bridge for Bose SoundTouch devices after cloud shutdown"
+description = "Local control for compatible streaming devices after cloud shutdown"
 readme = "README.md"
 requires-python = ">=3.11"
 license = {text = "MIT"}

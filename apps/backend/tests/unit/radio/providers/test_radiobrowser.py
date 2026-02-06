@@ -1,4 +1,4 @@
-"""
+﻿"""
 Tests for RadioBrowser API Adapter
 
 TDD RED Phase: These tests will fail until implementation is complete.
@@ -9,7 +9,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import httpx
 import pytest
 
-from cloudtouch.radio.providers.radiobrowser import (
+from opencloudtouch.radio.providers.radiobrowser import (
     RadioBrowserAdapter,
     RadioBrowserConnectionError,
     RadioBrowserError,

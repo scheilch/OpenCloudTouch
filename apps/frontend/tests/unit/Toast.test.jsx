@@ -12,7 +12,7 @@
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, act } from '@testing-library/react';
 import Toast from '../../src/components/Toast';
 
 describe('Toast Component', () => {
@@ -59,7 +59,7 @@ describe('Toast Component', () => {
   });
 
   describe('Auto-Hide Behavior', () => {
-    it('should auto-hide after default duration (5 seconds)', () => {
+    it('should auto-hide after default duration (5 seconds)', async () => {
       const mockOnClose = vi.fn();
       render(<Toast message="Test message" onClose={mockOnClose} />);
 
@@ -67,40 +67,49 @@ describe('Toast Component', () => {
       expect(screen.getByText('Test message')).toBeInTheDocument();
 
       // Fast-forward 5 seconds
-      vi.advanceTimersByTime(5000);
+      await act(async () => {
+        vi.advanceTimersByTime(5000);
+      });
 
       // Should be hidden (component sets visibility to false)
       // Wait for fade-out animation + onClose callback
-      vi.advanceTimersByTime(300);
+      await act(async () => {
+        vi.advanceTimersByTime(300);
+      });
 
       expect(mockOnClose).toHaveBeenCalledTimes(1);
     });
 
-    it('should respect custom duration', () => {
+    it('should respect custom duration', async () => {
       const mockOnClose = vi.fn();
       render(<Toast message="Test message" duration={2000} onClose={mockOnClose} />);
 
       // Fast-forward 2 seconds
-      vi.advanceTimersByTime(2000);
+      await act(async () => {
+        vi.advanceTimersByTime(2000);
+      });
 
       // Wait for fade-out animation
-      vi.advanceTimersByTime(300);
+      await act(async () => {
+        vi.advanceTimersByTime(300);
+      });
 
       expect(mockOnClose).toHaveBeenCalledTimes(1);
     });
 
-    it('should not crash when onClose is not provided', () => {
+    it('should not crash when onClose is not provided', async () => {
       render(<Toast message="Test message" />);
 
       // Advancing timers should not throw error (onClose?.() safe navigation)
-      expect(() => {
+      await act(async () => {
         vi.runAllTimers();
-      }).not.toThrow();
+      });
+      // No assertion needed - just verifying no crash
     });
   });
 
   describe('Manual Close', () => {
-    it('should close immediately when close button clicked', () => {
+    it('should close immediately when close button clicked', async () => {
       const mockOnClose = vi.fn();
       render(<Toast message="Test message" onClose={mockOnClose} />);
 
@@ -108,12 +117,14 @@ describe('Toast Component', () => {
       fireEvent.click(screen.getByRole('button', { name: 'Schließen' }));
 
       // Wait for fade-out animation
-      vi.advanceTimersByTime(300);
+      await act(async () => {
+        vi.advanceTimersByTime(300);
+      });
 
       expect(mockOnClose).toHaveBeenCalledTimes(1);
     });
 
-    it('should hide toast before calling onClose (fade-out animation)', () => {
+    it('should hide toast before calling onClose (fade-out animation)', async () => {
       const mockOnClose = vi.fn();
       render(<Toast message="Test message" onClose={mockOnClose} />);
 
@@ -125,7 +136,9 @@ describe('Toast Component', () => {
       fireEvent.click(screen.getByRole('button', { name: 'Schließen' }));
 
       // After animation, onClose called
-      vi.advanceTimersByTime(300);
+      await act(async () => {
+        vi.advanceTimersByTime(300);
+      });
       expect(mockOnClose).toHaveBeenCalledTimes(1);
     });
   });

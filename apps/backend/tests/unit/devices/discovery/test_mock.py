@@ -1,11 +1,11 @@
-"""
+﻿"""
 Tests for MockDiscoveryAdapter.
 """
 
 import pytest
 
-from cloudtouch.devices.discovery.mock import MockDiscoveryAdapter
-from cloudtouch.discovery import DiscoveredDevice
+from opencloudtouch.devices.discovery.mock import MockDiscoveryAdapter
+from opencloudtouch.discovery import DiscoveredDevice
 
 
 class TestMockDiscoveryAdapter:

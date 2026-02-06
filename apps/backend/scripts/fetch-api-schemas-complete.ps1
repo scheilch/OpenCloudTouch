@@ -7,9 +7,9 @@ $ProgressPreference = 'SilentlyContinue'
 
 # Device configurations
 $devices = @(
-    @{Name='ST30_Wohnzimmer'; IP='192.168.178.78'; ID='78'; Model='SoundTouch 30'},
-    @{Name='ST10_Kueche'; IP='192.168.178.79'; ID='79'; Model='SoundTouch 10'},
-    @{Name='ST300_TV'; IP='192.168.178.83'; ID='83'; Model='SoundTouch 300'}
+    @{Name='living_room'; IP='192.168.178.78'; ID='78'; Model='SoundTouch 30'},
+    @{Name='kitchen'; IP='192.168.178.79'; ID='79'; Model='SoundTouch 10'},
+    @{Name='tv'; IP='192.168.178.83'; ID='83'; Model='SoundTouch 300'}
 )
 
 $outputDir = "apps\backend\bose_api"

@@ -1,9 +1,9 @@
 /**
  * E2E Tests: Device Discovery
- * Uses REAL backend API with CT_MOCK_MODE=true (MockDiscoveryAdapter)
+ * Uses REAL backend API with OCT_MOCK_MODE=true (MockDiscoveryAdapter)
  * 
  * Prerequisites:
- * - Backend running with CT_MOCK_MODE=true
+ * - Backend running with OCT_MOCK_MODE=true
  * - MockDiscoveryAdapter returns 3 predefined devices
  */
 describe('Device Discovery', () => {
@@ -22,7 +22,7 @@ describe('Device Discovery', () => {
       // Click discover
       cy.get('[data-test="discover-button"]').should('be.visible').click()
       
-      // Wait for sync to complete (backend with CT_MOCK_MODE returns 3 devices)
+      // Wait for sync to complete (backend with OCT_MOCK_MODE returns 3 devices)
       cy.waitForDevices()
       
       // Should redirect to dashboard
@@ -113,20 +113,20 @@ describe('Device Discovery', () => {
 
   describe('Unhappy Path - No Devices Found', () => {
     it('should show toast when no devices found', () => {
-      // NOTE: With CT_MOCK_MODE=true, MockDiscoveryAdapter ALWAYS returns 3 devices
+      // NOTE: With OCT_MOCK_MODE=true, MockDiscoveryAdapter ALWAYS returns 3 devices
       // This test is now a regression guard: Ensure toast shows if adapter returns []
-      // To test this properly, we'd need CT_MOCK_MODE=false + no real devices
+      // To test this properly, we'd need OCT_MOCK_MODE=false + no real devices
       
       cy.visit('/welcome')
       cy.get('[data-test="discover-button"]').click()
       
       cy.waitForDevices()
       
-      // With CT_MOCK_MODE=true, sync will succeed → redirects to dashboard
+      // With OCT_MOCK_MODE=true, sync will succeed → redirects to dashboard
       cy.url().should('eq', Cypress.config().baseUrl + '/')
       
       // Skip toast test in mock mode (devices always found)
-      // TODO: Add test with CT_MOCK_MODE=false for true "no devices" scenario
+      // TODO: Add test with OCT_MOCK_MODE=false for true "no devices" scenario
     })
   })
 

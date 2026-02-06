@@ -1,6 +1,6 @@
-# CloudTouch Testing Infrastructure
+# OpenCloudTouch Testing Infrastructure
 
-Professional npm-based test orchestration for the CloudTouch monorepo.
+Professional npm-based test orchestration for the OpenCloudTouch monorepo.
 
 ## Quick Start
 
@@ -106,7 +106,7 @@ npm run docker:run
 ### Monorepo Structure
 
 ```
-cloudtouch/
+opencloudtouch/
 ├── package.json              # Root workspace orchestration
 ├── scripts/
 │   └── e2e-runner.mjs       # Node.js E2E test runner
@@ -114,7 +114,7 @@ cloudtouch/
 │   ├── backend/             # Python FastAPI backend
 │   │   ├── pyproject.toml
 │   │   ├── pytest.ini
-│   │   └── src/cloudtouch/
+│   │   └── src/opencloudtouch/
 │   └── frontend/            # React frontend
 │       ├── package.json     # Workspace package
 │       ├── vite.config.js

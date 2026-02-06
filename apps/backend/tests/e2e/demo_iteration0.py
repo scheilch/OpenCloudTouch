@@ -1,5 +1,5 @@
 """
-E2E Demo Script für SoundTouchBridge
+E2E Demo Script für OpenCloudTouch
 Iteration 0: Basic connectivity check
 
 Zeigt die Grundfunktionalität des Systems:
@@ -20,7 +20,7 @@ import httpx
 async def demo_iteration0():
     """E2E Demo für Iteration 0."""
     print("=" * 60)
-    print("SoundTouchBridge E2E Demo - Iteration 0")
+    print("OpenCloudTouch E2E Demo - Iteration 0")
     print("=" * 60)
     print()
 
@@ -43,7 +43,7 @@ async def demo_iteration0():
         except httpx.RequestError as e:
             print(f"  ✗ Connection failed: {e}")
             print()
-            print("Make sure SoundTouchBridge is running:")
+            print("Make sure OpenCloudTouch is running:")
             print("  docker compose up -d")
             print("  or")
             print("  cd apps/backend && python main.py")

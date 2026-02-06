@@ -2,7 +2,7 @@
   "coverage": {
     "backend": {
       "threshold": 80,
-      "command": "pytest --cov=cloudtouch --cov-report=xml --cov-report=term-missing --cov-fail-under=80"
+      "command": "pytest --cov=opencloudtouch --cov-report=xml --cov-report=term-missing --cov-fail-under=80"
     },
     "frontend": {
       "threshold": 80,

@@ -1,15 +1,15 @@
 {
-  "name": "cloudtouch",
+  "name": "opencloudtouch",
   "version": "1.0.0",
   "private": true,
-  "description": "CloudTouch - Local control for Bose SoundTouch devices after cloud shutdown",
+  "description": "OpenCloudTouch - Local control for compatible streaming devices after cloud shutdown",
   "type": "module",
   "workspaces": [
     "apps/frontend"
   ],
   "scripts": {
     "dev": "concurrently -n backend,frontend -c blue,magenta \"npm run dev:backend\" \"npm run dev:frontend\"",
-    "dev:backend": "cd apps/backend && python -m uvicorn cloudtouch.main:app --reload --port 7777",
+    "dev:backend": "cd apps/backend && python -m uvicorn opencloudtouch.main:app --reload --port 7777",
     "dev:frontend": "npm run dev --workspace=apps/frontend",
     "build": "npm run build --workspace=apps/frontend",
     "preview": "npm run preview --workspace=apps/frontend",
@@ -23,8 +23,8 @@
     "format": "prettier --write \"**/*.{js,jsx,mjs,ts,tsx,json,md}\" --ignore-path .gitignore",
     "clean": "npm run clean --workspaces --if-present && rimraf node_modules .venv data-local htmlcov .coverage .pytest_cache",
     "clean:frontend": "npm run clean --workspace=apps/frontend",
-    "docker:build": "docker build -t cloudtouch:latest .",
-    "docker:run": "docker run --rm -p 7777:7777 cloudtouch:latest",
+    "docker:build": "docker build -t opencloudtouch:latest .",
+    "docker:run": "docker run --rm -p 7777:7777 opencloudtouch:latest",
     "prepare": "husky"
   },
   "devDependencies": {
@@ -41,15 +41,18 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/yourusername/soundtouch-bridge.git"
+    "url": "https://github.com/yourusername/opencloudtouch.git"
   },
   "keywords": [
-    "bose",
-    "soundtouch",
+    "streaming",
+    "audio",
     "home-automation",
     "music",
     "streaming"
   ],
   "author": "Your Name",
-  "license": "MIT"
+  "license": "Apache-2.0",
+  "dependencies": {
+    "jsdom": "^28.0.0"
+  }
 }

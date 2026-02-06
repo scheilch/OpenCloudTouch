@@ -1,9 +1,9 @@
 /**
  * E2E Tests: Manual IP Configuration
- * Uses REAL backend API with CT_MOCK_MODE=true (MockDiscoveryAdapter)
+ * Uses REAL backend API with OCT_MOCK_MODE=true (MockDiscoveryAdapter)
  * 
  * Prerequisites:
- * - Backend running with CT_MOCK_MODE=true
+ * - Backend running with OCT_MOCK_MODE=true
  * - MockDiscoveryAdapter returns 3 predefined devices (192.168.1.100-102)
  */
 

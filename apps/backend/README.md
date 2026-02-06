@@ -1,11 +1,11 @@
-# CloudTouch Backend
+﻿# OpenCloudTouch Backend
 
-FastAPI-basierter REST-API-Server für Bose SoundTouch Geräte.
+FastAPI-basierter REST-API-Server für kompatible Streaming-Geräte.
 
 ## ✨ Features
 
 - 🔍 **Device Discovery**: SSDP/UPnP + Manual IP Fallback
-- 📡 **SoundTouch API Client**: Full device control (info, now_playing, volume, presets)
+- 📡 **Device API Client**: Full device control (info, now_playing, volume, presets)
 - 📻 **Radio Integration**: RadioBrowser API adapter
 - 💾 **SQLite Storage**: Device inventory & settings persistence
 - 🔐 **Production Guards**: Protected DELETE endpoints
@@ -34,20 +34,20 @@ pip install -e .[dev]
 
 ```bash
 # Als Modul (empfohlen)
-python -m cloudtouch
+python -m opencloudtouch
 
 # Mit Uvicorn direkt
-uvicorn cloudtouch.main:app --reload --host 0.0.0.0 --port 8000
+uvicorn opencloudtouch.main:app --reload --host 0.0.0.0 --port 8000
 
 # Mit Umgebungsvariablen
-CT_LOG_LEVEL=DEBUG CT_DISCOVERY_TIMEOUT=15 python -m cloudtouch
+OCT_LOG_LEVEL=DEBUG OCT_DISCOVERY_TIMEOUT=15 python -m opencloudtouch
 ```
 
 ### Production Mode
 
 ```bash
 # Optimiert für Production
-uvicorn cloudtouch.main:app --host 0.0.0.0 --port 8000 --workers 4
+uvicorn opencloudtouch.main:app --host 0.0.0.0 --port 8000 --workers 4
 ```
 
 ## 🧪 Tests
@@ -61,7 +61,7 @@ cd apps/backend
 pytest
 
 # Mit Coverage
-pytest --cov=cloudtouch --cov-report=html
+pytest --cov=opencloudtouch --cov-report=html
 
 # Nur Unit Tests
 pytest tests/unit/
@@ -80,7 +80,7 @@ pytest -v -s
 
 ```bash
 # HTML Report generieren
-pytest --cov=cloudtouch --cov-report=html
+pytest --cov=opencloudtouch --cov-report=html
 
 # Report öffnen
 start htmlcov/index.html  # Windows
@@ -98,7 +98,7 @@ xdg-open htmlcov/index.html  # Linux
 
 ```
 backend/
-├── src/cloudtouch/          # Hauptpaket (pip-installable)
+├── src/opencloudtouch/          # Hauptpaket (pip-installable)
 │   ├── __init__.py
 │   ├── main.py              # FastAPI Application Entry Point
 │   ├── core/                # Shared Infrastructure
@@ -106,7 +106,7 @@ backend/
 │   │   ├── logging.py       # Structured JSON Logging
 │   │   └── exceptions.py    # Custom Exception Classes
 │   ├── devices/             # Device Management Domain
-│   │   ├── adapter.py       # SoundTouch Client Adapter (99% coverage)
+│   │   ├── adapter.py       # Device Client Adapter (99% coverage)
 │   │   ├── client.py        # HTTP Client Wrapper
 │   │   ├── repository.py    # SQLite Device Repository
 │   │   ├── capabilities.py  # Device Capability Detection
@@ -154,16 +154,16 @@ backend/
 
 ### Umgebungsvariablen
 
-Alle Konfigurationen nutzen das Präfix `CT_`:
+Alle Konfigurationen nutzen das Präfix `OCT_`:
 
 | Variable | Default | Beschreibung |
-|----------|---------|--------------|
-| `CT_HOST` | `0.0.0.0` | API Bind-Adresse |
-| `CT_PORT` | `8000` | API Port |
-| `CT_LOG_LEVEL` | `INFO` | Log-Level (DEBUG, INFO, WARNING, ERROR) |
-| `CT_DB_PATH` | `./data/ct.db` | SQLite Datenbankpfad |
-| `CT_DISCOVERY_TIMEOUT` | `10` | SSDP Discovery Timeout (Sekunden) |
-| `CT_MANUAL_DEVICE_IPS` | `[]` | Manuelle Geräte-IPs (komma-separiert) |
+|----------|---------|--------------||
+| `OCT_HOST` | `0.0.0.0` | API Bind-Adresse |
+| `OCT_PORT` | `8000` | API Port |
+| `OCT_LOG_LEVEL` | `INFO` | Log-Level (DEBUG, INFO, WARNING, ERROR) |
+| `OCT_DB_PATH` | `./data/oct.db` | SQLite Datenbankpfad |
+| `OCT_DISCOVERY_TIMEOUT` | `10` | SSDP Discovery Timeout (Sekunden) |
+| `OCT_MANUAL_DEVICE_IPS` | `[]` | Manuelle Geräte-IPs (komma-separiert) |
 
 ### Beispiel .env
 
@@ -264,10 +264,10 @@ echo $env:PYTHONPATH  # Windows PowerShell
 
 ```bash
 # Detaillierter Coverage Report
-pytest --cov=cloudtouch --cov-report=term-missing
+pytest --cov=opencloudtouch --cov-report=term-missing
 
 # Coverage für spezifisches Modul
-pytest --cov=cloudtouch.devices.adapter --cov-report=term-missing
+pytest --cov=opencloudtouch.devices.adapter --cov-report=term-missing
 ```
 
 ## 🤝 Contributing

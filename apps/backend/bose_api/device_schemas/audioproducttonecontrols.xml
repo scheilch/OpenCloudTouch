@@ -2,7 +2,7 @@
 <!-- AGENT: DEVICE-SPECIFIC ENDPOINT -->
 <!-- Available on: SoundTouch 300 -->
 <!-- Missing on: SoundTouch 30 Series III, SoundTouch 10 -->
-<!-- Source: ST300_TV (SoundTouch 300) -->
+<!-- Source: tv (SoundTouch 300) -->
 
 <audioproducttonecontrols>
     <bass value="50" minValue="-100" maxValue="100" step="25" />

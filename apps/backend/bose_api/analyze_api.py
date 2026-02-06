@@ -10,9 +10,9 @@ from collections import defaultdict
 
 # Device configurations
 DEVICES = {
-    "ST30_Wohnzimmer": {"ip": "192.168.178.78", "id": "78", "model": "SoundTouch 30"},
-    "ST10_Kueche": {"ip": "192.168.178.79", "id": "79", "model": "SoundTouch 10"},
-    "ST300_TV": {"ip": "192.168.178.83", "id": "83", "model": "SoundTouch 300"},
+    "living_room": {"ip": "192.168.178.78", "id": "78", "model": "SoundTouch 30"},
+    "kitchen": {"ip": "192.168.178.79", "id": "79", "model": "SoundTouch 10"},
+    "tv": {"ip": "192.168.178.83", "id": "83", "model": "SoundTouch 300"},
 }
 
 

@@ -1,4 +1,4 @@
-"""
+﻿"""
 Tests for RadioProvider Abstract Base Class
 
 Tests the RadioProvider interface and RadioStation dataclass.
@@ -7,7 +7,7 @@ Validates that concrete implementations must implement all abstract methods.
 
 import pytest
 
-from cloudtouch.radio.provider import (
+from opencloudtouch.radio.provider import (
     RadioProvider,
     RadioProviderConnectionError,
     RadioProviderError,

@@ -1,4 +1,4 @@
-# CloudTouch Frontend
+# OpenCloudTouch Frontend
 
 Modern React SPA für die lokale Steuerung von Bose SoundTouch Geräten.
 
@@ -151,7 +151,7 @@ frontend/
 
 ### Backend API Endpoints
 
-Das Frontend kommuniziert mit dem CloudTouch Backend über:
+Das Frontend kommuniziert mit dem OpenCloudTouch Backend über:
 
 **Devices**:
 - `GET /api/devices` - Liste aller Geräte
@@ -295,4 +295,4 @@ MIT License - siehe [Licenses](/licenses) Page in der App
 
 ---
 
-**CloudTouch** - Lokale Steuerung für Bose SoundTouch
+**OpenCloudTouch** - Lokale Steuerung für Bose SoundTouch

@@ -1,4 +1,4 @@
-"""
+﻿"""
 Tests for SSDP Discovery
 """
 
@@ -8,7 +8,7 @@ from xml.etree import ElementTree
 
 import pytest
 
-from cloudtouch.devices.discovery.ssdp import SSDPDiscovery
+from opencloudtouch.devices.discovery.ssdp import SSDPDiscovery
 
 
 @pytest.mark.asyncio
@@ -93,11 +93,11 @@ def test_parse_location_no_header():
 
 
 @pytest.mark.asyncio
-async def test_fetch_device_descriptions_filters_non_bose():
-    """Test that non-Bose devices are filtered out."""
+async def test_fetch_device_descriptions_filters_non_compatible():
+    """Test that non-compatible devices are filtered out."""
     discovery = SSDPDiscovery()
 
-    # Mock httpx to return non-Bose device
+    # Mock httpx to return non-compatible device
     mock_response = MagicMock()
     mock_response.text = """<?xml version="1.0"?>
     <root xmlns="urn:schemas-upnp-org:device-1-0">
@@ -119,13 +119,13 @@ async def test_fetch_device_descriptions_filters_non_bose():
             ["http://192.168.1.100:8090/info"]
         )
 
-        # Non-Bose device should be filtered out
+        # Non-compatible device should be filtered out
         assert devices == {}
 
 
 @pytest.mark.asyncio
-async def test_fetch_device_descriptions_bose_device():
-    """Test that Bose devices are correctly parsed with namespace."""
+async def test_fetch_device_descriptions_compatible_device():
+    """Test that compatible devices are correctly parsed with namespace."""
     discovery = SSDPDiscovery()
 
     # Real Bose SoundTouch XML with namespace

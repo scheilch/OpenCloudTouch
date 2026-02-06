@@ -200,7 +200,7 @@ class BoseSoundTouchClientAdapter(SoundTouchClient):
 
 def get_discovery_adapter(timeout: int = 10) -> DeviceDiscovery:
     """
-    Factory function to get discovery adapter based on CT_MOCK_MODE.
+    Factory function to get discovery adapter based on OCT_MOCK_MODE.
 
     Args:
         timeout: Discovery timeout in seconds
@@ -208,7 +208,7 @@ def get_discovery_adapter(timeout: int = 10) -> DeviceDiscovery:
     Returns:
         DeviceDiscovery implementation (Mock or Real)
     """
-    mock_mode = os.getenv("CT_MOCK_MODE", "false").lower() == "true"
+    mock_mode = os.getenv("OCT_MOCK_MODE", "false").lower() == "true"
 
     if mock_mode:
         logger.info("[MOCK MODE] Using MockDiscoveryAdapter")
@@ -223,7 +223,7 @@ def get_discovery_adapter(timeout: int = 10) -> DeviceDiscovery:
 
 def get_soundtouch_client(base_url: str, timeout: float = 5.0) -> SoundTouchClient:
     """
-    Factory function to get SoundTouch client based on CT_MOCK_MODE.
+    Factory function to get SoundTouch client based on OCT_MOCK_MODE.
 
     Args:
         base_url: Base URL of device (e.g., http://192.168.1.100:8090)

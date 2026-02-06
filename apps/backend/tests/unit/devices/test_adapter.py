@@ -1,20 +1,20 @@
 """
-Tests for BoseSoundTouch Adapter
+Tests for Device Adapter
 """
 
 from unittest.mock import AsyncMock, patch
 
 import pytest
 
-from cloudtouch.core.exceptions import DiscoveryError
-from cloudtouch.devices.adapter import BoseSoundTouchDiscoveryAdapter
-from cloudtouch.discovery import DiscoveredDevice
+from opencloudtouch.core.exceptions import DiscoveryError
+from opencloudtouch.devices.adapter import BoseDeviceDiscoveryAdapter
+from opencloudtouch.discovery import DiscoveredDevice
 
 
 @pytest.mark.asyncio
 async def test_discovery_success():
     """Test successful device discovery."""
-    discovery = BoseSoundTouchDiscoveryAdapter()
+    discovery = BoseDeviceDiscoveryAdapter()
 
     # Mock SSDP discovery result
     mock_devices = {
@@ -30,7 +30,7 @@ async def test_discovery_success():
         },
     }
 
-    with patch("cloudtouch.devices.adapter.SSDPDiscovery") as mock_ssdp_class:
+    with patch("opencloudtouch.devices.adapter.SSDPDiscovery") as mock_ssdp_class:
         mock_ssdp_instance = AsyncMock()
         mock_ssdp_instance.discover.return_value = mock_devices
         mock_ssdp_class.return_value = mock_ssdp_instance
@@ -52,9 +52,9 @@ async def test_discovery_success():
 @pytest.mark.asyncio
 async def test_discovery_no_devices():
     """Test discovery when no devices are found."""
-    discovery = BoseSoundTouchDiscoveryAdapter()
+    discovery = BoseDeviceDiscoveryAdapter()
 
-    with patch("cloudtouch.devices.adapter.SSDPDiscovery") as mock_ssdp_class:
+    with patch("opencloudtouch.devices.adapter.SSDPDiscovery") as mock_ssdp_class:
         mock_ssdp_instance = AsyncMock()
         mock_ssdp_instance.discover.return_value = {}
         mock_ssdp_class.return_value = mock_ssdp_instance
@@ -68,9 +68,9 @@ async def test_discovery_no_devices():
 @pytest.mark.asyncio
 async def test_discovery_error():
     """Test discovery when an error occurs."""
-    discovery = BoseSoundTouchDiscoveryAdapter()
+    discovery = BoseDeviceDiscoveryAdapter()
 
-    with patch("cloudtouch.devices.adapter.SSDPDiscovery") as mock_ssdp_class:
+    with patch("opencloudtouch.devices.adapter.SSDPDiscovery") as mock_ssdp_class:
         mock_ssdp_instance = AsyncMock()
         mock_ssdp_instance.discover.side_effect = Exception("Network error")
         mock_ssdp_class.return_value = mock_ssdp_instance
@@ -85,12 +85,12 @@ async def test_discovery_error():
 @pytest.mark.asyncio
 async def test_discovery_address_parsing():
     """Test parsing of various address formats."""
-    discovery = BoseSoundTouchDiscoveryAdapter()
+    discovery = BoseDeviceDiscoveryAdapter()
 
     # Test MAC-based device dictionary (new SSDP format)
     mock_devices = {"AA:BB:CC:11:22:33": {"ip": "192.168.1.100", "name": "Test Device"}}
 
-    with patch("cloudtouch.devices.adapter.SSDPDiscovery") as mock_ssdp_class:
+    with patch("opencloudtouch.devices.adapter.SSDPDiscovery") as mock_ssdp_class:
         mock_ssdp_instance = AsyncMock()
         mock_ssdp_instance.discover.return_value = mock_devices
         mock_ssdp_class.return_value = mock_ssdp_instance
@@ -106,11 +106,11 @@ async def test_discovery_address_parsing():
 @pytest.mark.asyncio
 async def test_discovery_lazy_loading():
     """Test that discovery doesn't fetch device details (lazy loading)."""
-    discovery = BoseSoundTouchDiscoveryAdapter()
+    discovery = BoseDeviceDiscoveryAdapter()
 
     mock_devices = {"AA:BB:CC:11:22:33": {"ip": "192.168.1.100", "name": "Test Device"}}
 
-    with patch("cloudtouch.devices.adapter.SSDPDiscovery") as mock_ssdp_class:
+    with patch("opencloudtouch.devices.adapter.SSDPDiscovery") as mock_ssdp_class:
         mock_ssdp_instance = AsyncMock()
         mock_ssdp_instance.discover.return_value = mock_devices
         mock_ssdp_class.return_value = mock_ssdp_instance
@@ -136,7 +136,7 @@ async def test_discovery_duplicate_detection_same_device_different_sources():
     This test documents current behavior: Discovery layer doesn't deduplicate,
     that's the responsibility of DeviceRepository.upsert() using device_id as key.
     """
-    discovery = BoseSoundTouchDiscoveryAdapter()
+    discovery = BoseDeviceDiscoveryAdapter()
 
     # Device found via SSDP
     mock_ssdp_devices = {
@@ -148,7 +148,7 @@ async def test_discovery_duplicate_detection_same_device_different_sources():
         }
     }
 
-    with patch("cloudtouch.devices.adapter.SSDPDiscovery") as mock_ssdp_class:
+    with patch("opencloudtouch.devices.adapter.SSDPDiscovery") as mock_ssdp_class:
         mock_ssdp_instance = AsyncMock()
         mock_ssdp_instance.discover.return_value = mock_ssdp_devices
         mock_ssdp_class.return_value = mock_ssdp_instance
@@ -171,7 +171,7 @@ async def test_discovery_ipv6_addresses_in_ssdp_response():
     Edge case: Network has IPv6 enabled, devices announce with IPv6.
     Expected: IPv6 addresses are preserved and passed through.
     """
-    discovery = BoseSoundTouchDiscoveryAdapter()
+    discovery = BoseDeviceDiscoveryAdapter()
 
     # SSDP can return IPv6 addresses
     mock_devices = {
@@ -187,7 +187,7 @@ async def test_discovery_ipv6_addresses_in_ssdp_response():
         },
     }
 
-    with patch("cloudtouch.devices.adapter.SSDPDiscovery") as mock_ssdp_class:
+    with patch("opencloudtouch.devices.adapter.SSDPDiscovery") as mock_ssdp_class:
         mock_ssdp_instance = AsyncMock()
         mock_ssdp_instance.discover.return_value = mock_devices
         mock_ssdp_class.return_value = mock_ssdp_instance
@@ -212,16 +212,16 @@ async def test_discovery_ipv6_addresses_in_ssdp_response():
 @pytest.mark.asyncio
 async def test_client_extract_firmware_version_missing_components():
     """Test firmware extraction when Components list is empty."""
-    from cloudtouch.devices.adapter import BoseSoundTouchClientAdapter
+    from opencloudtouch.devices.adapter import BoseDeviceClientAdapter
     from unittest.mock import MagicMock
 
     # Mock info object without Components
     mock_info = MagicMock()
     mock_info.Components = []  # Empty list
 
-    with patch("cloudtouch.devices.adapter.SoundTouchDevice"):
-        with patch("cloudtouch.devices.adapter.BoseClient"):
-            client = BoseSoundTouchClientAdapter("http://192.168.1.100:8090")
+    with patch("opencloudtouch.devices.adapter.SoundTouchDevice"):
+        with patch("opencloudtouch.devices.adapter.BoseClient"):
+            client = BoseDeviceClientAdapter("http://192.168.1.100:8090")
             version = client._extract_firmware_version(mock_info)
 
             assert version == ""
@@ -230,7 +230,7 @@ async def test_client_extract_firmware_version_missing_components():
 @pytest.mark.asyncio
 async def test_client_extract_firmware_version_no_software_version():
     """Test firmware extraction when SoftwareVersion attribute is missing."""
-    from cloudtouch.devices.adapter import BoseSoundTouchClientAdapter
+    from opencloudtouch.devices.adapter import BoseDeviceClientAdapter
     from unittest.mock import MagicMock
 
     # Mock info with Components but no SoftwareVersion
@@ -239,9 +239,9 @@ async def test_client_extract_firmware_version_no_software_version():
     del mock_component.SoftwareVersion
     mock_info.Components = [mock_component]
 
-    with patch("cloudtouch.devices.adapter.SoundTouchDevice"):
-        with patch("cloudtouch.devices.adapter.BoseClient"):
-            client = BoseSoundTouchClientAdapter("http://192.168.1.100:8090")
+    with patch("opencloudtouch.devices.adapter.SoundTouchDevice"):
+        with patch("opencloudtouch.devices.adapter.BoseClient"):
+            client = BoseDeviceClientAdapter("http://192.168.1.100:8090")
             version = client._extract_firmware_version(mock_info)
 
             assert version == ""
@@ -250,16 +250,16 @@ async def test_client_extract_firmware_version_no_software_version():
 @pytest.mark.asyncio
 async def test_client_extract_ip_address_no_network_info():
     """Test IP extraction when NetworkInfo is empty."""
-    from cloudtouch.devices.adapter import BoseSoundTouchClientAdapter
+    from opencloudtouch.devices.adapter import BoseDeviceClientAdapter
     from unittest.mock import MagicMock
 
     # Mock info without NetworkInfo
     mock_info = MagicMock()
     mock_info.NetworkInfo = []
 
-    with patch("cloudtouch.devices.adapter.SoundTouchDevice"):
-        with patch("cloudtouch.devices.adapter.BoseClient"):
-            client = BoseSoundTouchClientAdapter("http://192.168.1.100:8090")
+    with patch("opencloudtouch.devices.adapter.SoundTouchDevice"):
+        with patch("opencloudtouch.devices.adapter.BoseClient"):
+            client = BoseDeviceClientAdapter("http://192.168.1.100:8090")
             ip = client._extract_ip_address(mock_info)
 
             # Should fallback to self.ip
@@ -269,7 +269,7 @@ async def test_client_extract_ip_address_no_network_info():
 @pytest.mark.asyncio
 async def test_client_extract_ip_address_no_ip_address_attribute():
     """Test IP extraction when IpAddress attribute is missing."""
-    from cloudtouch.devices.adapter import BoseSoundTouchClientAdapter
+    from opencloudtouch.devices.adapter import BoseDeviceClientAdapter
     from unittest.mock import MagicMock
 
     # Mock info with NetworkInfo but no IpAddress
@@ -278,9 +278,9 @@ async def test_client_extract_ip_address_no_ip_address_attribute():
     del mock_network.IpAddress
     mock_info.NetworkInfo = [mock_network]
 
-    with patch("cloudtouch.devices.adapter.SoundTouchDevice"):
-        with patch("cloudtouch.devices.adapter.BoseClient"):
-            client = BoseSoundTouchClientAdapter("http://192.168.1.100:8090")
+    with patch("opencloudtouch.devices.adapter.SoundTouchDevice"):
+        with patch("opencloudtouch.devices.adapter.BoseClient"):
+            client = BoseDeviceClientAdapter("http://192.168.1.100:8090")
             ip = client._extract_ip_address(mock_info)
 
             # Should fallback to self.ip
@@ -290,7 +290,7 @@ async def test_client_extract_ip_address_no_ip_address_attribute():
 @pytest.mark.asyncio
 async def test_client_get_now_playing_success():
     """Test successful get_now_playing call."""
-    from cloudtouch.devices.adapter import BoseSoundTouchClientAdapter
+    from opencloudtouch.devices.adapter import BoseDeviceClientAdapter
     from unittest.mock import MagicMock
 
     # Mock now playing status
@@ -303,11 +303,11 @@ async def test_client_get_now_playing_success():
     mock_status.Album = "Album Name"
     mock_status.ArtUrl = "http://example.com/art.jpg"
 
-    with patch("cloudtouch.devices.adapter.SoundTouchDevice"):
-        with patch("cloudtouch.devices.adapter.BoseClient") as mock_bose_client:
+    with patch("opencloudtouch.devices.adapter.SoundTouchDevice"):
+        with patch("opencloudtouch.devices.adapter.BoseClient") as mock_bose_client:
             mock_bose_client.return_value.GetNowPlayingStatus.return_value = mock_status
 
-            client = BoseSoundTouchClientAdapter("http://192.168.1.100:8090")
+            client = BoseDeviceClientAdapter("http://192.168.1.100:8090")
             info = await client.get_now_playing()
 
             assert info.source == "SPOTIFY"
@@ -322,7 +322,7 @@ async def test_client_get_now_playing_success():
 @pytest.mark.asyncio
 async def test_client_get_now_playing_minimal():
     """Test get_now_playing with minimal data (no optional fields)."""
-    from cloudtouch.devices.adapter import BoseSoundTouchClientAdapter
+    from opencloudtouch.devices.adapter import BoseDeviceClientAdapter
     from unittest.mock import MagicMock
 
     # Mock now playing with only required fields
@@ -330,11 +330,11 @@ async def test_client_get_now_playing_minimal():
     mock_status.PlayStatus = "STOP_STATE"
     mock_status.Source = "STANDBY"
 
-    with patch("cloudtouch.devices.adapter.SoundTouchDevice"):
-        with patch("cloudtouch.devices.adapter.BoseClient") as mock_bose_client:
+    with patch("opencloudtouch.devices.adapter.SoundTouchDevice"):
+        with patch("opencloudtouch.devices.adapter.BoseClient") as mock_bose_client:
             mock_bose_client.return_value.GetNowPlayingStatus.return_value = mock_status
 
-            client = BoseSoundTouchClientAdapter("http://192.168.1.100:8090")
+            client = BoseDeviceClientAdapter("http://192.168.1.100:8090")
             info = await client.get_now_playing()
 
             assert info.source == "STANDBY"
@@ -349,16 +349,16 @@ async def test_client_get_now_playing_minimal():
 @pytest.mark.asyncio
 async def test_client_get_now_playing_error():
     """Test get_now_playing when an error occurs."""
-    from cloudtouch.devices.adapter import BoseSoundTouchClientAdapter
-    from cloudtouch.core.exceptions import DeviceConnectionError
+    from opencloudtouch.devices.adapter import BoseDeviceClientAdapter
+    from opencloudtouch.core.exceptions import DeviceConnectionError
 
-    with patch("cloudtouch.devices.adapter.SoundTouchDevice"):
-        with patch("cloudtouch.devices.adapter.BoseClient") as mock_bose_client:
+    with patch("opencloudtouch.devices.adapter.SoundTouchDevice"):
+        with patch("opencloudtouch.devices.adapter.BoseClient") as mock_bose_client:
             mock_bose_client.return_value.GetNowPlayingStatus.side_effect = Exception(
                 "Connection timeout"
             )
 
-            client = BoseSoundTouchClientAdapter("http://192.168.1.100:8090")
+            client = BoseDeviceClientAdapter("http://192.168.1.100:8090")
 
             with pytest.raises(DeviceConnectionError) as exc_info:
                 await client.get_now_playing()
@@ -371,80 +371,80 @@ async def test_client_get_now_playing_error():
 
 def test_get_discovery_adapter_real_mode():
     """Test factory returns real adapter in normal mode."""
-    from cloudtouch.devices.adapter import get_discovery_adapter
+    from opencloudtouch.devices.adapter import get_discovery_adapter
 
-    with patch.dict("os.environ", {"CT_MOCK_MODE": "false"}, clear=False):
+    with patch.dict("os.environ", {"OCT_MOCK_MODE": "false"}, clear=False):
         adapter = get_discovery_adapter(timeout=15)
 
-        from cloudtouch.devices.adapter import BoseSoundTouchDiscoveryAdapter
+        from opencloudtouch.devices.adapter import BoseDeviceDiscoveryAdapter
 
-        assert isinstance(adapter, BoseSoundTouchDiscoveryAdapter)
+        assert isinstance(adapter, BoseDeviceDiscoveryAdapter)
 
 
 def test_get_discovery_adapter_mock_mode():
     """Test factory returns mock adapter in mock mode."""
-    from cloudtouch.devices.adapter import get_discovery_adapter
+    from opencloudtouch.devices.adapter import get_discovery_adapter
 
-    with patch.dict("os.environ", {"CT_MOCK_MODE": "true"}, clear=False):
+    with patch.dict("os.environ", {"OCT_MOCK_MODE": "true"}, clear=False):
         adapter = get_discovery_adapter(timeout=15)
 
-        from cloudtouch.devices.discovery.mock import MockDiscoveryAdapter
+        from opencloudtouch.devices.discovery.mock import MockDiscoveryAdapter
 
         assert isinstance(adapter, MockDiscoveryAdapter)
 
 
-def test_get_soundtouch_client_real_mode():
+def test_get_device_client_real_mode():
     """Test factory returns real client in normal mode."""
-    from cloudtouch.devices.adapter import get_soundtouch_client
+    from opencloudtouch.devices.adapter import get_device_client
 
-    with patch.dict("os.environ", {"CT_MOCK_MODE": "false"}, clear=False):
-        with patch("cloudtouch.devices.adapter.SoundTouchDevice"):
-            with patch("cloudtouch.devices.adapter.BoseClient"):
-                client = get_soundtouch_client("http://192.168.1.100:8090")
+    with patch.dict("os.environ", {"OCT_MOCK_MODE": "false"}, clear=False):
+        with patch("opencloudtouch.devices.adapter.SoundTouchDevice"):
+            with patch("opencloudtouch.devices.adapter.BoseClient"):
+                client = get_device_client("http://192.168.1.100:8090")
 
-                from cloudtouch.devices.adapter import BoseSoundTouchClientAdapter
+                from opencloudtouch.devices.adapter import BoseDeviceClientAdapter
 
-                assert isinstance(client, BoseSoundTouchClientAdapter)
+                assert isinstance(client, BoseDeviceClientAdapter)
 
 
-def test_get_soundtouch_client_mock_mode():
+def test_get_device_client_mock_mode():
     """Test factory returns mock client in mock mode."""
-    from cloudtouch.devices.adapter import get_soundtouch_client
+    from opencloudtouch.devices.adapter import get_device_client
 
-    with patch.dict("os.environ", {"CT_MOCK_MODE": "true"}, clear=False):
-        client = get_soundtouch_client("http://192.168.1.100:8090")
+    with patch.dict("os.environ", {"OCT_MOCK_MODE": "true"}, clear=False):
+        client = get_device_client("http://192.168.1.100:8090")
 
-        from cloudtouch.devices.mock_client import MockSoundTouchClient
+        from opencloudtouch.devices.mock_client import MockDeviceClient
 
-        assert isinstance(client, MockSoundTouchClient)
+        assert isinstance(client, MockDeviceClient)
 
 
-def test_get_soundtouch_client_mock_mode_ip_matching():
+def test_get_device_client_mock_mode_ip_matching():
     """Test mock client factory matches IP to mock device."""
-    from cloudtouch.devices.adapter import get_soundtouch_client
-    from cloudtouch.devices.mock_client import MockSoundTouchClient
+    from opencloudtouch.devices.adapter import get_device_client
+    from opencloudtouch.devices.mock_client import MockDeviceClient
 
     # Mock devices should have known IP addresses
-    with patch.dict("os.environ", {"CT_MOCK_MODE": "true"}, clear=False):
+    with patch.dict("os.environ", {"OCT_MOCK_MODE": "true"}, clear=False):
         # Use IP from first mock device
-        first_mac = list(MockSoundTouchClient.MOCK_DEVICES.keys())[0]
-        mock_ip = MockSoundTouchClient.MOCK_DEVICES[first_mac]["info"].ip_address
+        first_mac = list(MockDeviceClient.MOCK_DEVICES.keys())[0]
+        mock_ip = MockDeviceClient.MOCK_DEVICES[first_mac]["info"].ip_address
 
-        client = get_soundtouch_client(f"http://{mock_ip}:8090")
+        client = get_device_client(f"http://{mock_ip}:8090")
 
-        assert isinstance(client, MockSoundTouchClient)
+        assert isinstance(client, MockDeviceClient)
         assert client.ip_address == mock_ip
 
 
-def test_get_soundtouch_client_mock_mode_unknown_ip():
+def test_get_device_client_mock_mode_unknown_ip():
     """Test mock client factory fallback for unknown IP."""
-    from cloudtouch.devices.adapter import get_soundtouch_client
-    from cloudtouch.devices.mock_client import MockSoundTouchClient
+    from opencloudtouch.devices.adapter import get_device_client
+    from opencloudtouch.devices.mock_client import MockDeviceClient
 
-    with patch.dict("os.environ", {"CT_MOCK_MODE": "true"}, clear=False):
+    with patch.dict("os.environ", {"OCT_MOCK_MODE": "true"}, clear=False):
         # Use unknown IP
-        client = get_soundtouch_client("http://10.0.0.1:8090")
+        client = get_device_client("http://10.0.0.1:8090")
 
         # Should fallback to first mock device but keep provided IP
-        assert isinstance(client, MockSoundTouchClient)
+        assert isinstance(client, MockDeviceClient)
         assert client.ip_address == "10.0.0.1"  # IP from base_url preserved

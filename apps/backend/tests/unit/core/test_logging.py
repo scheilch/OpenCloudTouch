@@ -1,10 +1,12 @@
-"""Tests for structured logging configuration."""
+﻿"""Tests for structured logging configuration."""
 
 import json
 import logging
 import sys
 
-from cloudtouch.core.logging import (
+import pytest
+
+from opencloudtouch.core.logging import (
     ContextFormatter,
     StructuredFormatter,
     get_logger,
@@ -153,10 +155,10 @@ class TestLoggingSetup:
         Assert: Root logger configured with INFO level
         """
         # Arrange
-        from cloudtouch.core.config import AppConfig
+        from opencloudtouch.core.config import AppConfig
 
         mock_config = AppConfig(log_level="INFO", log_format="text", log_file=None)
-        monkeypatch.setattr("cloudtouch.core.logging.get_config", lambda: mock_config)
+        monkeypatch.setattr("opencloudtouch.core.logging.get_config", lambda: mock_config)
 
         # Act
         setup_logging()
@@ -174,10 +176,10 @@ class TestLoggingSetup:
         Assert: Console handler uses StructuredFormatter
         """
         # Arrange
-        from cloudtouch.core.config import AppConfig
+        from opencloudtouch.core.config import AppConfig
 
         mock_config = AppConfig(log_level="DEBUG", log_format="json", log_file=None)
-        monkeypatch.setattr("cloudtouch.core.logging.get_config", lambda: mock_config)
+        monkeypatch.setattr("opencloudtouch.core.logging.get_config", lambda: mock_config)
 
         # Act
         setup_logging()
@@ -197,12 +199,12 @@ class TestLoggingSetup:
         # Arrange
         log_file = tmp_path / "test.log"
 
-        from cloudtouch.core.config import AppConfig
+        from opencloudtouch.core.config import AppConfig
 
         mock_config = AppConfig(
             log_level="WARNING", log_format="text", log_file=str(log_file)
         )
-        monkeypatch.setattr("cloudtouch.core.logging.get_config", lambda: mock_config)
+        monkeypatch.setattr("opencloudtouch.core.logging.get_config", lambda: mock_config)
 
         # Act
         setup_logging()
@@ -214,6 +216,13 @@ class TestLoggingSetup:
         content = log_file.read_text()
         assert "Test warning message" in content
 
+        # Cleanup: Remove file handler only (keep console handlers for pytest)
+        root_logger = logging.getLogger()
+        for handler in root_logger.handlers[:]:
+            if isinstance(handler, logging.FileHandler):
+                handler.close()
+                root_logger.removeHandler(handler)
+
     def test_third_party_logger_silencing(self, monkeypatch):
         """Test that noisy third-party loggers are silenced.
 
@@ -222,10 +231,10 @@ class TestLoggingSetup:
         Assert: Third-party loggers set to WARNING
         """
         # Arrange
-        from cloudtouch.core.config import AppConfig
+        from opencloudtouch.core.config import AppConfig
 
         mock_config = AppConfig(log_level="DEBUG", log_format="text", log_file=None)
-        monkeypatch.setattr("cloudtouch.core.logging.get_config", lambda: mock_config)
+        monkeypatch.setattr("opencloudtouch.core.logging.get_config", lambda: mock_config)
 
         # Act
         setup_logging()
@@ -239,7 +248,7 @@ class TestLoggingSetup:
 class TestGetLogger:
     """Tests for get_logger() utility function."""
 
-    def test_returns_logger_with_correct_name(self):
+    def test_returns_logger_with_correOCT_name(self):
         """Test get_logger returns logger with specified name.
 
         Arrange: -
