@@ -1,6 +1,6 @@
 """
 Real Device Tests
-Tests that require actual Bose SoundTouch hardware.
+Tests that require actual compatible streaming hardware.
 
 These tests are NOT run in CI/CD or pre-commit hooks.
 They are only run manually when hardware is available.

@@ -123,15 +123,15 @@ async function startBackend() {
   
   const env = {
     ...process.env,
-    CT_PORT: String(TEST_PORT_BACKEND),
-    CT_MOCK_MODE: 'true',
-    CT_LOG_LEVEL: 'WARNING',
+    OCT_PORT: String(TEST_PORT_BACKEND),
+    OCT_MOCK_MODE: 'true',
+    OCT_LOG_LEVEL: 'WARNING',
     PYTHONPATH: srcDir
   };
   
   backendProcess = spawn(
     pythonCmd,
-    ['-m', 'uvicorn', 'cloudtouch.main:app', '--host', '0.0.0.0', '--port', String(TEST_PORT_BACKEND)],
+    ['-m', 'uvicorn', 'opencloudtouch.main:app', '--host', '0.0.0.0', '--port', String(TEST_PORT_BACKEND)],
     { cwd: BACKEND_DIR, env, stdio: 'inherit' }
   );
   
@@ -251,7 +251,7 @@ async function cleanup() {
  * Main execution
  */
 async function main() {
-  logSection('CloudTouch E2E Test Runner');
+  logSection('OpenCloudTouch E2E Test Runner');
   
   let exitCode = 0;
   

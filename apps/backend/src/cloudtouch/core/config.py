@@ -1,5 +1,5 @@
 """
-Zentrale Konfiguration für SoundTouchBridge.
+Zentrale Konfiguration für OpenCloudTouch.
 Nutzt pydantic-settings für ENV + YAML Validierung.
 """
 
@@ -16,7 +16,7 @@ class AppConfig(BaseSettings):
     """Application configuration with ENV override and YAML support."""
 
     model_config = SettingsConfigDict(
-        env_prefix="CT_",
+        env_prefix="OCT_",
         env_file=".env",
         env_file_encoding="utf-8",
         case_sensitive=False,
@@ -45,10 +45,10 @@ class AppConfig(BaseSettings):
         Get effective database path based on environment.
 
         Priority:
-        1. Explicit CT_DB_PATH (if set)
+        1. Explicit OCT_DB_PATH (if set)
         2. CI=true → ":memory:"
-        3. CT_MOCK_MODE=true → "data-local/ct-test.db"
-        4. Production → "data/ct.db"
+        3. OCT_MOCK_MODE=true → "data-local/oct-test.db"
+        4. Production → "data/oct.db"
         """
         # Explicit override
         if self.db_path:
@@ -60,10 +60,10 @@ class AppConfig(BaseSettings):
 
         # Mock mode: Use test DB in data-local
         if self.mock_mode:
-            return "data-local/ct-test.db"
+            return "data-local/oct-test.db"
 
         # Production: Use persistent DB in data/
-        return "/data/ct.db"
+        return "/data/oct.db"
 
     # Discovery
     discovery_enabled: bool = Field(

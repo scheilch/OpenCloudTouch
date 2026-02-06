@@ -1,7 +1,7 @@
 /**
  * Custom Cypress Commands
  * 
- * Note: Tests run against REAL backend API with CT_MOCK_MODE=true
+ * Note: Tests run against REAL backend API with OCT_MOCK_MODE=true
  * No more cy.intercept - backend provides mock data via MockDiscoveryAdapter
  */
 

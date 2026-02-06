@@ -27,7 +27,7 @@ data-local/
 # Deployment artifacts (personal deployment configs)
 deployment/local/
 *.tar
-cloudtouch-image.tar
+opencloudtouch-image.tar
 
 # Temporary analysis files (cleanup/refactoring artifacts)
 *_TEMP.md

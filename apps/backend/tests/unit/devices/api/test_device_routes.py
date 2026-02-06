@@ -14,11 +14,11 @@ from unittest.mock import AsyncMock, patch
 import pytest
 from fastapi.testclient import TestClient
 
-from cloudtouch.devices.api.routes import get_device_repo
-from cloudtouch.devices.repository import Device, DeviceRepository
-from cloudtouch.main import app
-from cloudtouch.settings.repository import SettingsRepository
-from cloudtouch.settings.routes import get_settings_repo
+from opencloudtouch.devices.api.routes import get_device_repo
+from opencloudtouch.devices.repository import Device, DeviceRepository
+from opencloudtouch.main import app
+from opencloudtouch.settings.repository import SettingsRepository
+from opencloudtouch.settings.routes import get_settings_repo
 
 
 @pytest.fixture
@@ -162,7 +162,7 @@ class TestSyncEndpoint:
         Bug: Multiple simultaneous discovery requests cause race condition.
         Fixed: 2026-01-29 - _discovery_in_progress flag + asyncio.Lock.
         """
-        import cloudtouch.devices.api.routes as devices_module
+        import opencloudtouch.devices.api.routes as devices_module
 
         # Reset state
         devices_module._discovery_in_progress = False
@@ -186,8 +186,8 @@ class TestSyncEndpoint:
         Bug: If discovery raises exception, lock might remain acquired.
         Fixed: 2026-01-29 - try-finally block resets _discovery_in_progress.
         """
-        import cloudtouch.devices.api.routes as devices_module
-        from cloudtouch.devices.api.routes import _discovery_lock
+        import opencloudtouch.devices.api.routes as devices_module
+        from opencloudtouch.devices.api.routes import _discovery_lock
 
         # Reset global state
         devices_module._discovery_in_progress = False
@@ -221,10 +221,8 @@ class TestSyncEndpoint:
 
     def test_sync_endpoint_returns_409_when_in_progress(self, client, mock_repo):
         """Test POST /api/devices/sync returns 409 if discovery already running."""
-        import asyncio
-
-        import cloudtouch.devices.api.routes as devices_module
-        from cloudtouch.core.dependencies import set_settings_repo
+        import opencloudtouch.devices.api.routes as devices_module
+        from opencloudtouch.core.dependencies import set_settings_repo
 
         # Mock settings repository
         mock_settings = AsyncMock(spec=SettingsRepository)
@@ -233,21 +231,13 @@ class TestSyncEndpoint:
         # Inject mock via dependency injection
         set_settings_repo(mock_settings)
 
-        # Acquire lock to simulate discovery in progress
-        async def acquire_lock():
-            await devices_module._discovery_lock.acquire()
-
-        asyncio.run(acquire_lock())
-
-        try:
+        # Mock the lock to appear as if it's already acquired
+        # This avoids cross-event-loop issues with asyncio.Lock
+        with patch.object(devices_module._discovery_lock, "locked", return_value=True):
             response = client.post("/api/devices/sync")
 
             assert response.status_code == 409
             assert "already in progress" in response.json()["detail"].lower()
-
-        finally:
-            # Release lock
-            devices_module._discovery_lock.release()
 
 
 class TestDiscoverEndpoint:
@@ -259,7 +249,7 @@ class TestDiscoverEndpoint:
         Use case: User clicks 'Search Devices' in UI, SSDP finds devices.
         Expected: Returns list of discovered devices (not yet in DB).
         """
-        from cloudtouch.discovery import DiscoveredDevice
+        from opencloudtouch.discovery import DiscoveredDevice
 
         mock_discovered = [
             DiscoveredDevice(ip="192.168.1.100", port=8090, name="Living Room"),
@@ -267,7 +257,7 @@ class TestDiscoverEndpoint:
         ]
 
         with patch(
-            "cloudtouch.devices.api.routes.BoseSoundTouchDiscoveryAdapter"
+            "opencloudtouch.devices.api.routes.BoseDeviceDiscoveryAdapter"
         ) as mock_adapter:
             mock_instance = AsyncMock()
             mock_instance.discover.return_value = mock_discovered
@@ -290,7 +280,7 @@ class TestDiscoverEndpoint:
         Expected: Returns empty list, not an error (valid state).
         """
         with patch(
-            "cloudtouch.devices.api.routes.BoseSoundTouchDiscoveryAdapter"
+            "opencloudtouch.devices.api.routes.BoseDeviceDiscoveryAdapter"
         ) as mock_adapter:
             mock_instance = AsyncMock()
             mock_instance.discover.return_value = []
@@ -309,10 +299,10 @@ class TestDiscoverEndpoint:
         Use case: User has configured fallback IPs for devices with static IPs.
         Expected: Returns combined results from both sources.
         """
-        from cloudtouch.discovery import DiscoveredDevice
+        from opencloudtouch.discovery import DiscoveredDevice
 
         # Mock config with manual IPs
-        with patch("cloudtouch.devices.api.routes.get_config") as mock_cfg:
+        with patch("opencloudtouch.devices.api.routes.get_config") as mock_cfg:
             mock_cfg.return_value.manual_device_ips_list = [
                 "192.168.1.200",
                 "192.168.1.201",
@@ -332,14 +322,14 @@ class TestDiscoverEndpoint:
             ]
 
             with patch(
-                "cloudtouch.devices.api.routes.BoseSoundTouchDiscoveryAdapter"
+                "opencloudtouch.devices.api.routes.BoseDeviceDiscoveryAdapter"
             ) as mock_ssdp:
                 mock_ssdp_inst = AsyncMock()
                 mock_ssdp_inst.discover.return_value = [ssdp_device]
                 mock_ssdp.return_value = mock_ssdp_inst
 
                 with patch(
-                    "cloudtouch.devices.api.routes.ManualDiscovery"
+                    "opencloudtouch.devices.api.routes.ManualDiscovery"
                 ) as mock_manual:
                     mock_manual_inst = AsyncMock()
                     mock_manual_inst.discover.return_value = manual_devices
@@ -361,20 +351,20 @@ class TestDiscoverEndpoint:
 
         Regression: SSDP exceptions should not crash entire discovery.
         """
-        from cloudtouch.discovery import DiscoveredDevice
+        from opencloudtouch.discovery import DiscoveredDevice
 
         manual_devices = [
             DiscoveredDevice(ip="192.168.1.200", port=8090, name="Fallback")
         ]
 
-        with patch("cloudtouch.devices.api.routes.get_config") as mock_cfg:
+        with patch("opencloudtouch.devices.api.routes.get_config") as mock_cfg:
             mock_cfg.return_value.manual_device_ips_list = ["192.168.1.200"]
             mock_cfg.return_value.discovery_enabled = True
             mock_cfg.return_value.discovery_timeout = 10
 
             # SSDP raises exception
             with patch(
-                "cloudtouch.devices.api.routes.BoseSoundTouchDiscoveryAdapter"
+                "opencloudtouch.devices.api.routes.BoseDeviceDiscoveryAdapter"
             ) as mock_ssdp:
                 mock_ssdp_inst = AsyncMock()
                 mock_ssdp_inst.discover.side_effect = Exception("Network error")
@@ -382,7 +372,7 @@ class TestDiscoverEndpoint:
 
                 # Manual discovery works
                 with patch(
-                    "cloudtouch.devices.api.routes.ManualDiscovery"
+                    "opencloudtouch.devices.api.routes.ManualDiscovery"
                 ) as mock_manual:
                     mock_manual_inst = AsyncMock()
                     mock_manual_inst.discover.return_value = manual_devices
@@ -402,15 +392,15 @@ class TestDiscoverEndpoint:
         Use case: Admin disables auto-discovery, only uses manual IPs.
         Expected: SSDP skipped, only manual IPs discovered.
         """
-        from cloudtouch.discovery import DiscoveredDevice
+        from opencloudtouch.discovery import DiscoveredDevice
 
         manual_devices = [DiscoveredDevice(ip="192.168.1.200", port=8090)]
 
-        with patch("cloudtouch.devices.api.routes.get_config") as mock_cfg:
+        with patch("opencloudtouch.devices.api.routes.get_config") as mock_cfg:
             mock_cfg.return_value.discovery_enabled = False  # Disabled!
             mock_cfg.return_value.manual_device_ips_list = ["192.168.1.200"]
 
-            with patch("cloudtouch.devices.api.routes.ManualDiscovery") as mock_manual:
+            with patch("opencloudtouch.devices.api.routes.ManualDiscovery") as mock_manual:
                 mock_manual_inst = AsyncMock()
                 mock_manual_inst.discover.return_value = manual_devices
                 mock_manual.return_value = mock_manual_inst
@@ -461,7 +451,7 @@ class TestSyncDatabaseErrors:
 
         Regression: Ensures DB errors don't crash the application silently.
         """
-        from cloudtouch.devices.repository import Device, DeviceRepository
+        from opencloudtouch.devices.repository import Device, DeviceRepository
 
         repo = DeviceRepository(":memory:")
         await repo.initialize()
@@ -505,7 +495,7 @@ class TestSyncDatabaseErrors:
 
         Design verification: SQLite UPSERT pattern works correctly.
         """
-        from cloudtouch.devices.repository import Device, DeviceRepository
+        from opencloudtouch.devices.repository import Device, DeviceRepository
 
         repo = DeviceRepository(":memory:")
         await repo.initialize()
@@ -559,7 +549,7 @@ class TestSyncDatabaseErrors:
 
         Regression: Ensures error handling doesn't stop entire batch operation.
         """
-        from cloudtouch.devices.repository import Device, DeviceRepository
+        from opencloudtouch.devices.repository import Device, DeviceRepository
 
         repo = DeviceRepository(":memory:")
         await repo.initialize()
@@ -629,7 +619,7 @@ class TestDeleteAllDevicesEndpoint:
         assert response.status_code == 403
         data = response.json()
         assert "Dangerous operations disabled" in data["detail"]
-        assert "CT_ALLOW_DANGEROUS_OPERATIONS=true" in data["detail"]
+        assert "OCT_ALLOW_DANGEROUS_OPERATIONS=true" in data["detail"]
         # Should NOT call delete_all when blocked
         mock_repo.delete_all.assert_not_called()
 
@@ -638,10 +628,10 @@ class TestDeleteAllDevicesEndpoint:
     ):
         """Test DELETE /api/devices succeeds when dangerous operations enabled."""
         # Enable dangerous operations via env var
-        monkeypatch.setenv("CT_ALLOW_DANGEROUS_OPERATIONS", "true")
+        monkeypatch.setenv("OCT_ALLOW_DANGEROUS_OPERATIONS", "true")
 
         # Reinitialize config to pick up new env var
-        from cloudtouch.core.config import init_config
+        from opencloudtouch.core.config import init_config
 
         init_config()  # Reload config with new env var
 
@@ -657,9 +647,9 @@ class TestDeleteAllDevicesEndpoint:
     def test_delete_all_devices_when_empty(self, client, mock_repo, monkeypatch):
         """Test DELETE /api/devices when database is already empty."""
         # Enable dangerous operations
-        monkeypatch.setenv("CT_ALLOW_DANGEROUS_OPERATIONS", "true")
+        monkeypatch.setenv("OCT_ALLOW_DANGEROUS_OPERATIONS", "true")
 
-        from cloudtouch.core.config import init_config
+        from opencloudtouch.core.config import init_config
 
         init_config()  # Reload config
 

@@ -1,6 +1,6 @@
 /**
  * Device Image Utilities
- * Maps SoundTouch device models to their corresponding product images
+ * Maps device models to their corresponding product images
  */
 
 // Model name mapping (case-insensitive, flexible matching)

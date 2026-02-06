@@ -1,4 +1,4 @@
-"""
+﻿"""
 Tests for device capability detection.
 """
 
@@ -8,7 +8,7 @@ import pytest
 from bosesoundtouchapi import SoundTouchClient, SoundTouchError
 from bosesoundtouchapi.models import Capabilities, Information, SourceList
 
-from cloudtouch.devices.capabilities import (
+from opencloudtouch.devices.capabilities import (
     DeviceCapabilities,
     get_device_capabilities,
     get_feature_flags_for_ui,

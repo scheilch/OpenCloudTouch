@@ -148,7 +148,7 @@ export default function Licenses() {
     <div className="licenses-page">
       <div className="licenses-header">
         <h1>Open-Source Lizenzen</h1>
-        <p>CloudTouch nutzt folgende Open-Source Bibliotheken:</p>
+        <p>OpenCloudTouch nutzt folgende Open-Source Bibliotheken:</p>
       </div>
 
       <div className="licenses-content">
@@ -161,18 +161,38 @@ export default function Licenses() {
         <div className="compliance-notice">
           <h3>Lizenz-Compliance</h3>
           <p>
-            CloudTouch ist Open-Source Software unter der MIT-Lizenz. Alle
+            OpenCloudTouch ist Open-Source Software unter der Apache License 2.0. Alle
             verwendeten Bibliotheken sind mit dieser Lizenz kompatibel.
           </p>
           <p>
-            <strong>CloudTouch Lizenz:</strong>{" "}
+            <strong>OpenCloudTouch Lizenz:</strong>{" "}
             <a
-              href="https://github.com/user/cloudtouch/blob/main/LICENSE"
+              href="https://github.com/yourusername/opencloudtouch/blob/main/LICENSE"
               target="_blank"
               rel="noopener noreferrer"
             >
-              MIT License
+              Apache License 2.0
             </a>
+          </p>
+        </div>
+
+        <div className="trademark-notice">
+          <h3>⚠️ Trademark Notice</h3>
+          <p>
+            OpenCloudTouch is <strong>not affiliated with Bose Corporation</strong>.
+            Bose® and SoundTouch® are registered trademarks of Bose Corporation.
+          </p>
+          <p>
+            This software interfaces with Bose SoundTouch® devices using their
+            publicly documented local APIs. See{" "}
+            <a
+              href="https://github.com/yourusername/opencloudtouch/blob/main/TRADEMARK.md"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              TRADEMARK.md
+            </a>{" "}
+            for details.
           </p>
         </div>
 
@@ -180,7 +200,7 @@ export default function Licenses() {
           <h3>Danksagung</h3>
           <p>
             Wir danken allen Open-Source Entwicklern und Projekten, die diese
-            Software möglich machen. Besonderer Dank an die Bose SoundTouch
+            Software möglich machen. Besonderer Dank an die Bose SoundTouch®
             Community für die API-Dokumentation.
           </p>
         </div>

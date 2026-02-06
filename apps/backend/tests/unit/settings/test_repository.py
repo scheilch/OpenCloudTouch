@@ -1,11 +1,11 @@
-"""Unit tests for Settings repository."""
+﻿"""Unit tests for Settings repository."""
 
 import tempfile
 from pathlib import Path
 
 import pytest
 
-from cloudtouch.settings.repository import SettingsRepository
+from opencloudtouch.settings.repository import SettingsRepository
 
 
 @pytest.fixture

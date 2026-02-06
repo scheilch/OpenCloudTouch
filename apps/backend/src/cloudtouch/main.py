@@ -1,5 +1,5 @@
 """
-SoundTouchBridge - Main FastAPI Application
+OpenCloudTouch - Main FastAPI Application
 Iteration 0: Basic setup with /health endpoint
 """
 
@@ -33,7 +33,7 @@ async def lifespan(app: FastAPI):
 
     logger = logging.getLogger(__name__)
     cfg = get_config()
-    logger.info(f"SoundTouchBridge starting on {cfg.host}:{cfg.port}")
+    logger.info(f"OpenCloudTouch starting on {cfg.host}:{cfg.port}")
     logger.info(f"Database: {cfg.effective_db_path}")
     logger.info(f"Discovery enabled: {cfg.discovery_enabled}")
     logger.info(f"Mock mode: {cfg.mock_mode}")
@@ -66,7 +66,7 @@ async def lifespan(app: FastAPI):
     await settings_repo.close()
     logger.info("Settings repository closed")
 
-    logger.info("SoundTouchBridge shutting down")
+    logger.info("OpenCloudTouch shutting down")
 
 
 # Initialize config before app creation
@@ -74,7 +74,7 @@ init_config()
 
 # FastAPI app
 app = FastAPI(
-    title="SoundTouchBridge",
+    title="OpenCloudTouch",
     version="0.2.0",
     description="Open-Source replacement for Bose SoundTouch cloud features",
     lifespan=lifespan,

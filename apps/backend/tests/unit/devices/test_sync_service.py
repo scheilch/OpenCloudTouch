@@ -4,9 +4,9 @@ from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
-from cloudtouch.db import Device
-from cloudtouch.devices.services.sync_service import DeviceSyncService, SyncResult
-from cloudtouch.discovery import DiscoveredDevice
+from opencloudtouch.db import Device
+from opencloudtouch.devices.services.sync_service import DeviceSyncService, SyncResult
+from opencloudtouch.discovery import DiscoveredDevice
 
 
 @pytest.fixture
@@ -106,7 +106,7 @@ class TestDeviceSyncService:
 
         monkeypatch.setattr(DeviceSyncService, "_discover_via_ssdp", mock_discover_ssdp)
         monkeypatch.setattr(
-            "cloudtouch.devices.services.sync_service.get_soundtouch_client",
+            "opencloudtouch.devices.services.sync_service.get_device_client",
             mock_get_client,
         )
 
@@ -155,7 +155,7 @@ class TestDeviceSyncService:
 
         monkeypatch.setattr(DeviceSyncService, "_discover_via_ssdp", mock_discover_ssdp)
         monkeypatch.setattr(
-            "cloudtouch.devices.services.sync_service.get_soundtouch_client",
+            "opencloudtouch.devices.services.sync_service.get_device_client",
             mock_get_client,
         )
 
@@ -196,7 +196,7 @@ class TestDeviceSyncService:
             DeviceSyncService, "_discover_via_manual_ips", mock_discover_manual
         )
         monkeypatch.setattr(
-            "cloudtouch.devices.services.sync_service.get_soundtouch_client",
+            "opencloudtouch.devices.services.sync_service.get_device_client",
             lambda url: mock_client,
         )
 
@@ -232,7 +232,7 @@ class TestDeviceSyncService:
             DeviceSyncService, "_discover_via_manual_ips", mock_discover_manual
         )
         monkeypatch.setattr(
-            "cloudtouch.devices.services.sync_service.get_soundtouch_client",
+            "opencloudtouch.devices.services.sync_service.get_device_client",
             lambda url: mock_client,
         )
 
@@ -259,7 +259,7 @@ class TestDeviceSyncService:
         mock_client.get_info = AsyncMock(return_value=mock_device_info)
 
         monkeypatch.setattr(
-            "cloudtouch.devices.services.sync_service.get_soundtouch_client",
+            "opencloudtouch.devices.services.sync_service.get_device_client",
             lambda url: mock_client,
         )
 

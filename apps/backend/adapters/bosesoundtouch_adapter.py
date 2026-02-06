@@ -17,11 +17,11 @@ logger = logging.getLogger(__name__)
 
 
 class BoseSoundTouchDiscoveryAdapter(DeviceDiscovery):
-    """Adapter using SSDP discovery for Bose SoundTouch devices."""
+    """Adapter using SSDP discovery for compatible streaming devices."""
 
     async def discover(self, timeout: int = 10) -> List[DiscoveredDevice]:
         """
-        Discover SoundTouch devices using SSDP.
+        Discover compatible streaming devices using SSDP.
 
         Args:
             timeout: Discovery timeout in seconds
@@ -46,7 +46,7 @@ class BoseSoundTouchDiscoveryAdapter(DeviceDiscovery):
             for mac, device_info in devices_dict.items():
                 ip = device_info.get("ip", "")
                 name = device_info.get("name", "Unknown Device")
-                port = 8090  # Bose SoundTouch default port
+                port = 8090  # Default HTTP API port
 
                 # Device details (model, mac, firmware) are fetched lazily in /api/devices/sync
                 discovered.append(DiscoveredDevice(ip=ip, port=port, name=name))

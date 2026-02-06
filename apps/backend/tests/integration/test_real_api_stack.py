@@ -8,7 +8,7 @@ These tests use:
 - Real API layer
 
 Only external dependencies are mocked:
-- BoseSoundTouchClient (network calls to devices)
+- Device client (network calls to devices)
 - SSDP Discovery (network multicast)
 """
 
@@ -19,12 +19,12 @@ from unittest.mock import AsyncMock, patch
 import pytest
 from httpx import ASGITransport, AsyncClient
 
-from cloudtouch.core.dependencies import clear_dependencies, set_device_repo, set_settings_repo
-from cloudtouch.db import DeviceRepository
-from cloudtouch.devices.client import DeviceInfo
-from cloudtouch.discovery import DiscoveredDevice
-from cloudtouch.main import app
-from cloudtouch.settings.repository import SettingsRepository
+from opencloudtouch.core.dependencies import clear_dependencies, set_device_repo, set_settings_repo
+from opencloudtouch.db import DeviceRepository
+from opencloudtouch.devices.client import DeviceInfo
+from opencloudtouch.discovery import DiscoveredDevice
+from opencloudtouch.main import app
+from opencloudtouch.settings.repository import SettingsRepository
 
 
 @pytest.fixture
@@ -74,7 +74,7 @@ class TestRealAPIStack:
         """
         Test complete device sync workflow with real DB.
 
-        Workflow: Discover → Sync to DB → Fetch from DB
+        Workflow: Discover ? Sync to DB ? Fetch from DB
         """
         device_repo = real_db["device_repo"]
 
@@ -107,11 +107,11 @@ class TestRealAPIStack:
         )
 
         with patch(
-            "cloudtouch.devices.services.sync_service.get_discovery_adapter"
+            "opencloudtouch.devices.services.sync_service.get_discovery_adapter"
         ) as mock_get_discovery, patch(
-            "cloudtouch.devices.services.sync_service.get_soundtouch_client"
+            "opencloudtouch.devices.services.sync_service.get_device_client"
         ) as mock_get_client, patch(
-            "cloudtouch.devices.api.routes.get_config"
+            "opencloudtouch.devices.api.routes.get_config"
         ) as mock_config:
 
             # Configure mocks
@@ -174,7 +174,7 @@ class TestRealAPIStack:
         """
         Test manual IP configuration persists to real DB.
 
-        Workflow: Add IPs → Fetch IPs → Delete IP → Verify
+        Workflow: Add IPs ? Fetch IPs ? Delete IP ? Verify
         """
         settings_repo = real_db["settings_repo"]
 
@@ -249,11 +249,11 @@ class TestRealAPIStack:
         )
 
         with patch(
-            "cloudtouch.devices.services.sync_service.get_discovery_adapter"
+            "opencloudtouch.devices.services.sync_service.get_discovery_adapter"
         ) as mock_get_discovery, patch(
-            "cloudtouch.devices.services.sync_service.get_soundtouch_client"
+            "opencloudtouch.devices.services.sync_service.get_device_client"
         ) as mock_get_client, patch(
-            "cloudtouch.devices.api.routes.get_config"
+            "opencloudtouch.devices.api.routes.get_config"
         ) as mock_config:
 
             mock_config.return_value.discovery_enabled = True
@@ -282,7 +282,7 @@ class TestRealAPIStack:
         # 4. User renames device + firmware update
         device_info_v2 = DeviceInfo(
             device_id="AABBCC112233",  # Same device_id
-            name="Living Room Bose",  # New name
+            name="Living Room Speaker",  # New name
             type="SoundTouch 30 Series III",
             mac_address="AA:BB:CC:11:22:33",
             ip_address="192.168.1.100",
@@ -290,11 +290,11 @@ class TestRealAPIStack:
         )
 
         with patch(
-            "cloudtouch.devices.services.sync_service.get_discovery_adapter"
+            "opencloudtouch.devices.services.sync_service.get_discovery_adapter"
         ) as mock_get_discovery, patch(
-            "cloudtouch.devices.services.sync_service.get_soundtouch_client"
+            "opencloudtouch.devices.services.sync_service.get_device_client"
         ) as mock_get_client, patch(
-            "cloudtouch.devices.api.routes.get_config"
+            "opencloudtouch.devices.api.routes.get_config"
         ) as mock_config:
 
             mock_config.return_value.discovery_enabled = True
@@ -319,7 +319,7 @@ class TestRealAPIStack:
 
         # 7. Verify device was updated
         device = await device_repo.get_by_device_id("AABBCC112233")
-        assert device.name == "Living Room Bose"  # Updated
+        assert device.name == "Living Room Speaker"  # Updated
         assert device.firmware_version == "28.0.12.46499"  # Updated
 
     @pytest.mark.asyncio
@@ -358,9 +358,9 @@ class TestRealAPIStack:
 
         # REAL BEHAVIOR: Concurrent writes can interleave (no transaction isolation)
         # This reveals a race condition in the bulk endpoint:
-        # 1. Request A: get_existing (0) → delete (0) → add [1,2]
-        # 2. Request B: get_existing (0) → delete (0 or 2) → add [3,4]
-        # 3. Request C: get_existing (?) → delete (?) → add [5,6]
+        # 1. Request A: get_existing (0) ? delete (0) ? add [1,2]
+        # 2. Request B: get_existing (0) ? delete (0 or 2) ? add [3,4]
+        # 3. Request C: get_existing (?) ? delete (?) ? add [5,6]
         # Result: All IPs from all requests might end up in DB (not atomic)
         db_ips = await settings_repo.get_manual_ips()
 

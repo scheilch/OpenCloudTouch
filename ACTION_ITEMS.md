@@ -117,7 +117,7 @@ npm run test:e2e         # Cypress (Node.js)
 ## 📁 Neue Struktur (Nach Cleanup)
 
 ```
-cloudtouch/
+opencloudtouch/
 ├── package.json                  # Root orchestration
 ├── MIGRATION.md                  # ✅ Migration guide
 ├── .gitignore                    # ✅ Updated

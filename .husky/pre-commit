@@ -1,15 +1,16 @@
 #!/bin/sh
-# CloudTouch Pre-Commit Hook
+# OpenCloudTouch Pre-Commit Hook
 # Runs backend and frontend tests before allowing commit
 
 echo "🔍 Running pre-commit checks..."
 
 # Run backend tests
 echo "📦 Backend tests (pytest)..."
-cd apps/backend && pytest -v || exit 1
+cd apps/backend
+pytest -x --tb=short || exit 1
 cd ../..
 
-# Run frontend tests
+# Run frontend tests  
 echo "⚛️  Frontend tests (vitest)..."
 npm run test:frontend || exit 1
 

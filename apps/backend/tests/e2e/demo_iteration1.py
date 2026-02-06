@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+﻿#!/usr/bin/env python3
 """
 E2E Demo Script für Iteration 1: Device Discovery & Inventory
 
@@ -25,9 +25,9 @@ sys.path.insert(0, str(Path(__file__).parent.parent / "backend"))
 
 import httpx
 
-from cloudtouch.devices.client import HttpSoundTouchClient
-from cloudtouch.devices.discovery.manual import ManualDiscovery
-from cloudtouch.devices.repository import Device, DeviceRepository
+from opencloudtouch.devices.client import HttpSoundTouchClient
+from opencloudtouch.devices.discovery.manual import ManualDiscovery
+from opencloudtouch.devices.repository import Device, DeviceRepository
 
 
 async def demo_api_endpoints():
@@ -195,7 +195,7 @@ async def demo_device_repository():
 async def main():
     """Run all demos"""
     print("=" * 60)
-    print("SoundTouchBridge - Iteration 1 E2E Demo")
+    print("OpenCloudTouch - Iteration 1 E2E Demo")
     print("=" * 60)
 
     demos = [

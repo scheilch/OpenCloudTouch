@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Tests for EmptyState.tsx
  * 
  * User Story: "Als neuer User möchte ich durch das Setup geführt werden"
@@ -50,8 +50,8 @@ describe('EmptyState Component', () => {
 
       renderWithProviders(<EmptyState onRefreshDevices={() => {}} />);
 
-      expect(screen.getByText('Willkommen bei CloudTouch')).toBeInTheDocument();
-      expect(screen.getByText('Noch keine Bose SoundTouch Geräte gefunden.')).toBeInTheDocument();
+      expect(screen.getByText('Willkommen bei OpenCloudTouch')).toBeInTheDocument();
+      expect(screen.getByText('Noch keine Geräte gefunden.')).toBeInTheDocument();
       
       // Setup steps
       expect(screen.getByText('Geräte einschalten')).toBeInTheDocument();

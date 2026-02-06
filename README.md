@@ -1,12 +1,16 @@
-# SoundTouchBridge (STB)
+# OpenCloudTouch (OCT)
 
-**SoundTouchBridge** ist eine lokale, Open-Source-Ersatzlösung für die eingestellten Cloud-Funktionen von **Bose SoundTouch** Geräten.
+**OpenCloudTouch** ist eine lokale, Open-Source-Ersatzlösung für die eingestellten Cloud-Funktionen von **Bose®-Geräten der SoundTouch®-Serie**.
 
-Ziel ist es, SoundTouch-Lautsprecher (z. B. **SoundTouch 10 / 30 / 300**) auch nach dem Ende des offiziellen Supports **weiter sinnvoll nutzen zu können**
+Ziel ist es, Bose Lautsprecher (z. B. **SoundTouch® 10 / 30 / 300**) auch nach dem Ende des offiziellen Supports **weiter sinnvoll nutzen zu können**
 – **ohne Cloud**, **ohne Home Assistant** und ohne proprietäre Apps.
 
-> Leitidee: STB ersetzt nicht die Geräte, sondern die Bose-Cloud.  
+> Leitidee: OCT ersetzt nicht die Geräte, sondern die eingestellten Cloud-Dienste.  
 > Ein Container, eine Web-App, Presets funktionieren wieder.
+
+---
+
+**⚠️ Trademark Notice**: OpenCloudTouch (OCT) is not affiliated with Bose Corporation. Bose® and SoundTouch® are registered trademarks of Bose Corporation. See [TRADEMARK.md](TRADEMARK.md) for details.
 
 ---
 
@@ -23,22 +27,22 @@ Ziel ist es, SoundTouch-Lautsprecher (z. B. **SoundTouch 10 / 30 / 300**) auch n
   - „Now Playing“ (Sender/Titel), soweit vom Stream unterstützt
 
 - 🔊 **Multiroom**
-  - Bestehende SoundTouch-Gruppen anzeigen
+  - Bestehende Multiroom-Gruppen anzeigen
   - Geräte gruppieren / entkoppeln (Zonen)
 
 - 📟 **Now Playing**
   - Anzeige im Web-UI
-  - Anzeige auf dem Gerätedisplay, soweit SoundTouch/Stream-Metadaten es hergeben
+  - Anzeige auf dem Gerätedisplay, soweit vom Stream unterstützt
 
 - 🐳 **Ein Container**
   - Docker-first (amd64 + arm64)
-  - Optional später als Raspberry-Pi-Image („Appliance“) mit mDNS (`device.local`)
+  - Optional später als Raspberry-Pi-Image („Appliance") mit mDNS (`opensystem.local`)
 
 ---
 
 ## 🎯 Zielgruppe
 
-- Besitzer von Bose SoundTouch Geräten, die nach dem Cloud-Ende weiterhin Radio/Presets/Multiroom nutzen wollen
+- Besitzer von Bose®-Geräten der SoundTouch®-Serie, die nach dem Cloud-Ende weiterhin Radio/Presets/Multiroom nutzen wollen
 - Nutzer ohne Home Assistant
 - Nutzer mit Raspberry Pi / NAS / Mini-PC, die „einfach nur“ einen Container starten können
 - Power-User: Adapter/Provider erweiterbar (Plugins)
@@ -47,14 +51,14 @@ Ziel ist es, SoundTouch-Lautsprecher (z. B. **SoundTouch 10 / 30 / 300**) auch n
 
 ## 🧩 Architektur (Kurzfassung)
 
-SoundTouchBridge ist eine eigenständige Web-App + Backend im **einen** Container:
+OpenCloudTouch ist eine eigenständige Web-App + Backend im **einen** Container:
 
 ```text
 Browser UI
    ↓
-SoundTouchBridge (Docker)
+OpenCloudTouch (Docker)
    ↓
-Bose SoundTouch Geräte (lokale API: HTTP + WebSocket)
+Streaming Devices (lokale API: HTTP + WebSocket)
 ```
 
 Streaming-Anbieter werden über **Adapter** angebunden (MVP: Internetradio aus offenen Quellen).
@@ -68,8 +72,8 @@ Optional kann später ein Music-Assistant-Adapter oder weitere Provider ergänzt
 
 1. **Repo klonen:**
    ```bash
-   git clone https://github.com/<your-username>/soundtouch-bridge.git
-   cd soundtouch-bridge
+   git clone https://github.com/<your-username>/opencloudtouch.git
+   cd opencloudtouch
    ```
 
 2. **Container starten:**
@@ -96,10 +100,10 @@ Optional kann später ein Music-Assistant-Adapter oder weitere Provider ergänzt
 
 ```bash
 docker run -d \
-  --name soundtouch-bridge \
+  --name opencloudtouch \
   --network host \
-  -v stb-data:/data \
-  ghcr.io/<your-username>/soundtouch-bridge:latest
+  -v oct-data:/data \
+  ghcr.io/<your-username>/opencloudtouch:latest
 ```
 
 Danach im Browser öffnen: `http://localhost:8000`
@@ -113,9 +117,9 @@ Discovery (SSDP/UPnP) und lokale Gerätekommunikation funktionieren damit am sta
 ## � Projekt-Struktur
 
 ```
-soundtouch-bridge/
-├── apps/apps/backend/                    # Python Backend (FastAPI)
-│   ├── src/soundtouch_bridge/ # Main package (pip-installable)
+opencloudtouch/
+├── apps/backend/                    # Python Backend (FastAPI)
+│   ├── src/opencloudtouch/       # Main package (pip-installable)
 │   │   ├── core/              # Config, Logging, Exceptions
 │   │   ├── devices/           # Device discovery, client, API
 │   │   ├── radio/             # Radio providers, API
@@ -146,57 +150,81 @@ soundtouch-bridge/
 
 ## 🛠️ Lokale Entwicklung
 
-### Backend
+**Empfohlener Workflow**: npm-basierte Commands im Root-Verzeichnis.
+
+### Quick Start
+
+```bash
+# Install dependencies (Root + Frontend)
+npm install
+
+# Start Backend + Frontend parallel
+npm run dev
+```
+
+- **Backend** läuft auf: http://localhost:8000  
+- **Frontend** läuft auf: http://localhost:5173 (proxied zu Backend)
+
+### Backend Setup (manuell)
+
+Für Backend-spezifische Entwicklung:
 
 ```bash
 cd apps/backend
 python -m venv .venv
 .venv\Scripts\activate  # Windows
-# source venv/bin/activate  # Linux/Mac
+# source .venv/bin/activate  # Linux/Mac
 pip install -r requirements-dev.txt
-python main.py
+
+# Backend starten
+uvicorn opencloudtouch.main:app --reload --host 0.0.0.0 --port 8000
 ```
-
-Backend läuft auf: http://localhost:8000
-
-### Frontend
-
-```bash
-cd apps/frontend
-npm install
-npm run dev
-```
-
-Frontend läuft auf: http://localhost:3000 (proxied zu Backend auf Port 8000)
 
 ### Tests
 
+**Empfohlen**: npm Scripts im Root-Verzeichnis:
+
 ```bash
-# Backend: All tests with coverage
-cd apps/backend
-pytest -v --cov=backend --cov-report=html
-
-# Backend: Specific test file
-pytest tests/test_radiobrowser_adapter.py -v
-
-# Frontend: All tests
-cd apps/frontend
+# Alle Tests (Backend + Frontend + E2E)
 npm test
 
-# Frontend: Watch mode
-npm test -- --watch
+# Nur Backend Tests (pytest)
+npm run test:backend
 
-# Frontend: Coverage
-npm test -- --coverage
+# Nur Frontend Tests (vitest)
+npm run test:frontend
 
-# E2E Demos
-python e2e/demo_iteration1.py         # Device Discovery
-python e2e/demo_iteration2.py         # RadioBrowser API (Mock)
-python e2e/demo_iteration2.py --real  # RadioBrowser API (Real)
+# Nur E2E Tests (Cypress mit Auto-Setup)
+npm run test:e2e
 
-# Coverage Report (Backend)
-open htmlcov/index.html  # macOS/Linux
-start htmlcov/index.html # Windows
+# Code Formatting
+npm run format
+
+# Linting
+npm run lint
+```
+
+**Alternative**: Direkt in Workspace-Verzeichnissen:
+
+```bash
+# Backend Tests (manuell)
+cd apps/backend
+pytest -v --cov=opencloudtouch --cov-report=html
+pytest tests/test_radiobrowser_adapter.py -v  # Specific test
+
+# Frontend Tests (manuell)
+cd apps/frontend
+npm test                    # Run once
+npm test -- --watch         # Watch mode
+npm run test:coverage       # With coverage
+
+# E2E Tests (manuell)
+npm run cypress:open        # Interactive mode
+npm run cypress:run         # Headless mode
+
+# Coverage Reports
+start apps/backend/htmlcov/index.html   # Windows
+open apps/backend/htmlcov/index.html    # macOS/Linux
 ```
 
 ---
@@ -207,24 +235,24 @@ start htmlcov/index.html # Windows
 
 ```bash
 # Logs prüfen
-docker compose logs soundtouch-bridge
+docker compose logs opencloudtouch
 
 # Health check manuell testen
-docker exec soundtouch-bridge curl http://localhost:8000/health
+docker exec opencloudtouch curl http://localhost:8000/health
 ```
 
 ### Geräte werden nicht gefunden
 
 - Stellen Sie sicher, dass `--network host` verwendet wird (Docker Compose macht dies standardmäßig)
 - Prüfen Sie, ob Geräte im selben Netzwerk sind
-- Manuellen Fallback nutzen: ENV Variable `CT_MANUAL_DEVICE_IPS=192.168.1.100,192.168.1.101` setzen
+- Manuellen Fallback nutzen: ENV Variable `OCT_MANUAL_DEVICE_IPS=192.168.1.100,192.168.1.101` setzen
 
 ### Port 8000 bereits belegt
 
 Ändern Sie den Port in [docker-compose.yml](docker-compose.yml) oder via ENV:
 
 ```bash
-CT_PORT=8080 docker compose up -d
+OCT_PORT=8080 docker compose up -d
 ```
 
 ---
@@ -232,7 +260,7 @@ CT_PORT=8080 docker compose up -d
 ## ⚙️ Konfiguration
 
 Konfiguration erfolgt via:
-1. **ENV Variablen** (Prefix: `CT_`)
+1. **ENV Variablen** (Prefix: `OCT_`)
 2. **Config-Datei** (optional): `config.yaml` im Container unter `/app/config.yaml` mounten
 
 Siehe [.env.example](.env.example) und [config.example.yaml](config.example.yaml) für alle Optionen.
@@ -241,21 +269,19 @@ Siehe [.env.example](.env.example) und [config.example.yaml](config.example.yaml
 
 | Variable | Default | Beschreibung |
 |----------|---------|--------------|
-| `CT_HOST` | `0.0.0.0` | API Bind-Adresse |
-| `CT_PORT` | `8000` | API Port |
-| `CT_LOG_LEVEL` | `INFO` | Log-Level (DEBUG, INFO, WARNING, ERROR) |
-| `CT_DB_PATH` | `/data/ct.db` | SQLite Datenbankpfad |
-| `CT_DISCOVERY_ENABLED` | `true` | SSDP/UPnP Discovery aktivieren |
-| `CT_MANUAL_DEVICE_IPS` | `[]` | Manuelle Geräte-IPs (Komma-separiert) |
-
----
+| `OCT_HOST` | `0.0.0.0` | API Bind-Adresse |
+| `OCT_PORT` | `8000` | API Port |
+| `OCT_LOG_LEVEL` | `INFO` | Log-Level (DEBUG, INFO, WARNING, ERROR) |
+| `OCT_DB_PATH` | `/data/oct.db` | SQLite Datenbankpfad |
+| `OCT_DISCOVERY_ENABLED` | `true` | SSDP/UPnP Discovery aktivieren |
+| `OCT_MANUAL_DEVICE_IPS` | `[]` | Manuelle Geräte-IPs (Komma-separiert) |
 
 ## ✅ MVP (erste Instanz)
 
 Fokus: **Knopf drücken → Sender spielt → Anzeige**
 
 - UI-Seite 1: Radiosender suchen/auswählen und Preset (1–6) zuordnen
-- STB programmiert Presets so um, dass die Preset-Taste eine lokale Station-URL lädt (cloudfrei)
+- OCT programmiert Presets so um, dass die Preset-Taste eine lokale Station-URL lädt (cloudfrei)
 - E2E Demo/Test: Station finden → Preset setzen → Preset per API simulieren → Playback & „now playing“ verifizieren
 
 ---
@@ -273,7 +299,7 @@ Fokus: **Knopf drücken → Sender spielt → Anzeige**
 ### ✅ Iteration 1: Discovery + Device Inventory (FERTIG)
 - SSDP/UPnP Discovery
 - Manual IP Fallback
-- SoundTouch HTTP Client (/info, /now_playing)
+- Device HTTP Client (/info, /now_playing)
 - SQLite Device Repository
 - GET/POST `/api/devices` Endpoints
 - Frontend: Device List UI
@@ -296,7 +322,7 @@ Fokus: **Knopf drücken → Sender spielt → Anzeige**
 - ✅ **268 Tests PASSING** (Unit + Integration + E2E)
 - ✅ **Coverage: 88%** (Target: ≥80%) 🎯 **DEUTLICH ÜBERTROFFEN!**
 - ✅ **+20 neue Tests** in Session 5-7:
-  - BoseSoundTouchClientAdapter: 99% Coverage (+13 Tests)
+  - BoseDeviceClientAdapter: 99% Coverage (+13 Tests)
   - SSDP Edge Cases: 73% Coverage (+7 Tests)
   - Device API Concurrency Tests
   - Error Handling & Retry Logic
@@ -358,29 +384,39 @@ Fokus: **Knopf drücken → Sender spielt → Anzeige**
 
 **Coverage-Ziel**: 80% für Backend & Frontend
 
+### Quick Commands (npm)
+
+```bash
+npm test                 # Run ALL tests (Backend, Frontend, E2E)
+npm run test:backend     # Backend only (pytest)
+npm run test:frontend    # Frontend only (vitest)
+npm run test:e2e         # E2E only (Cypress, auto-setup)
+```
+
 ### Backend
 - **Aktuell**: 96% (296 Tests)
 - **Arten**: Unit Tests, Integration Tests
 - **Technologie**: pytest + pytest-cov + pytest-asyncio
-- **Kommando**: `cd apps/backend && pytest --cov=cloudtouch --cov-report=term-missing --cov-fail-under=80`
+- **Kommando**: `npm run test:backend` (oder `cd apps/backend && pytest --cov=opencloudtouch --cov-report=term-missing --cov-fail-under=80`)
 
 ### Frontend
 - **Aktuell**: 52% (87 Tests) ⚠️ UNTER 80% THRESHOLD
 - **Arten**: Unit Tests (Vitest), E2E Tests (Cypress)
 - **Technologie**: Vitest + @testing-library/react, Cypress
 - **Kommandos**:
-  - Unit Tests: `cd apps/frontend && npm run test:coverage`
-  - E2E Tests: `cd apps/frontend && npm run test:e2e`
+  - Unit Tests: `npm run test:frontend` (oder `cd apps/frontend && npm run test:coverage`)
+  - E2E Tests: `npm run test:e2e` (automatischer Backend+Frontend Setup)
 
 ### CI/CD & Pre-commit
-- **Pre-commit Hook** (`pre-commit.ps1`):
-  - Backend Tests (80% enforced)
-  - Frontend Unit Tests (80% enforced) ⚠️ Aktuell blockiert bei 52%
-  - Frontend E2E Tests (Cypress)
+- **Pre-commit Hook** (`.husky/pre-commit` via Husky):
+  - ✅ Backend Tests (pytest, 80% enforced)
+  - ✅ Frontend Unit Tests (vitest)
+  - ⚠️ E2E Tests NICHT im Hook (zu langsam, ~30-60s)
+- **Workflow**: `git commit` → automatischer Test-Run → Commit nur bei grünen Tests
+- **Manueller Test**: `npm test` (alle Tests inkl. E2E)
 - **GitHub Workflow** (`.github/workflows/ci-cd.yml`):
   - Gleiche Test-Suite wie Pre-commit Hook
   - Zusätzlich: Linting (ruff, black, mypy, ESLint)
-- **Config**: Zentrale Konfiguration in `.ci-config.json` und `.ci-config.md`
 
 ### Kritische Bereiche (Frontend < 80%)
 - `EmptyState.tsx`: 27.63% (46 uncovered lines)
@@ -388,6 +424,8 @@ Fokus: **Knopf drücken → Sender spielt → Anzeige**
 - `MultiRoom.tsx`: 2.56%
 - `Firmware.tsx`: 0%
 - `Toast.tsx`: 0%
+
+**Migration Guide**: Siehe [MIGRATION.md](MIGRATION.md) für Details zu alten PowerShell-Scripts → neuen npm Commands.
 
 ---
 

@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- AGENT: Consolidated schema with model differences -->
-<!-- Base schema: ST30_Living Room (SoundTouch 30 Series III) -->
+<!-- Base schema: living_room (SoundTouch 30 Series III) -->
 <!-- Differences: -->
-<!--   ST300_TV (SoundTouch 300): Schema differs -->
+<!--   tv (SoundTouch 300): Schema differs -->
 <!-- Note: Detailed diff analysis needed for this endpoint -->
 
 <Error value="400" name="HTTP_STATUS_BAD_REQUEST" severity="Unknown">malformed request</Error>
