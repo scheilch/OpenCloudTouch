@@ -1,0 +1,55 @@
+{
+  "name": "cloudtouch",
+  "version": "1.0.0",
+  "private": true,
+  "description": "CloudTouch - Local control for Bose SoundTouch devices after cloud shutdown",
+  "type": "module",
+  "workspaces": [
+    "apps/frontend"
+  ],
+  "scripts": {
+    "dev": "concurrently -n backend,frontend -c blue,magenta \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "dev:backend": "cd apps/backend && python -m uvicorn cloudtouch.main:app --reload --port 7777",
+    "dev:frontend": "npm run dev --workspace=apps/frontend",
+    "build": "npm run build --workspace=apps/frontend",
+    "preview": "npm run preview --workspace=apps/frontend",
+    "test": "npm run test:all",
+    "test:backend": "cd apps/backend && pytest -v --cov=src --cov-report=term-missing --cov-report=html",
+    "test:frontend": "npm run test --workspace=apps/frontend",
+    "test:e2e": "node scripts/e2e-runner.mjs",
+    "test:all": "npm run test:backend && npm run test:frontend && npm run test:e2e",
+    "test:all:parallel": "concurrently -n backend,frontend -c blue,magenta \"npm run test:backend\" \"npm run test:frontend\"",
+    "lint": "npm run lint --workspace=apps/frontend",
+    "format": "prettier --write \"**/*.{js,jsx,mjs,ts,tsx,json,md}\" --ignore-path .gitignore",
+    "clean": "npm run clean --workspaces --if-present && rimraf node_modules .venv data-local htmlcov .coverage .pytest_cache",
+    "clean:frontend": "npm run clean --workspace=apps/frontend",
+    "docker:build": "docker build -t cloudtouch:latest .",
+    "docker:run": "docker run --rm -p 7777:7777 cloudtouch:latest",
+    "prepare": "husky"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.2.7",
+    "prettier": "^3.8.1",
+    "rimraf": "^6.0.1"
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "npm": ">=10.0.0",
+    "python": ">=3.11"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/soundtouch-bridge.git"
+  },
+  "keywords": [
+    "bose",
+    "soundtouch",
+    "home-automation",
+    "music",
+    "streaming"
+  ],
+  "author": "Your Name",
+  "license": "MIT"
+}
