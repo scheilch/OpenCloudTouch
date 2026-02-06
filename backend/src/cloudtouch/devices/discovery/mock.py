@@ -7,12 +7,12 @@ Provides predefined devices that simulate Bose SoundTouch hardware.
 import logging
 from typing import List
 
-from cloudtouch.discovery import DiscoveredDevice
+from cloudtouch.discovery import DeviceDiscovery, DiscoveredDevice
 
 logger = logging.getLogger(__name__)
 
 
-class MockDiscoveryAdapter:
+class MockDiscoveryAdapter(DeviceDiscovery):
     """
     Mock discovery that returns predefined Bose SoundTouch devices.
 
@@ -56,9 +56,12 @@ class MockDiscoveryAdapter:
         """
         self.timeout = timeout
 
-    async def discover(self) -> List[DiscoveredDevice]:
+    async def discover(self, timeout: int = 10) -> List[DiscoveredDevice]:
         """
         Return predefined mock devices.
+
+        Args:
+            timeout: Ignored (for interface compatibility)
 
         Returns:
             List of DiscoveredDevice objects

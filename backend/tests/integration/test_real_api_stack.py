@@ -19,6 +19,7 @@ from unittest.mock import AsyncMock, patch
 import pytest
 from httpx import ASGITransport, AsyncClient
 
+from cloudtouch.core.dependencies import clear_dependencies, set_device_repo, set_settings_repo
 from cloudtouch.db import DeviceRepository
 from cloudtouch.devices.client import DeviceInfo
 from cloudtouch.discovery import DiscoveredDevice
@@ -52,14 +53,17 @@ async def real_api_client(real_db):
     device_repo = real_db["device_repo"]
     settings_repo = real_db["settings_repo"]
 
-    # Patch the main module's global repos to use our test instances
-    with patch("cloudtouch.main.device_repo", device_repo), patch(
-        "cloudtouch.main.settings_repo", settings_repo
-    ):
+    # Set repositories using dependency injection
+    set_device_repo(device_repo)
+    set_settings_repo(settings_repo)
 
+    try:
         transport = ASGITransport(app=app)
         async with AsyncClient(transport=transport, base_url="http://test") as client:
             yield client
+    finally:
+        # Clean up dependencies after test
+        clear_dependencies()
 
 
 class TestRealAPIStack:

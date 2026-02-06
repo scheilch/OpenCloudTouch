@@ -22,8 +22,13 @@ export default defineConfig({
     
     viewportWidth: 1280,
     viewportHeight: 720,
-    defaultCommandTimeout: 10000,
-    requestTimeout: 10000,
-    responseTimeout: 10000,
+    defaultCommandTimeout: 8000,   // Reduced from 10s (fail faster)
+    requestTimeout: 5000,           // API requests should be fast
+    responseTimeout: 5000,
+    pageLoadTimeout: 30000,         // 30s for page load (includes build assets)
+    execTimeout: 60000,
+    taskTimeout: 60000,
+    video: false,                   // Disable video to speed up tests
+    screenshotOnRunFailure: true,   // Capture screenshot on failure
   },
 })

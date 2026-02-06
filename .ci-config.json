@@ -1,0 +1,30 @@
+{
+  "coverage": {
+    "backend": {
+      "threshold": 80,
+      "command": "pytest --cov=cloudtouch --cov-report=xml --cov-report=term-missing --cov-fail-under=80"
+    },
+    "frontend": {
+      "threshold": 80,
+      "thresholds": {
+        "lines": 80,
+        "functions": 80,
+        "branches": 80,
+        "statements": 80
+      }
+    }
+  },
+  "tests": {
+    "backend": {
+      "unit": "pytest tests/unit",
+      "integration": "pytest tests/integration",
+      "all": "pytest"
+    },
+    "frontend": {
+      "unit": "npm run test:coverage",
+      "e2e": "npm run test:e2e"
+    }
+  },
+  "python_version": "3.13",
+  "node_version": "20"
+}

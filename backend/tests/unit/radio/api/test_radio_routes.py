@@ -275,7 +275,8 @@ class TestRadioStationDetailEndpoint:
         response = client.get("/api/radio/station/test-uuid")
 
         # Should not be 404 Not Found (though station might not exist)
-        assert response.status_code in [200, 404, 500, 503]
+        # 504 Gateway Timeout can occur when external Radio Browser API is unreachable
+        assert response.status_code in [200, 404, 500, 503, 504]
 
     def test_get_station_by_uuid(self, client, mock_adapter, mock_radio_stations):
         """Test getting station detail by UUID."""

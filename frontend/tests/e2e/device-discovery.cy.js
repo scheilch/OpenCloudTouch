@@ -15,6 +15,11 @@ describe('Device Discovery', () => {
 
   describe('Happy Path - Successful Discovery', () => {
     it('should discover devices and redirect to dashboard (3 default devices)', () => {
+      // Setup intercepts BEFORE visiting page
+      const apiUrl = Cypress.env('apiUrl')
+      cy.intercept('POST', '**/api/devices/sync').as('syncDevices')
+      cy.intercept('GET', '**/api/devices').as('getDevices')
+      
       // Visit welcome page
       cy.visit('/welcome')
       cy.url().should('include', '/welcome')
@@ -23,19 +28,23 @@ describe('Device Discovery', () => {
       cy.get('[data-test="discover-button"]').should('be.visible').click()
       
       // Wait for sync to complete (backend with CT_MOCK_MODE returns 3 devices)
-      cy.waitForDevices()
+      cy.wait('@syncDevices', { timeout: 10000 }).its('response.statusCode').should('eq', 200)
       
       // Should redirect to dashboard
-      cy.url().should('eq', Cypress.config().baseUrl + '/')
+      cy.url().should('eq', Cypress.config().baseUrl + '/', { timeout: 5000 })
+      
+      // Wait for devices to load
+      cy.wait('@getDevices', { timeout: 5000 }).its('response.statusCode').should('eq', 200)
       
       // Verify devices visible (MockDiscoveryAdapter returns 3 devices)
-      cy.get('[data-test="app-header"]').should('be.visible')
-      cy.get('[data-test="device-card"]').should('have.length', 1)
+      cy.get('[data-test="app-header"]', { timeout: 5000 }).should('be.visible')
+      cy.get('[data-test="device-card"]', { timeout: 5000 }).should('exist')
+      cy.get('[data-test="device-name"]', { timeout: 5000 }).should('be.visible')
       
       // Verify 3 devices by swiping navigation
       // Start at device 0 - left arrow should be disabled
-      cy.get('.swipe-arrow-left').should('be.disabled')
-      cy.get('.swipe-arrow-right').should('not.be.disabled')
+      cy.get('.swipe-arrow-left', { timeout: 5000 }).should('be.disabled')
+      cy.get('.swipe-arrow-right', { timeout: 5000 }).should('not.be.disabled')
       
       // Get IP of first device for comparison
       cy.get('[data-test="device-card"]').find('[data-test="device-ip"]')

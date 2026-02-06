@@ -64,6 +64,7 @@ pip-delete-this-directory.txt
 
 # Unit test / coverage reports
 htmlcov/
+frontend/coverage/
 .tox/
 .nox/
 .coverage
@@ -231,3 +232,4 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+project-files/

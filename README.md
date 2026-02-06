@@ -354,11 +354,40 @@ Fokus: **Knopf drücken → Sender spielt → Anzeige**
 
 ---
 
-## 🧪 Tests
+## 🧪 Tests & Coverage
 
-- Unit Tests: XML/JSON Rendering, Mapping-Logik, Provider-Parsing
-- Integration Tests: gemockte SoundTouch-Endpunkte + Provider-API
-- E2E Tests: optional mit echten Geräten (Demo-fähig)
+**Coverage-Ziel**: 80% für Backend & Frontend
+
+### Backend
+- **Aktuell**: 96% (296 Tests)
+- **Arten**: Unit Tests, Integration Tests
+- **Technologie**: pytest + pytest-cov + pytest-asyncio
+- **Kommando**: `cd backend && pytest --cov=cloudtouch --cov-report=term-missing --cov-fail-under=80`
+
+### Frontend
+- **Aktuell**: 52% (87 Tests) ⚠️ UNTER 80% THRESHOLD
+- **Arten**: Unit Tests (Vitest), E2E Tests (Cypress)
+- **Technologie**: Vitest + @testing-library/react, Cypress
+- **Kommandos**:
+  - Unit Tests: `cd frontend && npm run test:coverage`
+  - E2E Tests: `cd frontend && npm run test:e2e`
+
+### CI/CD & Pre-commit
+- **Pre-commit Hook** (`pre-commit.ps1`):
+  - Backend Tests (80% enforced)
+  - Frontend Unit Tests (80% enforced) ⚠️ Aktuell blockiert bei 52%
+  - Frontend E2E Tests (Cypress)
+- **GitHub Workflow** (`.github/workflows/ci-cd.yml`):
+  - Gleiche Test-Suite wie Pre-commit Hook
+  - Zusätzlich: Linting (ruff, black, mypy, ESLint)
+- **Config**: Zentrale Konfiguration in `.ci-config.json` und `.ci-config.md`
+
+### Kritische Bereiche (Frontend < 80%)
+- `EmptyState.tsx`: 27.63% (46 uncovered lines)
+- `LocalControl.tsx`: 2.77%
+- `MultiRoom.tsx`: 2.56%
+- `Firmware.tsx`: 0%
+- `Toast.tsx`: 0%
 
 ---
 

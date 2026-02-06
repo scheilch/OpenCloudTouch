@@ -224,15 +224,14 @@ class TestSyncEndpoint:
         import asyncio
 
         import cloudtouch.devices.api.routes as devices_module
-        import cloudtouch.main as main_module
+        from cloudtouch.core.dependencies import set_settings_repo
 
         # Mock settings repository
         mock_settings = AsyncMock(spec=SettingsRepository)
         mock_settings.get_manual_ips = AsyncMock(return_value=[])
 
-        # Inject mock directly into main module
-        original_settings = main_module.settings_repo
-        main_module.settings_repo = mock_settings
+        # Inject mock via dependency injection
+        set_settings_repo(mock_settings)
 
         # Acquire lock to simulate discovery in progress
         async def acquire_lock():
@@ -249,7 +248,6 @@ class TestSyncEndpoint:
         finally:
             # Release lock
             devices_module._discovery_lock.release()
-            main_module.settings_repo = original_settings
 
 
 class TestDiscoverEndpoint:

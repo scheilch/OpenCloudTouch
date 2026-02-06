@@ -6,11 +6,12 @@
  */
 
 /**
- * Wait for devices to load from API
+ * Wait for devices to load from API (deprecated - use cy.wait('@getDevices') instead)
+ * Kept for backward compatibility
  */
 Cypress.Commands.add('waitForDevices', () => {
-  // Wait for app to fetch devices
-  cy.wait(500) // Small delay for API call
+  // Wait for app to process device fetch (small delay for state updates)
+  cy.wait(1000)
 })
 
 /**

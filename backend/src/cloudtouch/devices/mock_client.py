@@ -122,7 +122,9 @@ class MockSoundTouchClient(SoundTouchClient):
             DeviceInfo object with predefined device details
         """
         logger.debug(f"[MOCK] get_info() for device {self.device_id}")
-        return self.MOCK_DEVICES[self.device_id]["info"]
+        info = self.MOCK_DEVICES[self.device_id]["info"]
+        assert isinstance(info, DeviceInfo)
+        return info
 
     async def get_now_playing(self) -> NowPlayingInfo:
         """
@@ -132,7 +134,9 @@ class MockSoundTouchClient(SoundTouchClient):
             NowPlayingInfo object with predefined playback details
         """
         logger.debug(f"[MOCK] get_now_playing() for device {self.device_id}")
-        return self.MOCK_DEVICES[self.device_id]["now_playing"]
+        now_playing = self.MOCK_DEVICES[self.device_id]["now_playing"]
+        assert isinstance(now_playing, NowPlayingInfo)
+        return now_playing
 
     async def close(self) -> None:
         """Mock close (no-op)."""

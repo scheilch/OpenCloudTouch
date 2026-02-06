@@ -402,3 +402,152 @@ def test_find_xml_text_empty_element():
 
     # Empty text should return None
     assert result is None or result == ""
+
+
+# ==================== NETWORK ERROR TESTS ====================
+
+
+@pytest.mark.asyncio
+async def test_fetch_device_descriptions_http_timeout():
+    """Test that HTTP timeout during device description fetch is handled."""
+    discovery = SSDPDiscovery(timeout=1)
+
+    import httpx
+
+    with patch("httpx.AsyncClient") as mock_client:
+        mock_client_instance = AsyncMock()
+        mock_client_instance.get.side_effect = httpx.TimeoutException(
+            "Request timeout"
+        )
+        mock_client_instance.__aenter__.return_value = mock_client_instance
+        mock_client_instance.__aexit__.return_value = None
+        mock_client.return_value = mock_client_instance
+
+        devices = await discovery._fetch_device_descriptions(
+            ["http://192.168.1.100:8090/info"]
+        )
+
+        # Should return empty dict on timeout, not raise
+        assert devices == {}
+
+
+@pytest.mark.asyncio
+async def test_fetch_device_descriptions_http_error():
+    """Test that HTTP errors (404, 500) are handled gracefully."""
+    discovery = SSDPDiscovery()
+
+    import httpx
+
+    with patch("httpx.AsyncClient") as mock_client:
+        mock_client_instance = AsyncMock()
+        mock_client_instance.get.side_effect = httpx.HTTPStatusError(
+            "Not Found", request=MagicMock(), response=MagicMock(status_code=404)
+        )
+        mock_client_instance.__aenter__.return_value = mock_client_instance
+        mock_client_instance.__aexit__.return_value = None
+        mock_client.return_value = mock_client_instance
+
+        devices = await discovery._fetch_device_descriptions(
+            ["http://192.168.1.100:8090/info"]
+        )
+
+        # Should return empty dict on HTTP error
+        assert devices == {}
+
+
+@pytest.mark.asyncio
+async def test_fetch_device_descriptions_malformed_xml():
+    """Test that malformed XML is handled without crashing."""
+    discovery = SSDPDiscovery()
+
+    mock_response = MagicMock()
+    mock_response.text = "NOT XML AT ALL <invalid>"
+    mock_response.raise_for_status = MagicMock()
+
+    with patch("httpx.AsyncClient") as mock_client:
+        mock_client_instance = AsyncMock()
+        mock_client_instance.get.return_value = mock_response
+        mock_client_instance.__aenter__.return_value = mock_client_instance
+        mock_client_instance.__aexit__.return_value = None
+        mock_client.return_value = mock_client_instance
+
+        devices = await discovery._fetch_device_descriptions(
+            ["http://192.168.1.100:8090/info"]
+        )
+
+        # Should return empty dict on XML parse error
+        assert devices == {}
+
+
+@pytest.mark.asyncio
+async def test_ssdp_msearch_socket_error():
+    """Test that socket errors during M-SEARCH are handled gracefully."""
+    discovery = SSDPDiscovery(timeout=1)
+
+    import socket as socket_module
+
+    with patch("socket.socket") as mock_socket_class:
+        mock_socket = MagicMock()
+        mock_socket.sendto.side_effect = socket_module.error("Network unreachable")
+        mock_socket_class.return_value = mock_socket
+
+        # Should not raise, return empty list
+        locations = discovery._ssdp_msearch()
+
+        assert locations == []
+        mock_socket.close.assert_called_once()
+
+
+def test_ssdp_msearch_socket_recvfrom_decode_error():
+    """Test that socket.recvfrom decode errors are handled."""
+    discovery = SSDPDiscovery(timeout=1)
+
+    import socket as socket_module
+
+    with patch("socket.socket") as mock_socket_class:
+        mock_socket = MagicMock()
+        mock_socket.sendto.return_value = None
+        # First call returns invalid UTF-8, second call times out to exit loop
+        mock_socket.recvfrom.side_effect = [
+            (b"\xff\xfe\xfd\xfc Invalid UTF-8", ("192.168.1.1", 1900)),
+            socket_module.timeout("Mock timeout to exit loop"),
+        ]
+        mock_socket_class.return_value = mock_socket
+
+        # Should handle decode error gracefully (errors="ignore")
+        locations = discovery._ssdp_msearch()
+
+        # Should return empty list (no valid LOCATION found in garbage)
+        assert isinstance(locations, list)
+        mock_socket.close.assert_called_once()
+
+
+@pytest.mark.asyncio
+async def test_fetch_device_descriptions_missing_required_fields():
+    """Test device with missing manufacturer/model fields is skipped."""
+    discovery = SSDPDiscovery()
+
+    # XML missing manufacturer (should be filtered out)
+    mock_response = MagicMock()
+    mock_response.text = """<?xml version="1.0"?>
+    <root xmlns="urn:schemas-upnp-org:device-1-0">
+        <device>
+            <friendlyName>Device Without Manufacturer</friendlyName>
+            <modelName>Some Model</modelName>
+        </device>
+    </root>"""
+    mock_response.raise_for_status = MagicMock()
+
+    with patch("httpx.AsyncClient") as mock_client:
+        mock_client_instance = AsyncMock()
+        mock_client_instance.get.return_value = mock_response
+        mock_client_instance.__aenter__.return_value = mock_client_instance
+        mock_client_instance.__aexit__.return_value = None
+        mock_client.return_value = mock_client_instance
+
+        devices = await discovery._fetch_device_descriptions(
+            ["http://192.168.1.100:8090/info"]
+        )
+
+        # Should be empty (manufacturer missing)
+        assert devices == {}

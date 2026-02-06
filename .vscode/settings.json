@@ -1,0 +1,14 @@
+{
+    "terminal.integrated.profiles.windows": {
+        "PowerShell (UTF-8)": {
+        "source": "PowerShell",
+        "icon": "terminal-powershell",
+        "args": ["-NoExit", "/c", "chcp.com 65001"]
+        }
+    },
+    "terminal.integrated.defaultProfile.windows": "PowerShell (UTF-8)",
+
+    "terminal.integrated.env.windows": {
+        "JAVA_TOOL_OPTIONS": "-Dfile.encoding=UTF-8"
+    }
+}
