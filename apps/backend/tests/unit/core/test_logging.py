@@ -158,7 +158,9 @@ class TestLoggingSetup:
         from opencloudtouch.core.config import AppConfig
 
         mock_config = AppConfig(log_level="INFO", log_format="text", log_file=None)
-        monkeypatch.setattr("opencloudtouch.core.logging.get_config", lambda: mock_config)
+        monkeypatch.setattr(
+            "opencloudtouch.core.logging.get_config", lambda: mock_config
+        )
 
         # Act
         setup_logging()
@@ -179,7 +181,9 @@ class TestLoggingSetup:
         from opencloudtouch.core.config import AppConfig
 
         mock_config = AppConfig(log_level="DEBUG", log_format="json", log_file=None)
-        monkeypatch.setattr("opencloudtouch.core.logging.get_config", lambda: mock_config)
+        monkeypatch.setattr(
+            "opencloudtouch.core.logging.get_config", lambda: mock_config
+        )
 
         # Act
         setup_logging()
@@ -204,7 +208,9 @@ class TestLoggingSetup:
         mock_config = AppConfig(
             log_level="WARNING", log_format="text", log_file=str(log_file)
         )
-        monkeypatch.setattr("opencloudtouch.core.logging.get_config", lambda: mock_config)
+        monkeypatch.setattr(
+            "opencloudtouch.core.logging.get_config", lambda: mock_config
+        )
 
         # Act
         setup_logging()
@@ -234,7 +240,9 @@ class TestLoggingSetup:
         from opencloudtouch.core.config import AppConfig
 
         mock_config = AppConfig(log_level="DEBUG", log_format="text", log_file=None)
-        monkeypatch.setattr("opencloudtouch.core.logging.get_config", lambda: mock_config)
+        monkeypatch.setattr(
+            "opencloudtouch.core.logging.get_config", lambda: mock_config
+        )
 
         # Act
         setup_logging()

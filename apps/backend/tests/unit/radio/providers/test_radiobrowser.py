@@ -412,35 +412,35 @@ class TestRadioBrowserErrorHandling:
     async def test_search_by_name_timeout(self):
         """Test that search_by_name handles timeout correctly."""
         adapter = RadioBrowserAdapter()
-        
+
         mock_client = self._create_mock_async_client()
         mock_client.get.side_effect = httpx.TimeoutException("Request timed out")
-        
+
         with patch("httpx.AsyncClient", return_value=mock_client):
             with pytest.raises(RadioBrowserTimeoutError) as exc_info:
                 await adapter.search_by_name("test")
-            
+
             assert "Request timed out" in str(exc_info.value)
 
     @pytest.mark.asyncio
     async def test_search_by_name_connection_error(self):
         """Test that search_by_name handles connection errors correctly."""
         adapter = RadioBrowserAdapter()
-        
+
         mock_client = self._create_mock_async_client()
         mock_client.get.side_effect = httpx.ConnectError("Connection refused")
-        
+
         with patch("httpx.AsyncClient", return_value=mock_client):
             with pytest.raises(RadioBrowserConnectionError) as exc_info:
                 await adapter.search_by_name("test")
-            
+
             assert "Connection failed" in str(exc_info.value)
 
     @pytest.mark.asyncio
     async def test_search_by_name_http_status_error(self):
         """Test that search_by_name handles HTTP errors correctly."""
         adapter = RadioBrowserAdapter()
-        
+
         mock_client = self._create_mock_async_client()
         mock_response = MagicMock()
         mock_response.status_code = 500
@@ -448,46 +448,46 @@ class TestRadioBrowserErrorHandling:
         mock_client.get.side_effect = httpx.HTTPStatusError(
             "Server error", request=MagicMock(), response=mock_response
         )
-        
+
         with patch("httpx.AsyncClient", return_value=mock_client):
             with pytest.raises(RadioBrowserError) as exc_info:
                 await adapter.search_by_name("test")
-            
+
             assert "HTTP error 500" in str(exc_info.value)
 
     @pytest.mark.asyncio
     async def test_search_by_tag_timeout(self):
         """Test that search_by_tag handles timeout correctly."""
         adapter = RadioBrowserAdapter()
-        
+
         mock_client = self._create_mock_async_client()
         mock_client.get.side_effect = httpx.TimeoutException("Request timed out")
-        
+
         with patch("httpx.AsyncClient", return_value=mock_client):
             with pytest.raises(RadioBrowserTimeoutError) as exc_info:
                 await adapter.search_by_tag("jazz")
-            
+
             assert "Request timed out" in str(exc_info.value)
 
     @pytest.mark.asyncio
     async def test_search_by_tag_connection_error(self):
         """Test that search_by_tag handles connection errors correctly."""
         adapter = RadioBrowserAdapter()
-        
+
         mock_client = self._create_mock_async_client()
         mock_client.get.side_effect = httpx.ConnectError("Connection refused")
-        
+
         with patch("httpx.AsyncClient", return_value=mock_client):
             with pytest.raises(RadioBrowserConnectionError) as exc_info:
                 await adapter.search_by_tag("jazz")
-            
+
             assert "Connection failed" in str(exc_info.value)
 
     @pytest.mark.asyncio
     async def test_search_by_tag_http_status_error(self):
         """Test that search_by_tag handles HTTP errors correctly."""
         adapter = RadioBrowserAdapter()
-        
+
         mock_client = self._create_mock_async_client()
         mock_response = MagicMock()
         mock_response.status_code = 404
@@ -495,46 +495,46 @@ class TestRadioBrowserErrorHandling:
         mock_client.get.side_effect = httpx.HTTPStatusError(
             "Not found", request=MagicMock(), response=mock_response
         )
-        
+
         with patch("httpx.AsyncClient", return_value=mock_client):
             with pytest.raises(RadioBrowserError) as exc_info:
                 await adapter.search_by_tag("jazz")
-            
+
             assert "HTTP error 404" in str(exc_info.value)
 
     @pytest.mark.asyncio
     async def test_get_station_by_uuid_timeout(self):
         """Test that get_station_by_uuid handles timeout correctly."""
         adapter = RadioBrowserAdapter()
-        
+
         mock_client = self._create_mock_async_client()
         mock_client.get.side_effect = httpx.TimeoutException("Request timed out")
-        
+
         with patch("httpx.AsyncClient", return_value=mock_client):
             with pytest.raises(RadioBrowserTimeoutError) as exc_info:
                 await adapter.get_station_by_uuid("test-uuid")
-            
+
             assert "Request timed out" in str(exc_info.value)
 
     @pytest.mark.asyncio
     async def test_get_station_by_uuid_connection_error(self):
         """Test that get_station_by_uuid handles connection errors correctly."""
         adapter = RadioBrowserAdapter()
-        
+
         mock_client = self._create_mock_async_client()
         mock_client.get.side_effect = httpx.ConnectError("Connection refused")
-        
+
         with patch("httpx.AsyncClient", return_value=mock_client):
             with pytest.raises(RadioBrowserConnectionError) as exc_info:
                 await adapter.get_station_by_uuid("test-uuid")
-            
+
             assert "Connection failed" in str(exc_info.value)
 
     @pytest.mark.asyncio
     async def test_get_station_by_uuid_http_status_error(self):
         """Test that get_station_by_uuid handles HTTP errors correctly."""
         adapter = RadioBrowserAdapter()
-        
+
         mock_client = self._create_mock_async_client()
         mock_response = MagicMock()
         mock_response.status_code = 404
@@ -542,27 +542,28 @@ class TestRadioBrowserErrorHandling:
         mock_client.get.side_effect = httpx.HTTPStatusError(
             "Not found", request=MagicMock(), response=mock_response
         )
-        
+
         with patch("httpx.AsyncClient", return_value=mock_client):
             with pytest.raises(RadioBrowserError) as exc_info:
                 await adapter.get_station_by_uuid("test-uuid")
-            
+
             assert "HTTP error 404" in str(exc_info.value)
 
     @pytest.mark.asyncio
     async def test_make_request_retry_logic_timeout(self):
         """Test that _make_request retries on timeout and eventually fails."""
         adapter = RadioBrowserAdapter(max_retries=3)
-        
+
         mock_client = self._create_mock_async_client()
         mock_client.get.side_effect = httpx.TimeoutException("Request timed out")
-        
-        with patch("httpx.AsyncClient", return_value=mock_client), \
-             patch("asyncio.sleep", new_callable=AsyncMock) as mock_sleep:
-            
+
+        with patch("httpx.AsyncClient", return_value=mock_client), patch(
+            "asyncio.sleep", new_callable=AsyncMock
+        ) as mock_sleep:
+
             with pytest.raises(httpx.TimeoutException):
                 await adapter._make_request("/test")
-            
+
             # Should have retried 3 times
             assert mock_client.get.call_count == 3
             # Should have slept 2 times (between retries, not after last)
@@ -572,16 +573,17 @@ class TestRadioBrowserErrorHandling:
     async def test_make_request_retry_logic_connection_error(self):
         """Test that _make_request retries on connection error and eventually fails."""
         adapter = RadioBrowserAdapter(max_retries=2)
-        
+
         mock_client = self._create_mock_async_client()
         mock_client.get.side_effect = httpx.ConnectError("Connection refused")
-        
-        with patch("httpx.AsyncClient", return_value=mock_client), \
-             patch("asyncio.sleep", new_callable=AsyncMock) as mock_sleep:
-            
+
+        with patch("httpx.AsyncClient", return_value=mock_client), patch(
+            "asyncio.sleep", new_callable=AsyncMock
+        ) as mock_sleep:
+
             with pytest.raises(httpx.ConnectError):
                 await adapter._make_request("/test")
-            
+
             # Should have retried 2 times
             assert mock_client.get.call_count == 2
             # Should have slept 1 time (between 2 retries)
@@ -591,24 +593,25 @@ class TestRadioBrowserErrorHandling:
     async def test_make_request_retry_success_after_failure(self):
         """Test that _make_request succeeds after initial failures."""
         adapter = RadioBrowserAdapter(max_retries=3)
-        
+
         mock_client = self._create_mock_async_client()
         # First 2 calls timeout, 3rd succeeds
         mock_response = MagicMock()
         mock_response.status_code = 200
         mock_response.json.return_value = {"test": "data"}
-        
+
         mock_client.get.side_effect = [
             httpx.TimeoutException("Timeout"),
             httpx.TimeoutException("Timeout"),
             mock_response,
         ]
-        
-        with patch("httpx.AsyncClient", return_value=mock_client), \
-             patch("asyncio.sleep", new_callable=AsyncMock) as mock_sleep:
-            
+
+        with patch("httpx.AsyncClient", return_value=mock_client), patch(
+            "asyncio.sleep", new_callable=AsyncMock
+        ) as mock_sleep:
+
             result = await adapter._make_request("/test")
-            
+
             assert result == {"test": "data"}
             assert mock_client.get.call_count == 3
             # Should have slept 2 times (before 2nd and 3rd attempt)
@@ -618,16 +621,16 @@ class TestRadioBrowserErrorHandling:
     async def test_get_station_by_uuid_not_found(self):
         """Test that get_station_by_uuid raises error when station not found."""
         adapter = RadioBrowserAdapter()
-        
+
         mock_client = self._create_mock_async_client()
         mock_response = MagicMock()
         mock_response.status_code = 200
         mock_response.json.return_value = []  # Empty list = not found
         mock_response.raise_for_status = MagicMock()
         mock_client.get.return_value = mock_response
-        
+
         with patch("httpx.AsyncClient", return_value=mock_client):
             with pytest.raises(RadioBrowserError) as exc_info:
                 await adapter.get_station_by_uuid("nonexistent-uuid")
-            
+
             assert "not found" in str(exc_info.value)

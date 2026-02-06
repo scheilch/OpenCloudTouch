@@ -2,6 +2,7 @@
 Unit tests for configuration module
 """
 
+import os
 from pathlib import Path
 
 import pytest
@@ -9,8 +10,12 @@ import pytest
 from opencloudtouch.core.config import AppConfig, init_config
 
 
-def test_config_defaults():
+def test_config_defaults(monkeypatch):
     """Test default configuration values."""
+    # Remove CI env var to test production defaults
+    monkeypatch.delenv("CI", raising=False)
+    monkeypatch.delenv("OCT_MOCK_MODE", raising=False)
+
     config = AppConfig()
 
     assert config.host == "0.0.0.0"
@@ -177,13 +182,15 @@ def test_effective_db_path_ci_mode(monkeypatch):
     assert config.effective_db_path == ":memory:"
 
 
-def test_effective_db_path_mock_mode():
+def test_effective_db_path_mock_mode(monkeypatch):
     """Test effective_db_path returns test DB in mock mode."""
+    monkeypatch.delenv("CI", raising=False)
     config = AppConfig(mock_mode=True)
     assert config.effective_db_path == "data-local/oct-test.db"
 
 
-def test_effective_db_path_production():
+def test_effective_db_path_production(monkeypatch):
     """Test effective_db_path returns production path by default."""
+    monkeypatch.delenv("CI", raising=False)
     config = AppConfig()
     assert config.effective_db_path == "/data/oct.db"
