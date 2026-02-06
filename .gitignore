@@ -7,29 +7,31 @@ __pycache__/
 *.so
 
 # Project-specific - exclude from git
-# docs/ - personal work notes and agent documentation
-# SERVER-DEPLOY.md - personal deployment guide
-docs/
-deployment/
-SERVER-DEPLOY.md
-/prototypes
 
-# Temporary analysis files (cleanup/refactoring artifacts)
-analysis/
-*_TEMP.md
-CONTEXT_TEMP.md
+# Personal developer environment (not shared)
+AGENTS.md
+docs/agent-prompts/
+tools/local-scripts/
+.local/
+*.local.*
 
-# Docker / Container artifacts
-*.tar
-cloudtouch-image.tar
+# Local configuration (use config.example.yaml as template)
+config.yaml
+docker-compose.override.yml
 
-# Local data directory
-data/
+# Local data & databases
+data-local/
 *.db
 *.db-journal
 
-# Frontend assets (screenshots, videos, etc.)
-frontend/assets/
+# Deployment artifacts (personal deployment configs)
+deployment/local/
+*.tar
+cloudtouch-image.tar
+
+# Temporary analysis files (cleanup/refactoring artifacts)
+*_TEMP.md
+CONTEXT_TEMP.md
 
 # Distribution / packaging
 .Python
@@ -64,7 +66,6 @@ pip-delete-this-directory.txt
 
 # Unit test / coverage reports
 htmlcov/
-frontend/coverage/
 .tox/
 .nox/
 .coverage
@@ -233,3 +234,11 @@ marimo/_static/
 marimo/_lsp/
 __marimo__/
 project-files/
+
+# Frontend build & coverage artifacts
+**/coverage/
+**/dist/
+**/.vite/
+**/cypress/videos/
+**/cypress/screenshots/
+**/cypress/downloads/
