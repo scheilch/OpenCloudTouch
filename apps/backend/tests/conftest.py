@@ -12,6 +12,7 @@ import warnings
 # can fail when pytest closes stdout. Suppress asyncio logging.
 if sys.platform == "win32":
     import asyncio
+
     asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
     # Suppress asyncio debug logging that causes issues during pytest cleanup
     logging.getLogger("asyncio").setLevel(logging.CRITICAL)

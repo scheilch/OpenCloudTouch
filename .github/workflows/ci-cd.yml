@@ -75,13 +75,16 @@ jobs:
           node-version: '20'
       
       - name: Install dependencies
-        run: npm install
+        working-directory: apps/frontend
+        run: npm ci
       
       - name: Build frontend
+        working-directory: apps/frontend
         run: npm run build
       
       - name: Run unit tests with coverage
-        run: npm run test:coverage --workspace=apps/frontend
+        working-directory: apps/frontend
+        run: npm run test:coverage
 
   e2e-tests:
     name: E2E Tests
