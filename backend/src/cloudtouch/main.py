@@ -6,7 +6,6 @@ Iteration 0: Basic setup with /health endpoint
 import logging
 from contextlib import asynccontextmanager
 from pathlib import Path
-from typing import Optional
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -15,22 +14,17 @@ from fastapi.staticfiles import StaticFiles
 
 from cloudtouch.api import devices_router
 from cloudtouch.core.config import get_config, init_config
+from cloudtouch.core.dependencies import set_device_repo, set_settings_repo
 from cloudtouch.core.logging import setup_logging
 from cloudtouch.db import DeviceRepository
 from cloudtouch.radio.api.routes import router as radio_router
 from cloudtouch.settings.repository import SettingsRepository
 from cloudtouch.settings.routes import router as settings_router
 
-# Global instances (initialized in lifespan)
-device_repo: Optional[DeviceRepository] = None
-settings_repo: Optional[SettingsRepository] = None
-
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Application lifespan: startup and shutdown."""
-    global device_repo, settings_repo
-
     # Initialize configuration
     init_config()
 
@@ -47,6 +41,7 @@ async def lifespan(app: FastAPI):
     # Initialize database
     device_repo = DeviceRepository(cfg.effective_db_path)
     await device_repo.initialize()
+    set_device_repo(device_repo)  # Register via dependency injection
     logger.info("Device repository initialized")
 
     # Initialize settings repository (convert str to Path if needed)
@@ -59,18 +54,17 @@ async def lifespan(app: FastAPI):
     )
     settings_repo = SettingsRepository(db_path)
     await settings_repo.initialize()
+    set_settings_repo(settings_repo)  # Register via dependency injection
     logger.info("Settings repository initialized")
 
     yield
 
     # Shutdown
-    if device_repo:
-        await device_repo.close()
-        logger.info("Device repository closed")
+    await device_repo.close()
+    logger.info("Device repository closed")
 
-    if settings_repo:
-        await settings_repo.close()
-        logger.info("Settings repository closed")
+    await settings_repo.close()
+    logger.info("Settings repository closed")
 
     logger.info("SoundTouchBridge shutting down")
 

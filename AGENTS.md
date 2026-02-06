@@ -73,6 +73,52 @@ git push
 git push --force-with-lease
 ```
 
+### 1.4 Autonomes Arbeiten - Kritische Regeln
+
+⚠️ **ABSOLUT KRITISCH für autonome Agent-Workflows** ⚠️
+
+**ALLE Kommandos MÜSSEN immer terminieren - ob mit oder ohne Fehler!**
+
+**VERBOTEN**:
+- ❌ Interaktive Kommandos (stdin-Input erforderlich)
+- ❌ Nicht-deterministische Kommandos (hängen bei Fehler)
+- ❌ Watch-Modes (--watch, -w)
+- ❌ Debugger-Modes (--pdb, --debug)
+- ❌ Prompts/Confirmations ("Press any key", "Continue? [y/n]")
+- ❌ Long-running ohne Timeout (Server ohne --timeout)
+
+**ERLAUBT**:
+- ✅ Exit Code 0 bei Erfolg, ≠0 bei Fehler
+- ✅ Timeout-Parameter bei langsamen Commands
+- ✅ Non-interactive Flags (--no-input, --yes, --batch)
+- ✅ Fail-fast Flags (-x, --maxfail=1)
+
+**Beispiele**:
+```bash
+# ❌ FALSCH: Hängt bei Fehler (Debugger)
+pytest --pdb
+
+# ✅ RICHTIG: Terminiert immer
+pytest -x --tb=short
+
+# ❌ FALSCH: Wartet auf Input
+npm install  # (kann nach Passphrase fragen)
+
+# ✅ RICHTIG: Non-interactive
+npm install --no-audit --prefer-offline
+
+# ❌ FALSCH: Watch mode läuft ewig
+vitest --watch
+
+# ✅ RICHTIG: Single run
+vitest run
+```
+
+**Bei Fehler-Tests**:
+- Absichtlich Fehler provozieren zum Testen
+- Command MUSS mit Exit Code ≠0 terminieren (nicht hängen)
+- Timeout: Max. 60 Sekunden für Test-Commands
+
 ---
 
 ## 2. Test-Driven Development (TDD) – GESETZ
