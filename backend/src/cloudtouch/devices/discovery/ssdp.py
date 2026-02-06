@@ -99,8 +99,12 @@ class SSDPDiscovery:
 
         try:
             # Send M-SEARCH
-            sock.sendto(msg, (self.SSDP_MULTICAST_ADDR, self.SSDP_PORT))
-            logger.debug("Sent SSDP M-SEARCH multicast")
+            try:
+                sock.sendto(msg, (self.SSDP_MULTICAST_ADDR, self.SSDP_PORT))
+                logger.debug("Sent SSDP M-SEARCH multicast")
+            except OSError as e:
+                logger.error(f"Failed to send SSDP M-SEARCH: {e}")
+                return []
 
             # Collect responses
             while True:

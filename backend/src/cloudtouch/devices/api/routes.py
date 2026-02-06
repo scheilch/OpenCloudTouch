@@ -10,6 +10,7 @@ from typing import Any, Dict, List
 from fastapi import APIRouter, Depends, HTTPException
 
 from cloudtouch.core.config import AppConfig, get_config
+from cloudtouch.core.dependencies import get_device_repo, get_settings_repo
 from cloudtouch.devices.adapter import BoseSoundTouchDiscoveryAdapter
 from cloudtouch.devices.discovery.manual import ManualDiscovery
 from cloudtouch.devices.repository import DeviceRepository
@@ -23,25 +24,6 @@ router = APIRouter(prefix="/api/devices", tags=["Devices"])
 
 # Discovery lock to prevent concurrent discovery requests
 _discovery_lock = asyncio.Lock()
-
-
-# Dependency injection
-async def get_device_repo() -> DeviceRepository:
-    """Get device repository instance."""
-    from cloudtouch.main import device_repo
-
-    assert device_repo is not None, "DeviceRepository not initialized"
-    return device_repo
-
-
-async def get_settings_repo() -> SettingsRepository:
-    """Get settings repository instance."""
-    from cloudtouch.main import settings_repo
-
-    if settings_repo is None:
-        raise RuntimeError("Settings repository not initialized")
-
-    return settings_repo
 
 
 # Helper functions for discover_devices (keep functions < 20 lines)
@@ -61,7 +43,9 @@ async def _discover_via_ssdp(cfg: AppConfig) -> List[DiscoveredDevice]:
         return []
 
 
-async def _discover_via_manual_ips(cfg: AppConfig) -> List[DiscoveredDevice]:
+async def _discover_via_manual_ips(
+    cfg: AppConfig, settings_repo: SettingsRepository
+) -> List[DiscoveredDevice]:
     """
     Discover devices via manually configured IP addresses.
 
@@ -70,14 +54,11 @@ async def _discover_via_manual_ips(cfg: AppConfig) -> List[DiscoveredDevice]:
     - Environment variable (CT_MANUAL_DEVICE_IPS)
     """
     # Get IPs from database
-    from cloudtouch.main import settings_repo
-
     db_ips = []
-    if settings_repo:
-        try:
-            db_ips = await settings_repo.get_manual_ips()
-        except Exception as e:
-            logger.error(f"Failed to get manual IPs from database: {e}")
+    try:
+        db_ips = await settings_repo.get_manual_ips()
+    except Exception as e:
+        logger.error(f"Failed to get manual IPs from database: {e}")
 
     # Get IPs from environment variable
     env_ips = cfg.manual_device_ips_list or []
@@ -118,7 +99,9 @@ def _format_discovery_response(devices: List[DiscoveredDevice]) -> Dict[str, Any
 
 
 @router.get("/discover")
-async def discover_devices() -> Dict[str, Any]:
+async def discover_devices(
+    settings_repo: SettingsRepository = Depends(get_settings_repo),
+) -> Dict[str, Any]:
     """
     Trigger device discovery.
 
@@ -129,7 +112,7 @@ async def discover_devices() -> Dict[str, Any]:
 
     # Discover via SSDP and manual IPs
     ssdp_devices = await _discover_via_ssdp(cfg)
-    manual_devices = await _discover_via_manual_ips(cfg)
+    manual_devices = await _discover_via_manual_ips(cfg, settings_repo)
 
     all_devices = ssdp_devices + manual_devices
     logger.info(f"Discovery complete: {len(all_devices)} device(s) found")

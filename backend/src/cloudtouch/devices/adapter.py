@@ -244,12 +244,15 @@ def get_soundtouch_client(base_url: str, timeout: float = 5.0) -> SoundTouchClie
         # For mock mode, we use MAC as device_id
         # In production, this would come from discovery
         # For testing, try to extract from known mocks
+        from cloudtouch.devices.client import DeviceInfo
         from cloudtouch.devices.mock_client import MockSoundTouchClient
 
         # Try to find matching mock device by IP
         device_id = None
         for mac, device_data in MockSoundTouchClient.MOCK_DEVICES.items():
-            if device_data["info"].ip_address == ip:
+            info = device_data["info"]
+            assert isinstance(info, DeviceInfo)
+            if info.ip_address == ip:
                 device_id = mac
                 break
 

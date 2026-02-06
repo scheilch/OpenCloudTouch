@@ -215,7 +215,7 @@ if (-not $frontendReady) {
 Write-Success "Frontend started successfully"
 Write-Host ""
 
-# Step 5: Run Cypress Tests
+# Step 5: Run Cypress Tests with Timeout
 Write-Info "Running Cypress E2E tests..."
 $cypressExitCode = 0
 
@@ -226,13 +226,28 @@ try {
     $env:CYPRESS_API_URL = "http://localhost:$TestPort/api"
     
     if ($HeadlessMode) {
-        $process = Start-Process -FilePath "npm" -ArgumentList "run", "cypress:run" -Wait -NoNewWindow -PassThru
+        # Start Cypress process (non-blocking)
+        $cypressProcess = Start-Process -FilePath "npm" -ArgumentList "run", "cypress:run" -NoNewWindow -PassThru
+        
+        # Wait with timeout (2 minutes for headless E2E tests)
+        $timeout = 120
+        $cypressProcess | Wait-Process -Timeout $timeout -ErrorAction SilentlyContinue
+        
+        if ($cypressProcess.HasExited) {
+            $cypressExitCode = $cypressProcess.ExitCode
+            Write-Info "Cypress finished with exit code: $cypressExitCode"
+        }
+        else {
+            Write-Error "Cypress tests timed out after $timeout seconds!"
+            Stop-Process -Id $cypressProcess.Id -Force -ErrorAction SilentlyContinue
+            $cypressExitCode = 1
+        }
     }
     else {
+        # Interactive mode: no timeout
         $process = Start-Process -FilePath "npm" -ArgumentList "run", "cypress:open" -Wait -NoNewWindow -PassThru
+        $cypressExitCode = $process.ExitCode
     }
-    
-    $cypressExitCode = $process.ExitCode
 }
 catch {
     Write-Error "Failed to run Cypress tests: $_"
@@ -244,56 +259,64 @@ finally {
 
 Write-Host ""
 
-# Step 6: Stop Backend and Frontend
-Write-Info "Stopping backend (PID: $($backendProcess.Id))..."
-if ($backendProcess -and !$backendProcess.HasExited) {
-    Stop-Process -Id $backendProcess.Id -Force
-}
+# CRITICAL: Cleanup MUST always run (even if Cypress fails/times out)
+try {
+    # Step 6: Stop Backend and Frontend
+    Write-Info "Stopping backend (PID: $($backendProcess.Id))..."
+    if ($backendProcess -and !$backendProcess.HasExited) {
+        Stop-Process -Id $backendProcess.Id -Force -ErrorAction SilentlyContinue
+        Start-Sleep -Milliseconds 500
+    }
 
-Write-Info "Stopping frontend (PID: $($frontendProcess.Id))..."
-if ($frontendProcess -and !$frontendProcess.HasExited) {
-    Stop-Process -Id $frontendProcess.Id -Force
-}
+    Write-Info "Stopping frontend (PID: $($frontendProcess.Id))..."
+    if ($frontendProcess -and !$frontendProcess.HasExited) {
+        Stop-Process -Id $frontendProcess.Id -Force -ErrorAction SilentlyContinue
+        Start-Sleep -Milliseconds 500
+    }
+    
+    Write-Success "Backend and Frontend stopped"
+    Write-Host ""
 
-Start-Sleep -Milliseconds 500
-Write-Success "Backend and Frontend stopped"
-Write-Host ""
-
-# Step 6.5: Cleanup Ports (ensure nothing is left running)
-Write-Info "Cleaning up ports $TestPort and $FrontendPort..."
-$portsToClean = @($TestPort, $FrontendPort)
-foreach ($port in $portsToClean) {
-    try {
-        $connections = Get-NetTCPConnection -LocalPort $port -ErrorAction SilentlyContinue
-        if ($connections) {
-            $processIds = $connections | Select-Object -ExpandProperty OwningProcess -Unique
-            foreach ($procId in $processIds) {
-                Write-Host "  Killing leftover process $procId on port $port" -ForegroundColor Yellow
-                Stop-Process -Id $procId -Force -ErrorAction SilentlyContinue
+    # Step 6.5: Cleanup Ports (ensure nothing is left running)
+    Write-Info "Cleaning up ports $TestPort and $FrontendPort..."
+    $portsToClean = @($TestPort, $FrontendPort)
+    foreach ($port in $portsToClean) {
+        try {
+            $connections = Get-NetTCPConnection -LocalPort $port -ErrorAction SilentlyContinue
+            if ($connections) {
+                $processIds = $connections | Select-Object -ExpandProperty OwningProcess -Unique
+                foreach ($procId in $processIds) {
+                    Write-Host "  Killing leftover process $procId on port $port" -ForegroundColor Yellow
+                    Stop-Process -Id $procId -Force -ErrorAction SilentlyContinue
+                }
             }
         }
+        catch {
+            # Port already free
+        }
     }
-    catch {
-        # Port already free
+    Start-Sleep -Milliseconds 500
+    Write-Success "Ports cleaned up"
+    Write-Host ""
+
+    # Step 7: Clean up test DB and wrapper script
+    if ($MockMode) {
+        $testDb = Join-Path (Join-Path $RootDir "data-local") "ct-e2e-test.db"
+        if (Test-Path $testDb) {
+            Remove-Item $testDb -Force -ErrorAction SilentlyContinue
+            Write-Info "Cleaned up test database"
+        }
+    }
+
+    # Clean up backend wrapper script
+    $wrapperPath = Join-Path $env:TEMP "ct-backend-wrapper.ps1"
+    if (Test-Path $wrapperPath) {
+        Remove-Item $wrapperPath -Force -ErrorAction SilentlyContinue
     }
 }
-Start-Sleep -Milliseconds 500
-Write-Success "Ports cleaned up"
-Write-Host ""
-
-# Step 7: Clean up test DB and wrapper script
-if ($MockMode) {
-    $testDb = Join-Path (Join-Path $RootDir "data-local") "ct-e2e-test.db"
-    if (Test-Path $testDb) {
-        Remove-Item $testDb -Force
-        Write-Info "Cleaned up test database"
-    }
-}
-
-# Clean up backend wrapper script
-$wrapperPath = Join-Path $env:TEMP "ct-backend-wrapper.ps1"
-if (Test-Path $wrapperPath) {
-    Remove-Item $wrapperPath -Force -ErrorAction SilentlyContinue
+catch {
+    Write-Warning "Error during cleanup: $_"
+    # Continue to report results even if cleanup fails
 }
 
 # Step 8: Report Results

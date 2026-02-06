@@ -120,6 +120,62 @@ If agent interrupts user for non-exception reasons:
 
 ---
 
+### CRITICAL: DETERMINISTIC COMMANDS ONLY ⚠️
+
+**ALL commands MUST terminate (success OR failure) - NEVER hang!**
+
+**Non-negotiable rule for autonomous workflows**:
+
+**FORBIDDEN** (breaks autonomous workflows):
+- ❌ Interactive commands (stdin input)
+- ❌ Debugger modes (`--pdb`, `--debug`, `--breakpoint`)
+- ❌ Watch modes (`--watch`, `-w`, `--rerun-on-change`)
+- ❌ Prompts/confirmations ("Continue? [y/n]", "Press any key")
+- ❌ Commands without timeout that might hang
+
+**REQUIRED**:
+- ✅ Exit code 0 on success, ≠0 on failure
+- ✅ Non-interactive flags (`--no-input`, `--yes`, `--batch`)
+- ✅ Fail-fast flags (`-x`, `--exitfirst`, `--maxfail=1`)
+- ✅ Timeout enforcement (max 60s for tests, 300s for builds)
+
+**Testing for hanging commands**:
+```bash
+# Before using ANY command, verify it terminates on error:
+pytest tests/non_existent_file.py      # Must exit with code 1, NOT hang
+vitest run --config=invalid.json       # Must exit with error, NOT hang
+npm test -- --nonExistentFlag          # Must exit cleanly, NOT hang
+```
+
+**Examples**:
+```bash
+# ❌ WRONG: Hangs on error (debugger)
+pytest --pdb
+
+# ✅ CORRECT: Terminates always
+pytest -x --tb=short
+
+# ❌ WRONG: Watch mode runs forever
+vitest --watch
+
+# ✅ CORRECT: Single run
+vitest run
+
+# ❌ WRONG: Interactive prompt
+npm install
+
+# ✅ CORRECT: Non-interactive
+npm install --no-audit --prefer-offline
+```
+
+**Before ANY command execution**:
+1. Check if command has interactive flags
+2. Add fail-fast flags if test command
+3. Verify command terminates on intentional error
+4. If command might hang → Find alternative or add timeout
+
+---
+
 ## 📚 MANDATORY READING BEFORE START
 
 **You MUST read and internalize these documents first**:

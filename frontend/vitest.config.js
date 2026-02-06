@@ -15,7 +15,7 @@ export default defineConfig({
     ],
     coverage: {
       provider: 'v8',
-      reporter: ['text', 'html'],
+      reporter: ['text', 'html', 'json-summary'],
       exclude: [
         'node_modules/',
         'tests/',
@@ -23,6 +23,12 @@ export default defineConfig({
         'vite.config.js',
         'vitest.config.js',
       ],
+      thresholds: {
+        lines: 80,        // Current: 85.31% ✓
+        functions: 80,    // Current: 74.91% - Need more tests
+        branches: 80,     // Current: 80.32% ✓
+        statements: 80,   // Current: 85.6% ✓
+      },
     },
   },
 })

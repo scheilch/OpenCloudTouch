@@ -6,20 +6,12 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel, Field
 
+from cloudtouch.core.dependencies import get_settings_repo
 from cloudtouch.settings.repository import SettingsRepository
 
 logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api/settings", tags=["settings"])
-
-
-# Dependency to get settings repository
-async def get_settings_repo() -> SettingsRepository:
-    """Get settings repository instance."""
-    from cloudtouch.main import settings_repo
-
-    assert settings_repo is not None, "SettingsRepository not initialized"
-    return settings_repo
 
 
 class SetManualIPsRequest(BaseModel):
