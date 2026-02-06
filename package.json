@@ -25,7 +25,7 @@
     "clean:frontend": "npm run clean --workspace=apps/frontend",
     "docker:build": "docker build -t opencloudtouch:latest .",
     "docker:run": "docker run --rm -p 7777:7777 opencloudtouch:latest",
-    "prepare": "husky"
+    "prepare": "husky || true"
   },
   "devDependencies": {
     "concurrently": "^9.1.2",

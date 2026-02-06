@@ -341,7 +341,9 @@ class TestRadioAPIErrorHandling:
 
         Regression: Network errors should be distinguishable from code bugs.
         """
-        from opencloudtouch.radio.providers.radiobrowser import RadioBrowserConnectionError
+        from opencloudtouch.radio.providers.radiobrowser import (
+            RadioBrowserConnectionError,
+        )
 
         mock_adapter.search_by_name.side_effect = RadioBrowserConnectionError(
             "Cannot connect to api.radio-browser.info"
@@ -386,7 +388,9 @@ class TestRadioAPIErrorHandling:
 
         After fixing exception order: Connection error correctly returns 503.
         """
-        from opencloudtouch.radio.providers.radiobrowser import RadioBrowserConnectionError
+        from opencloudtouch.radio.providers.radiobrowser import (
+            RadioBrowserConnectionError,
+        )
 
         mock_adapter.get_station_by_uuid.side_effect = RadioBrowserConnectionError(
             "Network error"

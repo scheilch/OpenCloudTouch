@@ -400,7 +400,9 @@ class TestDiscoverEndpoint:
             mock_cfg.return_value.discovery_enabled = False  # Disabled!
             mock_cfg.return_value.manual_device_ips_list = ["192.168.1.200"]
 
-            with patch("opencloudtouch.devices.api.routes.ManualDiscovery") as mock_manual:
+            with patch(
+                "opencloudtouch.devices.api.routes.ManualDiscovery"
+            ) as mock_manual:
                 mock_manual_inst = AsyncMock()
                 mock_manual_inst.discover.return_value = manual_devices
                 mock_manual.return_value = mock_manual_inst

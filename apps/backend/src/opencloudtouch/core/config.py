@@ -84,12 +84,8 @@ class AppConfig(BaseSettings):
         return [ip.strip() for ip in self.manual_device_ips.split(",") if ip.strip()]
 
     # Device Ports (Local HTTP/WebSocket API)
-    device_http_port: int = Field(
-        default=8090, description="Device HTTP API port"
-    )
-    device_ws_port: int = Field(
-        default=8080, description="Device WebSocket port"
-    )
+    device_http_port: int = Field(default=8090, description="Device HTTP API port")
+    device_ws_port: int = Field(default=8080, description="Device WebSocket port")
 
     # Station Descriptor
     station_descriptor_base_url: str = Field(
