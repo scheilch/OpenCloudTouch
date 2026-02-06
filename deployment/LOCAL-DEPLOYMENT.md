@@ -1,6 +1,6 @@
-# Local Development Deployment
+﻿# Local Development Deployment
 
-Quick guide for deploying CloudTouch locally with Podman for UI development and testing.
+Quick guide for deploying OpenCloudTouch locally with Podman for UI development and testing.
 
 ## Quick Start
 
@@ -16,7 +16,7 @@ http://localhost:7777
 
 ### Mock Mode (Default)
 - **Enabled by default** for local development
-- Provides 3 fake Bose SoundTouch devices:
+- Provides 3 fake devices:
   - ST10 - "Wohnzimmer"
   - ST30 - "Schlafzimmer"  
   - ST300 - "Küche"
@@ -46,19 +46,19 @@ http://localhost:7777
 
 ```powershell
 # View logs (follow)
-podman logs cloudtouch-local -f
+podman logs opencloudtouch-local -f
 
 # Stop container
-podman stop cloudtouch-local
+podman stop opencloudtouch-local
 
 # Restart container
-podman restart cloudtouch-local
+podman restart opencloudtouch-local
 
 # Remove container
-podman rm -f cloudtouch-local
+podman rm -f opencloudtouch-local
 
 # Remove container + data
-podman rm -f cloudtouch-local
+podman rm -f opencloudtouch-local
 Remove-Item -Recurse -Force .\data-local
 ```
 
@@ -85,13 +85,13 @@ Invoke-RestMethod http://localhost:7777/api/devices
 1. **Make changes** to frontend or backend code
 2. **Rebuild + Redeploy**:
    ```powershell
-   podman rm -f cloudtouch-local
+   podman rm -f opencloudtouch-local
    .\deployment\deploy-local.ps1
    ```
 3. **Test UI** at http://localhost:7777
 4. **View logs** for debugging:
    ```powershell
-   podman logs cloudtouch-local -f
+   podman logs opencloudtouch-local -f
    ```
 
 ## Mock vs. Real Devices
@@ -109,7 +109,7 @@ Invoke-RestMethod http://localhost:7777/api/devices
 ### Container won't start
 ```powershell
 # Check logs
-podman logs cloudtouch-local
+podman logs opencloudtouch-local
 
 # Check if port is already in use
 netstat -ano | findstr :7777

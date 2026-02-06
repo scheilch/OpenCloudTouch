@@ -127,7 +127,7 @@ export default function Settings() {
 
         <div className="settings-card">
           <p className="section-description">
-            Fügen Sie IP-Adressen von SoundTouch-Geräten manuell hinzu, falls
+            Fügen Sie IP-Adressen von Geräten manuell hinzu, falls
             die automatische Erkennung nicht funktioniert.
           </p>
 

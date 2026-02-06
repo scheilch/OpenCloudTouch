@@ -137,8 +137,8 @@ export default function Firmware({ devices = [] }: FirmwareProps) {
           <h3 className="warning-title">Experimentelle Funktion</h3>
           <p className="warning-text">
             Firmware-Updates sind experimentell und können Ihr Gerät
-            beschädigen. Verwenden Sie nur offizielle Bose Firmware-Dateien. Der
-            Upload ist derzeit deaktiviert.
+            beschädigen. Verwenden Sie nur offizielle Firmware-Dateien von Ihrem
+            Gerätehersteller. Der Upload ist derzeit deaktiviert.
           </p>
         </div>
       </motion.div>

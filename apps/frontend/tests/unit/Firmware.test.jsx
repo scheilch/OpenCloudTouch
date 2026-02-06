@@ -115,7 +115,7 @@ describe('Firmware Page', () => {
 
       expect(screen.getByText('Experimentelle Funktion')).toBeInTheDocument();
       expect(screen.getByText(/Firmware-Updates sind experimentell/)).toBeInTheDocument();
-      expect(screen.getByText(/offizielle Bose Firmware-Dateien/)).toBeInTheDocument();
+      expect(screen.getByText(/offizielle Firmware-Dateien von Ihrem/)).toBeInTheDocument();
     });
 
     it('should display firmware update hints', () => {

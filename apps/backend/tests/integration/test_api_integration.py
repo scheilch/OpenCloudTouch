@@ -5,18 +5,18 @@ from unittest.mock import AsyncMock, patch
 import pytest
 from httpx import ASGITransport, AsyncClient
 
-from cloudtouch.core.dependencies import set_device_repo, set_settings_repo
-from cloudtouch.db import Device, DeviceRepository
-from cloudtouch.devices.client import DeviceInfo
-from cloudtouch.discovery import DiscoveredDevice
-from cloudtouch.main import app
-from cloudtouch.settings.repository import SettingsRepository
+from opencloudtouch.core.dependencies import set_device_repo, set_settings_repo
+from opencloudtouch.db import Device, DeviceRepository
+from opencloudtouch.devices.client import DeviceInfo
+from opencloudtouch.discovery import DiscoveredDevice
+from opencloudtouch.main import app
+from opencloudtouch.settings.repository import SettingsRepository
 
 
 @pytest.fixture
 def mock_config():
     """Mock configuration."""
-    with patch("cloudtouch.devices.api.routes.get_config") as mock:
+    with patch("opencloudtouch.devices.api.routes.get_config") as mock:
         mock_cfg = AsyncMock()
         mock_cfg.discovery_enabled = True
         mock_cfg.discovery_timeout = 5
@@ -43,7 +43,7 @@ async def test_discover_endpoint_success(mock_config, mock_settings_repo):
     ]
 
     with patch(
-        "cloudtouch.devices.api.routes.BoseSoundTouchDiscoveryAdapter"
+        "opencloudtouch.devices.api.routes.BoseDeviceDiscoveryAdapter"
     ) as mock_adapter:
         mock_instance = AsyncMock()
         mock_instance.discover.return_value = discovered
@@ -70,7 +70,7 @@ async def test_discover_endpoint_with_manual_ips(mock_config, mock_settings_repo
         DiscoveredDevice(ip="192.168.1.200", port=8090, name="Manual Device")
     ]
 
-    with patch("cloudtouch.devices.api.routes.ManualDiscovery") as mock_manual:
+    with patch("opencloudtouch.devices.api.routes.ManualDiscovery") as mock_manual:
         mock_instance = AsyncMock()
         mock_instance.discover.return_value = manual_discovered
         mock_manual.return_value = mock_instance
@@ -89,7 +89,7 @@ async def test_discover_endpoint_with_manual_ips(mock_config, mock_settings_repo
 async def test_discover_endpoint_no_devices(mock_config, mock_settings_repo):
     """Test discovery when no devices are found."""
     with patch(
-        "cloudtouch.devices.api.routes.BoseSoundTouchDiscoveryAdapter"
+        "opencloudtouch.devices.api.routes.BoseDeviceDiscoveryAdapter"
     ) as mock_adapter:
         mock_instance = AsyncMock()
         mock_instance.discover.return_value = []
@@ -109,7 +109,7 @@ async def test_discover_endpoint_no_devices(mock_config, mock_settings_repo):
 async def test_discover_endpoint_discovery_error(mock_config, mock_settings_repo):
     """Test discovery endpoint when discovery fails."""
     with patch(
-        "cloudtouch.devices.api.routes.BoseSoundTouchDiscoveryAdapter"
+        "opencloudtouch.devices.api.routes.BoseDeviceDiscoveryAdapter"
     ) as mock_adapter:
         mock_instance = AsyncMock()
         mock_instance.discover.side_effect = Exception("Network error")
@@ -148,9 +148,9 @@ async def test_sync_devices_success(mock_config, mock_settings_repo):
 
     try:
         with patch(
-            "cloudtouch.devices.services.sync_service.get_discovery_adapter"
+            "opencloudtouch.devices.services.sync_service.get_discovery_adapter"
         ) as mock_get_disco, patch(
-            "cloudtouch.devices.services.sync_service.get_soundtouch_client"
+            "opencloudtouch.devices.services.sync_service.get_device_client"
         ) as mock_get_client:
 
             # Mock discovery factory
@@ -164,7 +164,7 @@ async def test_sync_devices_success(mock_config, mock_settings_repo):
             mock_get_client.return_value = mock_client_instance
 
             # Override dependency
-            from cloudtouch.devices.api.routes import get_device_repo
+            from opencloudtouch.devices.api.routes import get_device_repo
 
             app.dependency_overrides[get_device_repo] = get_mock_repo
 
@@ -208,9 +208,9 @@ async def test_sync_devices_partial_failure(mock_config, mock_settings_repo):
 
     try:
         with patch(
-            "cloudtouch.devices.services.sync_service.get_discovery_adapter"
+            "opencloudtouch.devices.services.sync_service.get_discovery_adapter"
         ) as mock_get_disco, patch(
-            "cloudtouch.devices.services.sync_service.get_soundtouch_client"
+            "opencloudtouch.devices.services.sync_service.get_device_client"
         ) as mock_get_client:
 
             mock_disco_instance = AsyncMock()
@@ -225,7 +225,7 @@ async def test_sync_devices_partial_failure(mock_config, mock_settings_repo):
             ]
             mock_get_client.return_value = mock_client_instance
 
-            from cloudtouch.devices.api.routes import get_device_repo
+            from opencloudtouch.devices.api.routes import get_device_repo
 
             app.dependency_overrides[get_device_repo] = get_mock_repo
 
@@ -247,7 +247,7 @@ async def test_sync_devices_partial_failure(mock_config, mock_settings_repo):
 @pytest.mark.asyncio
 async def test_get_devices_empty():
     """Test GET /api/devices with no devices in DB."""
-    from cloudtouch.devices.api.routes import get_device_repo
+    from opencloudtouch.devices.api.routes import get_device_repo
 
     mock_repo = AsyncMock(spec=DeviceRepository)
     mock_repo.get_all.return_value = []
@@ -273,7 +273,7 @@ async def test_get_devices_empty():
 @pytest.mark.asyncio
 async def test_get_devices_with_data():
     """Test GET /api/devices with devices in DB."""
-    from cloudtouch.devices.api.routes import get_device_repo
+    from opencloudtouch.devices.api.routes import get_device_repo
 
     devices = [
         Device(
@@ -319,7 +319,7 @@ async def test_get_devices_with_data():
 @pytest.mark.asyncio
 async def test_get_device_by_id_success():
     """Test GET /api/devices/{device_id} with existing device."""
-    from cloudtouch.devices.api.routes import get_device_repo
+    from opencloudtouch.devices.api.routes import get_device_repo
 
     device = Device(
         device_id="DEVICE1",
@@ -354,7 +354,7 @@ async def test_get_device_by_id_success():
 @pytest.mark.asyncio
 async def test_get_device_by_id_not_found():
     """Test GET /api/devices/{device_id} with non-existent device."""
-    from cloudtouch.devices.api.routes import get_device_repo
+    from opencloudtouch.devices.api.routes import get_device_repo
 
     mock_repo = AsyncMock(spec=DeviceRepository)
     mock_repo.get_by_device_id.return_value = None

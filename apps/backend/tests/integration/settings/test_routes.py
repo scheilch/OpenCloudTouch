@@ -1,12 +1,12 @@
-"""Integration tests for Settings API routes."""
+﻿"""Integration tests for Settings API routes."""
 
 from unittest.mock import AsyncMock
 
 import pytest
 from fastapi.testclient import TestClient
 
-from cloudtouch.main import app
-from cloudtouch.settings.routes import get_settings_repo
+from opencloudtouch.main import app
+from opencloudtouch.settings.routes import get_settings_repo
 
 
 @pytest.fixture

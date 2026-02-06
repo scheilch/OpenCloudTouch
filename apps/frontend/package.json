@@ -1,9 +1,9 @@
 {
-  "name": "cloudtouch-frontend",
+  "name": "opencloudtouch-frontend",
   "private": true,
-  "version": "1.0.0",
+  "version": "0.2.0",
   "type": "module",
-  "description": "CloudTouch - Local control for Bose SoundTouch devices",
+  "description": "OpenCloudTouch - Local control for compatible streaming devices",
   "scripts": {
     "dev": "vite",
     "dev:mock": "vite --mode development",

@@ -1,6 +1,6 @@
-# Example configuration file for CloudTouch
+# Example configuration file for OpenCloudTouch
 # Can be mounted into container at /app/config.yaml
-# ENV variables take precedence (prefix: CT_)
+# ENV variables take precedence (prefix: OCT_)
 
 # Server settings
 host: "0.0.0.0"
@@ -17,11 +17,11 @@ manual_device_ips: []
   # - "192.168.1.100"
   # - "192.168.1.101"
 
-# SoundTouch device settings
-soundtouch_http_port: 8090
-soundtouch_ws_port: 8080
+# Device settings (default ports for local HTTP/WebSocket API)
+device_http_port: 8090
+device_ws_port: 8080
 
 # Station descriptor base URL
-# This is the URL that SoundTouch devices will use to fetch preset station info
-# Adjust to your actual CT host (IP or hostname)
+# This is the URL that devices will use to fetch preset station info
+# Adjust to your actual OCT host (IP or hostname)
 station_descriptor_base_url: "http://192.168.1.50:7777/stations/preset"

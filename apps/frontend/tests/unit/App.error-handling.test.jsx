@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Tests for App.jsx Error Handling
  */
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
@@ -142,11 +142,11 @@ describe('App Error Handling', () => {
     await userEvent.click(retryButton);
 
     // Assert: Should show loading state
-    expect(screen.getByText(/CloudTouch wird geladen/i)).toBeInTheDocument();
+    expect(screen.getByText(/OpenCloudTouch wird geladen/i)).toBeInTheDocument();
 
     // Wait for loading to finish
     await waitFor(() => {
-      expect(screen.queryByText(/CloudTouch wird geladen/i)).not.toBeInTheDocument();
+      expect(screen.queryByText(/OpenCloudTouch wird geladen/i)).not.toBeInTheDocument();
     });
   });
 });

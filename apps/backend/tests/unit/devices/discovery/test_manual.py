@@ -1,4 +1,4 @@
-"""
+﻿"""
 Tests for apps/apps/backend/discovery/manual.py
 
 Manual discovery allows users to specify device IPs when SSDP doesn't work.
@@ -6,8 +6,8 @@ Manual discovery allows users to specify device IPs when SSDP doesn't work.
 
 import pytest
 
-from cloudtouch.devices.discovery.manual import ManualDiscovery
-from cloudtouch.discovery import DiscoveredDevice
+from opencloudtouch.devices.discovery.manual import ManualDiscovery
+from opencloudtouch.discovery import DiscoveredDevice
 
 
 @pytest.mark.asyncio

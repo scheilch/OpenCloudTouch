@@ -53,8 +53,8 @@ tools/local-scripts/run-e2e-tests-on-server.ps1
 Create `deployment/local/README.md` with **examples** for other devs:
 ```md
 # Example: Deploy to NAS Server
-ssh user@nas "podman load < cloudtouch.tar"
-ssh user@nas "podman run -d -p 7777:7777 cloudtouch:latest"
+ssh user@nas "podman load < opencloudtouch.tar"
+ssh user@nas "podman run -d -p 7777:7777 opencloudtouch:latest"
 ```
 
 ---

@@ -1,4 +1,4 @@
-"""
+﻿"""
 Tests for Device Discovery
 """
 
@@ -7,9 +7,9 @@ from pathlib import Path
 
 import pytest
 
-from cloudtouch.devices.discovery.manual import ManualDiscovery
-from cloudtouch.discovery import DiscoveredDevice
-from cloudtouch.settings.repository import SettingsRepository
+from opencloudtouch.devices.discovery.manual import ManualDiscovery
+from opencloudtouch.discovery import DiscoveredDevice
+from opencloudtouch.settings.repository import SettingsRepository
 
 
 @pytest.mark.asyncio

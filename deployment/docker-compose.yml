@@ -1,24 +1,24 @@
 version: '3.8'
 
 services:
-  cloudtouch:
+  opencloudtouch:
     build:
       context: ..
       dockerfile: Dockerfile
-    container_name: cloudtouch
+    container_name: opencloudtouch
     network_mode: host
     volumes:
-      - ct-data:/data
+      - oct-data:/data
     environment:
-      - CT_HOST=0.0.0.0
-      - CT_PORT=7777
-      - CT_DB_PATH=/data/ct.db
-      - CT_LOG_LEVEL=INFO
-      - CT_MOCK_MODE=false  # Production: Use real devices
-      - CT_DISCOVERY_ENABLED=true
-      - CT_DISCOVERY_TIMEOUT=10
+      - OCT_HOST=0.0.0.0
+      - OCT_PORT=7777
+      - OCT_DB_PATH=/data/oct.db
+      - OCT_LOG_LEVEL=INFO
+      - OCT_MOCK_MODE=false  # Production: Use real devices
+      - OCT_DISCOVERY_ENABLED=true
+      - OCT_DISCOVERY_TIMEOUT=10
       # Station descriptor URL - adjust if running on different host
-      - CT_STATION_DESCRIPTOR_BASE_URL=http://localhost:7777/stations/preset
+      - OCT_STATION_DESCRIPTOR_BASE_URL=http://localhost:7777/stations/preset
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:7777/health')"]
@@ -28,5 +28,5 @@ services:
       start_period: 10s
 
 volumes:
-  ct-data:
+  oct-data:
     driver: local

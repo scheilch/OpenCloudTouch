@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest'
+﻿import { describe, it, expect, vi } from 'vitest'
 import { render, screen, waitFor } from '@testing-library/react'
 import App from '../src/App'
 
@@ -19,14 +19,14 @@ describe('App Component', () => {
     render(<App />)
 
     await waitFor(() => {
-      expect(screen.getByText(/Willkommen bei CloudTouch/i)).toBeInTheDocument()
+      expect(screen.getByText(/Willkommen bei OpenCloudTouch/i)).toBeInTheDocument()
     })
   })
 
   it('fetches devices on mount', async () => {
     fetch.mockResolvedValueOnce({
       ok: true,
-      json: async () => ({ devices: [{ id: '1', name: 'Test Device' }] })
+      json: async () => ({ devices: [{ id: '1', device_id: '1', name: 'Test Device' }] })
     })
 
     render(<App />)
@@ -39,7 +39,7 @@ describe('App Component', () => {
   it('renders navigation when devices exist', async () => {
     fetch.mockResolvedValueOnce({
       ok: true,
-      json: async () => ({ devices: [{ id: '1', name: 'Test Device' }] })
+      json: async () => ({ devices: [{ id: '1', device_id: '1', name: 'Test Device' }] })
     })
 
     render(<App />)

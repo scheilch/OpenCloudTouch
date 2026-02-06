@@ -8,7 +8,7 @@
 import { describe, it, expect, beforeAll } from 'vitest'
 
 // Mark as real device tests (will be skipped in CI)
-const REAL_DEVICES_AVAILABLE = process.env.CT_HAS_DEVICES === 'true'
+const REAL_DEVICES_AVAILABLE = process.env.OCT_HAS_DEVICES === 'true'
 const skipIfNoDevices = REAL_DEVICES_AVAILABLE ? it : it.skip
 
 describe('Real Device API Integration', () => {
@@ -16,7 +16,7 @@ describe('Real Device API Integration', () => {
 
   beforeAll(() => {
     if (!REAL_DEVICES_AVAILABLE) {
-      console.warn('⚠️  Skipping real device tests (CT_HAS_DEVICES not set)')
+      console.warn('⚠️  Skipping real device tests (OCT_HAS_DEVICES not set)'))
     }
   })
 

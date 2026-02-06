@@ -1,8 +1,22 @@
-import { describe, it, expect } from 'vitest'
-import { render, screen } from '@testing-library/react'
+﻿import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import { render, screen, act, waitFor } from '@testing-library/react'
 import { BrowserRouter } from 'react-router-dom'
 import EmptyState from '../src/components/EmptyState'
 import { ToastProvider } from '../src/contexts/ToastContext'
+
+// Mock fetch
+global.fetch = vi.fn();
+
+beforeEach(() => {
+  vi.mocked(fetch).mockResolvedValue({
+    ok: true,
+    json: async () => ({ ips: [] })
+  });
+});
+
+afterEach(() => {
+  vi.clearAllMocks();
+});
 
 const renderWithRouter = (component) => {
   return render(
@@ -15,26 +29,36 @@ const renderWithRouter = (component) => {
 }
 
 describe('EmptyState Component', () => {
-  it('renders welcome message', () => {
+  it('renders welcome message', async () => {
     renderWithRouter(<EmptyState onDiscover={() => {}} />)
-    expect(screen.getByText(/Willkommen bei CloudTouch/i)).toBeInTheDocument()
+    await waitFor(() => {
+      expect(screen.getByText(/Willkommen bei OpenCloudTouch/i)).toBeInTheDocument()
+    });
   })
 
-  it('renders setup steps', () => {
+  it('renders setup steps', async () => {
     renderWithRouter(<EmptyState onDiscover={() => {}} />)
-    expect(screen.getByText(/Geräte einschalten/i)).toBeInTheDocument()
+    await waitFor(() => {
+      expect(screen.getByText(/Geräte einschalten/i)).toBeInTheDocument()
+    });
     expect(screen.getByRole('heading', { name: /Geräte suchen/i })).toBeInTheDocument()
     expect(screen.getByText(/Presets verwalten/i)).toBeInTheDocument()
   })
 
-  it('renders discover button', () => {
+  it('renders discover button', async () => {
     renderWithRouter(<EmptyState onDiscover={() => {}} />)
-    const button = screen.getByRole('button', { name: /Jetzt Geräte suchen/i })
-    expect(button).toBeInTheDocument()
+    await waitFor(() => {
+      const button = screen.getByRole('button', { name: /Jetzt Geräte suchen/i })
+      expect(button).toBeInTheDocument()
+    });
   })
 
-  it('renders help section', () => {
+  it('renders help section', async () => {
     renderWithRouter(<EmptyState onDiscover={() => {}} />)
-    expect(screen.getByText(/Keine Geräte gefunden?/i)).toBeInTheDocument()
+    await waitFor(() => {
+      // Text appears in both description and help section - just check it exists
+      const helpTexts = screen.queryAllByText(/Keine Geräte gefunden?/i)
+      expect(helpTexts.length).toBeGreaterThan(0)
+    });
   })
 })

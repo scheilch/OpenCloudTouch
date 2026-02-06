@@ -1,4 +1,4 @@
-"""
+﻿"""
 Tests for Device Repository
 """
 
@@ -7,7 +7,7 @@ from pathlib import Path
 
 import pytest
 
-from cloudtouch.db import Device, DeviceRepository
+from opencloudtouch.db import Device, DeviceRepository
 
 
 @pytest.fixture

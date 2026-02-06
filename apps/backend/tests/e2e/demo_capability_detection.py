@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+﻿#!/usr/bin/env python3
 """
 Demo Script for Iteration 1.c - Capability Detection System
 
@@ -28,7 +28,7 @@ from pathlib import Path
 # Add backend to path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from cloudtouch.devices.capabilities import (
+from opencloudtouch.devices.capabilities import (
     DeviceCapabilities,
     get_device_capabilities,
     get_feature_flags_for_ui,

@@ -1,6 +1,6 @@
 """
 Real Device Discovery Tests
-Requires actual Bose SoundTouch devices on network.
+Requires actual compatible streaming devices on network.
 
 Run with: pytest tests/real/test_discovery_real.py -v
 Or: scripts/run-real-tests.ps1
@@ -17,12 +17,12 @@ pytestmark = pytest.mark.real_devices
 async def test_ssdp_discovery_real():
     """Test SSDP Discovery against real devices."""
     print("\n=== Real Device Test: SSDP Discovery ===")
-    from cloudtouch.devices.discovery.ssdp import SSDPDiscovery
+    from opencloudtouch.devices.discovery.ssdp import SSDPDiscovery
 
     ssdp = SSDPDiscovery(timeout=10)
     devices = await ssdp.discover()
 
-    print(f"SSDP found {len(devices)} Bose devices")
+    print(f"SSDP found {len(devices)} device(s)")
     for mac, info in devices.items():
         print(f"  - {info['name']} @ {info['ip']}")
 
@@ -37,12 +37,12 @@ async def test_ssdp_discovery_real():
 
 @pytest.mark.asyncio
 async def test_adapter_discovery_real():
-    """Test BoseSoundTouchDiscoveryAdapter against real devices."""
+    """Test BoseDeviceDiscoveryAdapter against real devices."""
     print("\n=== Real Device Test: Adapter Discovery ===")
-    from cloudtouch.devices.adapter import BoseSoundTouchDiscoveryAdapter
+    from opencloudtouch.devices.adapter import BoseDeviceDiscoveryAdapter
 
     print("Discovering via SSDP adapter...")
-    adapter = BoseSoundTouchDiscoveryAdapter()
+    adapter = BoseDeviceDiscoveryAdapter()
     devices = await adapter.discover(timeout=10)
 
     print(f"Adapter found {len(devices)} devices")
@@ -57,7 +57,7 @@ async def test_adapter_discovery_real():
     assert hasattr(device, "port")
     assert hasattr(device, "name")
     assert hasattr(device, "model")
-    print("✓ DiscoveredDevice structure valid")
+    print("? DiscoveredDevice structure valid")
 
 
 @pytest.mark.asyncio
@@ -68,7 +68,7 @@ async def test_manual_discovery_real():
     NOTE: Update IPs to match your actual devices!
     """
     print("\n=== Real Device Test: Manual IP Discovery ===")
-    from cloudtouch.devices.discovery.manual import ManualDiscovery
+    from opencloudtouch.devices.discovery.manual import ManualDiscovery
 
     # TODO: Update these IPs to match your actual devices
     manual_ips = [
@@ -97,11 +97,11 @@ async def test_manual_discovery_real():
 async def test_device_info_query_real():
     """Test querying /info endpoint from real devices."""
     print("\n=== Real Device Test: Device Info Query ===")
-    from cloudtouch.devices.adapter import BoseSoundTouchDiscoveryAdapter
-    from cloudtouch.devices.client import BoseSoundTouchClient
+    from opencloudtouch.devices.adapter import BoseDeviceDiscoveryAdapter
+    from opencloudtouch.devices.client import BoseSoundTouchClient
 
     # Discover devices
-    adapter = BoseSoundTouchDiscoveryAdapter()
+    adapter = BoseDeviceDiscoveryAdapter()
     devices = await adapter.discover(timeout=10)
 
     assert len(devices) > 0, "No devices found"
@@ -125,18 +125,18 @@ async def test_device_info_query_real():
     assert len(info.components) > 0
 
     await client.close()
-    print("✓ Device info query successful")
+    print("? Device info query successful")
 
 
 @pytest.mark.asyncio
 async def test_now_playing_query_real():
     """Test querying /nowPlaying endpoint from real devices."""
     print("\n=== Real Device Test: Now Playing Query ===")
-    from cloudtouch.devices.adapter import BoseSoundTouchDiscoveryAdapter
-    from cloudtouch.devices.client import BoseSoundTouchClient
+    from opencloudtouch.devices.adapter import BoseDeviceDiscoveryAdapter
+    from opencloudtouch.devices.client import BoseSoundTouchClient
 
     # Discover devices
-    adapter = BoseSoundTouchDiscoveryAdapter()
+    adapter = BoseDeviceDiscoveryAdapter()
     devices = await adapter.discover(timeout=10)
 
     assert len(devices) > 0, "No devices found"
@@ -160,20 +160,20 @@ async def test_now_playing_query_real():
     assert now_playing.play_status is not None
 
     await client.close()
-    print("✓ Now playing query successful")
+    print("? Now playing query successful")
 
 
 if __name__ == "__main__":
     """
     Run all real device discovery tests.
 
-    NOTE: Requires actual SoundTouch devices on network!
+    NOTE: Requires actual compatible streaming devices on network!
     """
     print("=" * 60)
     print("REAL DEVICE TESTS - Requires Hardware")
     print("=" * 60)
     print()
-    print("⚠️  WARNING: These tests require actual Bose SoundTouch devices!")
+    print("??  WARNING: These tests require actual compatible streaming devices!")
     print("Make sure devices are powered on and connected to network.")
     print()
 

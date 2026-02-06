@@ -14,9 +14,9 @@ from xml.dom import minidom
 
 
 DEVICES = {
-    "78": {"name": "ST30_Wohnzimmer", "model": "SoundTouch 30 Series III"},
-    "79": {"name": "ST10_Kueche", "model": "SoundTouch 10"},
-    "83": {"name": "ST300_TV", "model": "SoundTouch 300"},
+    "78": {"name": "living_room", "model": "SoundTouch 30 Series III"},
+    "79": {"name": "kitchen", "model": "SoundTouch 10"},
+    "83": {"name": "tv", "model": "SoundTouch 300"},
 }
 
 SCRIPT_DIR = Path(__file__).parent

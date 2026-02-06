@@ -1,4 +1,4 @@
-"""Tests for main application module (startup, lifecycle)."""
+﻿"""Tests for main application module (startup, lifecycle)."""
 
 from unittest.mock import AsyncMock, MagicMock, patch
 
@@ -9,15 +9,15 @@ from fastapi.testclient import TestClient
 @pytest.mark.asyncio
 async def test_lifespan_initialization():
     """Test lifespan context manager initializes config and DB."""
-    from cloudtouch.core.config import AppConfig
-    from cloudtouch.main import app, lifespan
+    from opencloudtouch.core.config import AppConfig
+    from opencloudtouch.main import app, lifespan
 
-    with patch("cloudtouch.main.init_config") as mock_init_config, patch(
-        "cloudtouch.main.setup_logging"
+    with patch("opencloudtouch.main.init_config") as mock_init_config, patch(
+        "opencloudtouch.main.setup_logging"
     ) as mock_setup_logging, patch(
-        "cloudtouch.main.get_config"
+        "opencloudtouch.main.get_config"
     ) as mock_get_config, patch(
-        "cloudtouch.main.DeviceRepository"
+        "opencloudtouch.main.DeviceRepository"
     ) as mock_repo_class:
 
         # Mock config
@@ -48,7 +48,7 @@ async def test_lifespan_initialization():
 
 def test_health_endpoint():
     """Test health check endpoint returns expected fields."""
-    from cloudtouch.main import app
+    from opencloudtouch.main import app
 
     client = TestClient(app)
     response = client.get("/health")
@@ -62,7 +62,7 @@ def test_health_endpoint():
 
 def test_cors_headers_present():
     """Test CORS headers are present in responses."""
-    from cloudtouch.main import app
+    from opencloudtouch.main import app
 
     client = TestClient(app)
 
@@ -84,12 +84,12 @@ def test_cors_headers_present():
 @pytest.mark.asyncio
 async def test_lifespan_error_handling():
     """Test lifespan handles errors gracefully."""
-    from cloudtouch.main import app, lifespan
+    from opencloudtouch.main import app, lifespan
 
-    with patch("cloudtouch.main.init_config"), patch(
-        "cloudtouch.main.setup_logging"
-    ), patch("cloudtouch.main.get_config") as mock_get_config, patch(
-        "cloudtouch.main.DeviceRepository"
+    with patch("opencloudtouch.main.init_config"), patch(
+        "opencloudtouch.main.setup_logging"
+    ), patch("opencloudtouch.main.get_config") as mock_get_config, patch(
+        "opencloudtouch.main.DeviceRepository"
     ) as mock_repo_class:
 
         mock_config = MagicMock()

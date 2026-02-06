@@ -1,20 +1,20 @@
 """
-Tests for MockSoundTouchClient.
+Tests for MockDeviceClient.
 """
 
 import pytest
 
-from cloudtouch.devices.client import DeviceInfo, NowPlayingInfo
-from cloudtouch.devices.mock_client import MockSoundTouchClient
+from opencloudtouch.devices.client import DeviceInfo, NowPlayingInfo
+from opencloudtouch.devices.mock_client import MockDeviceClient
 
 
-class TestMockSoundTouchClient:
-    """Tests for mock SoundTouch client."""
+class TestMockDeviceClient:
+    """Tests for mock device client."""
 
     @pytest.mark.asyncio
     async def test_get_info_returns_device_info(self):
         """Test that get_info returns DeviceInfo object."""
-        client = MockSoundTouchClient(device_id="AABBCC112233")
+        client = MockDeviceClient(device_id="AABBCC112233")
 
         info = await client.get_info()
 
@@ -29,7 +29,7 @@ class TestMockSoundTouchClient:
     @pytest.mark.asyncio
     async def test_get_now_playing_returns_playback_info(self):
         """Test that get_now_playing returns NowPlayingInfo object."""
-        client = MockSoundTouchClient(device_id="AABBCC112233")
+        client = MockDeviceClient(device_id="AABBCC112233")
 
         now_playing = await client.get_now_playing()
 
@@ -41,8 +41,8 @@ class TestMockSoundTouchClient:
     @pytest.mark.asyncio
     async def test_different_devices_have_different_responses(self):
         """Test that different devices return different data."""
-        client1 = MockSoundTouchClient(device_id="AABBCC112233")
-        client2 = MockSoundTouchClient(device_id="DDEEFF445566")
+        client1 = MockDeviceClient(device_id="AABBCC112233")
+        client2 = MockDeviceClient(device_id="DDEEFF445566")
 
         info1 = await client1.get_info()
         info2 = await client2.get_info()
@@ -54,7 +54,7 @@ class TestMockSoundTouchClient:
     @pytest.mark.asyncio
     async def test_bluetooth_device_response(self):
         """Test device playing via Bluetooth."""
-        client = MockSoundTouchClient(device_id="DDEEFF445566")
+        client = MockDeviceClient(device_id="DDEEFF445566")
 
         now_playing = await client.get_now_playing()
 
@@ -66,7 +66,7 @@ class TestMockSoundTouchClient:
     @pytest.mark.asyncio
     async def test_standby_device_response(self):
         """Test device in standby mode."""
-        client = MockSoundTouchClient(device_id="112233445566")
+        client = MockDeviceClient(device_id="112233445566")
 
         now_playing = await client.get_now_playing()
 
@@ -79,12 +79,12 @@ class TestMockSoundTouchClient:
     async def test_unknown_device_raises_error(self):
         """Test that unknown device ID raises ValueError."""
         with pytest.raises(ValueError, match="Unknown mock device"):
-            MockSoundTouchClient(device_id="UNKNOWN123")
+            MockDeviceClient(device_id="UNKNOWN123")
 
     @pytest.mark.asyncio
     async def test_close_is_noop(self):
         """Test that close() doesn't raise errors."""
-        client = MockSoundTouchClient(device_id="AABBCC112233")
+        client = MockDeviceClient(device_id="AABBCC112233")
 
         await client.close()  # Should not raise
 
@@ -94,7 +94,7 @@ class TestMockSoundTouchClient:
         device_ids = ["AABBCC112233", "DDEEFF445566", "112233445566"]
 
         for device_id in device_ids:
-            client = MockSoundTouchClient(device_id=device_id)
+            client = MockDeviceClient(device_id=device_id)
             info = await client.get_info()
 
             assert info.device_id
@@ -110,7 +110,7 @@ class TestMockSoundTouchClient:
         device_ids = ["AABBCC112233", "DDEEFF445566", "112233445566"]
 
         for device_id in device_ids:
-            client = MockSoundTouchClient(device_id=device_id)
+            client = MockDeviceClient(device_id=device_id)
             now_playing = await client.get_now_playing()
 
             assert now_playing.source

@@ -1,12 +1,12 @@
-"""
-Unit tests for SoundTouchBridge main application
+﻿"""
+Unit tests for OpenCloudTouch main application
 """
 
 import pytest
 from fastapi.testclient import TestClient
 
-from cloudtouch.core.config import init_config
-from cloudtouch.main import app
+from opencloudtouch.core.config import init_config
+from opencloudtouch.main import app
 
 
 @pytest.fixture(scope="module")
