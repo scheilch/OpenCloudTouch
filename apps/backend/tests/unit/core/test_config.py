@@ -192,5 +192,6 @@ def test_effective_db_path_mock_mode(monkeypatch):
 def test_effective_db_path_production(monkeypatch):
     """Test effective_db_path returns production path by default."""
     monkeypatch.delenv("CI", raising=False)
-    config = AppConfig()
+    monkeypatch.delenv("OCT_MOCK_MODE", raising=False)
+    config = AppConfig(mock_mode=False)
     assert config.effective_db_path == "/data/oct.db"
