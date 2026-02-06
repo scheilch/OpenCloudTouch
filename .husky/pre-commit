@@ -7,7 +7,7 @@ echo "🔍 Running pre-commit checks..."
 # Run backend tests
 echo "📦 Backend tests (pytest)..."
 cd apps/backend
-pytest -x --tb=short || exit 1
+python -m pytest -x --tb=line -q || exit 1
 cd ../..
 
 # Run frontend tests  

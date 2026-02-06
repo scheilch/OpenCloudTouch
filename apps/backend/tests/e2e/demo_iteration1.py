@@ -10,7 +10,7 @@ Demonstriert:
 
 Nutzung:
   python e2e/demo_iteration1.py
-  
+
 Voraussetzungen:
   - Backend läuft auf http://localhost:7777
   - Optional: SoundTouch Gerät im Netzwerk (für SSDP Discovery)
