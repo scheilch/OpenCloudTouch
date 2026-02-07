@@ -82,8 +82,8 @@ repos:
         entry: python -m pytest
         args: [apps/backend/tests/unit, -v, --tb=short, -x]
         language: system
-        files: ^apps/backend/(src|tests)/.*\.py$
         pass_filenames: false
+        always_run: true
         stages: [pre-push]  # Only on push, not every commit
 
       # Frontend ESLint (pre-push only) - Note: Requires Git Bash on Windows
@@ -91,6 +91,6 @@ repos:
         name: Lint frontend (eslint, pre-push)
         entry: bash -c 'cd apps/frontend && npm run lint:src'
         language: system
-        files: ^apps/frontend/src/.*\.(js|jsx|ts|tsx)$
         pass_filenames: false
+        always_run: true
         stages: [pre-push]
