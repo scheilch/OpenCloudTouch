@@ -8,13 +8,20 @@
 # Stage 1: Build Frontend
 FROM node:20-alpine AS frontend-builder
 
-WORKDIR /app/frontend
+WORKDIR /app
 
-COPY apps/frontend/package*.json ./
+# Copy workspace configuration first
+COPY package*.json ./
+COPY apps/frontend/package*.json ./apps/frontend/
+
+# Install dependencies using workspace
 RUN npm ci
 
-COPY apps/frontend/ ./
-RUN npm run build
+# Copy frontend source
+COPY apps/frontend/ ./apps/frontend/
+
+# Build frontend
+RUN npm run build --workspace=apps/frontend
 
 # Stage 2: Build Backend + Runtime
 FROM python:3.11-slim AS backend
@@ -35,7 +42,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY apps/backend/src/opencloudtouch ./opencloudtouch
 
 # Copy frontend build from previous stage
-COPY --from=frontend-builder /app/frontend/dist ./frontend/dist
+COPY --from=frontend-builder /app/apps/frontend/dist ./frontend/dist
 
 # Create data directory
 RUN mkdir -p /data
