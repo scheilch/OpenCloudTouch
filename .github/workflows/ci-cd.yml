@@ -108,6 +108,8 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: apps/frontend/package-lock.json
       
       - name: Cache Python dependencies
         uses: actions/cache@v4
@@ -117,20 +119,14 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-pip-
       
-      - name: Cache Node dependencies
-        uses: actions/cache@v4
-        with:
-          path: apps/frontend/node_modules
-          key: ${{ runner.os }}-node-${{ hashFiles('apps/frontend/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-
-      
       - name: Install backend dependencies
         run: pip install -r apps/backend/requirements.txt
       
       - name: Install frontend dependencies
         working-directory: apps/frontend
-        run: npm ci
+        run: |
+          npm ci
+          npm install @rollup/rollup-linux-x64-gnu --save-optional
       
       - name: Build frontend
         working-directory: apps/frontend
