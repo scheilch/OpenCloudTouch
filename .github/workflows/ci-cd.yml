@@ -135,7 +135,7 @@ jobs:
       - name: Start backend server
         run: |
           cd apps/backend
-          PYTHONPATH=src OCT_MOCK_MODE=true OCT_LOG_LEVEL=WARNING python -m uvicorn opencloudtouch.main:app --host 0.0.0.0 --port 7778 &
+          PYTHONPATH=src OCT_MOCK_MODE=true OCT_LOG_LEVEL=WARNING OCT_ALLOW_DANGEROUS_OPERATIONS=true python -m uvicorn opencloudtouch.main:app --host 0.0.0.0 --port 7778 &
           sleep 10
           curl --retry 10 --retry-delay 2 --retry-connrefused http://localhost:7778/health
       
