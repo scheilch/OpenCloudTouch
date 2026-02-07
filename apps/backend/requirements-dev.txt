@@ -7,4 +7,8 @@ httpx==0.27.2
 black==24.10.0
 ruff==0.8.4
 mypy==1.13.0
+bandit==1.7.10
+safety==3.2.11
+pre-commit==4.0.1
+commitizen==3.29.1
 types-PyYAML==6.0.12.20240917

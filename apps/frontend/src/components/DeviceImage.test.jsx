@@ -33,19 +33,13 @@ describe("DeviceImage Component", () => {
   });
 
   it("should apply size classes correctly", () => {
-    const { container } = render(
-      <DeviceImage deviceType="ST20" size="large" />,
-    );
-    const imageContainer = container.querySelector(
-      ".device-image-container > div",
-    );
+    const { container } = render(<DeviceImage deviceType="ST20" size="large" />);
+    const imageContainer = container.querySelector(".device-image-container > div");
     expect(imageContainer).toHaveClass("w-48", "h-48");
   });
 
   it("should apply custom className", () => {
-    const { container } = render(
-      <DeviceImage deviceType="ST30" className="custom-class" />,
-    );
+    const { container } = render(<DeviceImage deviceType="ST30" className="custom-class" />);
     const imageContainer = container.querySelector(".device-image-container");
     expect(imageContainer).toHaveClass("custom-class");
   });

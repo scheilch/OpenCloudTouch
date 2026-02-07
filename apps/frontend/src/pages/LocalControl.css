@@ -174,11 +174,7 @@
 .now-playing-info {
   margin-bottom: var(--space-xl);
   padding: var(--space-md);
-  background: linear-gradient(
-    135deg,
-    var(--color-bg-darker) 0%,
-    var(--color-bg-card) 100%
-  );
+  background: linear-gradient(135deg, var(--color-bg-darker) 0%, var(--color-bg-card) 100%);
   border-radius: var(--border-radius-md);
   border-left: 4px solid var(--color-accent);
 }

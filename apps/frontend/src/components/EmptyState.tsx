@@ -139,15 +139,12 @@ export default function EmptyState({ onRefreshDevices }: EmptyStateProps) {
         // Show toast notification
         showToast(
           "Keine Geräte gefunden. Prüfe ob deine Geräte eingeschaltet und im gleichen Netzwerk sind.",
-          "warning",
+          "warning"
         );
       }
     } catch (err) {
       console.error("Discovery failed:", err);
-      showToast(
-        "Fehler bei der Gerätesuche. Bitte versuche es erneut.",
-        "error",
-      );
+      showToast("Fehler bei der Gerätesuche. Bitte versuche es erneut.", "error");
     } finally {
       setIsDiscovering(false);
     }
@@ -158,14 +155,7 @@ export default function EmptyState({ onRefreshDevices }: EmptyStateProps) {
       <div className="empty-state-content">
         <div className="empty-state-icon">
           <svg width="120" height="120" viewBox="0 0 120 120" fill="none">
-            <circle
-              cx="60"
-              cy="60"
-              r="50"
-              stroke="currentColor"
-              strokeWidth="2"
-              opacity="0.2"
-            />
+            <circle cx="60" cy="60" r="50" stroke="currentColor" strokeWidth="2" opacity="0.2" />
             <path
               d="M40 60L55 75L80 50"
               stroke="currentColor"
@@ -183,33 +173,15 @@ export default function EmptyState({ onRefreshDevices }: EmptyStateProps) {
               stroke="currentColor"
               strokeWidth="2"
             />
-            <rect
-              x="45"
-              y="55"
-              width="10"
-              height="10"
-              rx="2"
-              fill="currentColor"
-              opacity="0.5"
-            />
-            <rect
-              x="60"
-              y="55"
-              width="10"
-              height="10"
-              rx="2"
-              fill="currentColor"
-              opacity="0.5"
-            />
+            <rect x="45" y="55" width="10" height="10" rx="2" fill="currentColor" opacity="0.5" />
+            <rect x="60" y="55" width="10" height="10" rx="2" fill="currentColor" opacity="0.5" />
           </svg>
         </div>
 
         <h1 className="empty-state-title" data-test="welcome-title">
           Willkommen bei OpenCloudTouch
         </h1>
-        <p className="empty-state-description">
-          Noch keine Geräte gefunden.
-        </p>
+        <p className="empty-state-description">Noch keine Geräte gefunden.</p>
 
         <div className="empty-state-steps">
           <div className="setup-step">
@@ -217,8 +189,8 @@ export default function EmptyState({ onRefreshDevices }: EmptyStateProps) {
             <div className="step-content">
               <h3>Geräte einschalten</h3>
               <p>
-                Stelle sicher, dass deine Geräte eingeschaltet und
-                mit dem gleichen Netzwerk verbunden sind.
+                Stelle sicher, dass deine Geräte eingeschaltet und mit dem gleichen Netzwerk
+                verbunden sind.
               </p>
             </div>
           </div>
@@ -228,8 +200,8 @@ export default function EmptyState({ onRefreshDevices }: EmptyStateProps) {
             <div className="step-content">
               <h3>Geräte suchen</h3>
               <p>
-                Klicke auf "Jetzt suchen" um automatisch alle Geräte im Netzwerk
-                zu finden.
+                Klicke auf &ldquo;Jetzt suchen&rdquo; um automatisch alle Geräte im Netzwerk zu
+                finden.
               </p>
             </div>
           </div>
@@ -239,8 +211,8 @@ export default function EmptyState({ onRefreshDevices }: EmptyStateProps) {
             <div className="step-content">
               <h3>Presets verwalten</h3>
               <p>
-                Nach erfolgreicher Erkennung kannst du Radiosender auf die
-                Preset-Tasten (1-6) legen.
+                Nach erfolgreicher Erkennung kannst du Radiosender auf die Preset-Tasten (1-6)
+                legen.
               </p>
             </div>
           </div>
@@ -275,8 +247,8 @@ export default function EmptyState({ onRefreshDevices }: EmptyStateProps) {
                 clipRule="evenodd"
               />
             </svg>
-            Es wurden manuelle IP-Adressen konfiguriert. Diese werden zusätzlich
-            zur automatischen Erkennung verwendet.
+            Es wurden manuelle IP-Adressen konfiguriert. Diese werden zusätzlich zur automatischen
+            Erkennung verwendet.
           </p>
         )}
 
@@ -336,8 +308,7 @@ export default function EmptyState({ onRefreshDevices }: EmptyStateProps) {
             </div>
 
             <p className="modal-description">
-              Geben Sie die IP-Adressen Ihrer Geräte ein (eine pro
-              Zeile oder kommagetrennt).
+              Geben Sie die IP-Adressen Ihrer Geräte ein (eine pro Zeile oder kommagetrennt).
             </p>
 
             <textarea
@@ -352,12 +323,7 @@ export default function EmptyState({ onRefreshDevices }: EmptyStateProps) {
             />
 
             <div className="modal-hint">
-              <svg
-                width="16"
-                height="16"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-              >
+              <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor">
                 <path
                   fillRule="evenodd"
                   d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
@@ -365,19 +331,14 @@ export default function EmptyState({ onRefreshDevices }: EmptyStateProps) {
                 />
               </svg>
               <span>
-                Die IP-Adresse finden Sie in der zugehörigen App unter
-                Einstellungen → Info oder in Ihrem Router.
+                Die IP-Adresse finden Sie in der zugehörigen App unter Einstellungen → Info oder in
+                Ihrem Router.
               </span>
             </div>
 
             {error && (
               <div className="modal-error">
-                <svg
-                  width="20"
-                  height="20"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                >
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
                   <path
                     fillRule="evenodd"
                     d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
@@ -390,12 +351,7 @@ export default function EmptyState({ onRefreshDevices }: EmptyStateProps) {
 
             {success && (
               <div className="modal-success">
-                <svg
-                  width="20"
-                  height="20"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                >
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
                   <path
                     fillRule="evenodd"
                     d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"

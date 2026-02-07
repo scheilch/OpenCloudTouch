@@ -48,12 +48,7 @@ export function ToastProvider({ children }: ToastProviderProps) {
     <ToastContext.Provider value={{ show, hide }}>
       {children}
       {toast && (
-        <Toast
-          message={toast.message}
-          type={toast.type}
-          duration={toast.duration}
-          onClose={hide}
-        />
+        <Toast message={toast.message} type={toast.type} duration={toast.duration} onClose={hide} />
       )}
     </ToastContext.Provider>
   );

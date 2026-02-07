@@ -25,27 +25,19 @@ describe("deviceImages utilities", () => {
     });
 
     it("should return ST300 image for SoundTouch 300", () => {
-      expect(getDeviceImage("SoundTouch 300")).toBe(
-        "/images/devices/st300.svg",
-      );
+      expect(getDeviceImage("SoundTouch 300")).toBe("/images/devices/st300.svg");
       expect(getDeviceImage("ST300")).toBe("/images/devices/st300.svg");
     });
 
     it("should NOT confuse ST30 with ST300", () => {
       expect(getDeviceImage("ST30")).toBe("/images/devices/st30.svg");
       expect(getDeviceImage("ST300")).toBe("/images/devices/st300.svg");
-      expect(getDeviceImage("SoundTouch 30")).not.toBe(
-        "/images/devices/st300.svg",
-      );
+      expect(getDeviceImage("SoundTouch 30")).not.toBe("/images/devices/st300.svg");
     });
 
     it("should return default image for unknown models", () => {
-      expect(getDeviceImage("Unknown Model")).toBe(
-        "/images/devices/default.svg",
-      );
-      expect(getDeviceImage("Wave Music System")).toBe(
-        "/images/devices/default.svg",
-      );
+      expect(getDeviceImage("Unknown Model")).toBe("/images/devices/default.svg");
+      expect(getDeviceImage("Wave Music System")).toBe("/images/devices/default.svg");
       expect(getDeviceImage("")).toBe("/images/devices/default.svg");
       expect(getDeviceImage(null)).toBe("/images/devices/default.svg");
       expect(getDeviceImage(undefined)).toBe("/images/devices/default.svg");

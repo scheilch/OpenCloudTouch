@@ -161,8 +161,8 @@ export default function Licenses() {
         <div className="compliance-notice">
           <h3>Lizenz-Compliance</h3>
           <p>
-            OpenCloudTouch ist Open-Source Software unter der Apache License 2.0. Alle
-            verwendeten Bibliotheken sind mit dieser Lizenz kompatibel.
+            OpenCloudTouch ist Open-Source Software unter der Apache License 2.0. Alle verwendeten
+            Bibliotheken sind mit dieser Lizenz kompatibel.
           </p>
           <p>
             <strong>OpenCloudTouch Lizenz:</strong>{" "}
@@ -179,12 +179,12 @@ export default function Licenses() {
         <div className="trademark-notice">
           <h3>⚠️ Trademark Notice</h3>
           <p>
-            OpenCloudTouch is <strong>not affiliated with Bose Corporation</strong>.
-            Bose® and SoundTouch® are registered trademarks of Bose Corporation.
+            OpenCloudTouch is <strong>not affiliated with Bose Corporation</strong>. Bose® and
+            SoundTouch® are registered trademarks of Bose Corporation.
           </p>
           <p>
-            This software interfaces with Bose SoundTouch® devices using their
-            publicly documented local APIs. See{" "}
+            This software interfaces with Bose SoundTouch® devices using their publicly documented
+            local APIs. See{" "}
             <a
               href="https://github.com/yourusername/opencloudtouch/blob/main/TRADEMARK.md"
               target="_blank"
@@ -199,9 +199,8 @@ export default function Licenses() {
         <div className="attribution">
           <h3>Danksagung</h3>
           <p>
-            Wir danken allen Open-Source Entwicklern und Projekten, die diese
-            Software möglich machen. Besonderer Dank an die Bose SoundTouch®
-            Community für die API-Dokumentation.
+            Wir danken allen Open-Source Entwicklern und Projekten, die diese Software möglich
+            machen. Besonderer Dank an die Bose SoundTouch® Community für die API-Dokumentation.
           </p>
         </div>
       </div>

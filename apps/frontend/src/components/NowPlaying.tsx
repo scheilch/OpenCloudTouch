@@ -31,18 +31,12 @@ export default function NowPlaying({ nowPlaying }: NowPlayingProps) {
         )}
       </div>
       <div className="np-info">
-        <div className="np-station">
-          {nowPlaying.station || "Unknown Station"}
-        </div>
+        <div className="np-station">{nowPlaying.station || "Unknown Station"}</div>
         <div className="np-track">{nowPlaying.track || "Unknown Track"}</div>
-        {nowPlaying.artist && (
-          <div className="np-artist">{nowPlaying.artist}</div>
-        )}
+        {nowPlaying.artist && <div className="np-artist">{nowPlaying.artist}</div>}
       </div>
       <div className="np-status">
-        <span
-          className={`status-icon ${nowPlaying.play_status === "PLAY_STATE" ? "playing" : ""}`}
-        >
+        <span className={`status-icon ${nowPlaying.play_status === "PLAY_STATE" ? "playing" : ""}`}>
           {nowPlaying.play_status === "PLAY_STATE" ? "▶" : "⏸"}
         </span>
       </div>

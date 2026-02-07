@@ -28,11 +28,7 @@ export default function PresetButton({
             <span className="preset-number">{number}</span>
             <span className="preset-name">{preset.station_name}</span>
           </button>
-          <button
-            className="preset-clear"
-            onClick={onClear}
-            aria-label="Clear preset"
-          >
+          <button className="preset-clear" onClick={onClear} aria-label="Clear preset">
             ✕
           </button>
         </>

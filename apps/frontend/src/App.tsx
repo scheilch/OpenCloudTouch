@@ -42,11 +42,7 @@ function AppRouter({ devices, isLoading, error, onRefreshDevices, onRetry }: App
           <div className="error-icon">⚠️</div>
           <h2 className="error-title">Fehler beim Laden der Geräte</h2>
           <p className="error-message">{error}</p>
-          <button
-            className="btn btn-primary"
-            onClick={onRetry}
-            aria-label="Erneut versuchen"
-          >
+          <button className="btn btn-primary" onClick={onRetry} aria-label="Erneut versuchen">
             Erneut versuchen
           </button>
         </div>
@@ -80,26 +76,11 @@ function AppRouter({ devices, isLoading, error, onRefreshDevices, onRetry }: App
                 </header>
                 <main className="app-main">
                   <Routes>
-                    <Route
-                      path="/"
-                      element={<RadioPresets devices={devices} />}
-                    />
-                    <Route
-                      path="/local"
-                      element={<LocalControl devices={devices} />}
-                    />
-                    <Route
-                      path="/multiroom"
-                      element={<MultiRoom devices={devices} />}
-                    />
-                    <Route
-                      path="/firmware"
-                      element={<Firmware devices={devices} />}
-                    />
-                    <Route
-                      path="/settings"
-                      element={<Settings />}
-                    />
+                    <Route path="/" element={<RadioPresets devices={devices} />} />
+                    <Route path="/local" element={<LocalControl devices={devices} />} />
+                    <Route path="/multiroom" element={<MultiRoom devices={devices} />} />
+                    <Route path="/firmware" element={<Firmware devices={devices} />} />
+                    <Route path="/settings" element={<Settings />} />
                     <Route path="/licenses" element={<Licenses />} />
                   </Routes>
                 </main>
@@ -124,18 +105,19 @@ function App() {
     try {
       setError(null); // Clear previous errors
       setIsLoading(true);
-      
+
       const response = await fetch("/api/devices");
       if (!response.ok) {
         throw new Error(`Server-Fehler: ${response.status} ${response.statusText}`);
       }
-      
+
       const data = await response.json();
       const devicesList: Device[] = data.devices || [];
       setDevices(devicesList);
       return devicesList;
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "Unbekannter Fehler beim Laden der Geräte";
+      const errorMessage =
+        err instanceof Error ? err.message : "Unbekannter Fehler beim Laden der Geräte";
       setError(errorMessage);
       console.error("Failed to fetch devices:", err);
       return [];
@@ -153,9 +135,7 @@ function App() {
   }, []);
 
   return (
-    <BrowserRouter
-      future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
-    >
+    <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
       <ToastProvider>
         <AppRouter
           devices={devices}

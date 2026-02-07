@@ -170,11 +170,11 @@ $stateOnlyEndpoints = @(
 
 function Get-SupportedEndpoints {
     param([string]$DeviceIP)
-    
+
     try {
         $url = "http://${DeviceIP}:8090/supportedURLs"
         $response = Invoke-RestMethod -Uri $url -Method GET -TimeoutSec 5
-        
+
         # Parse XML to extract URLs
         $urls = $response.supportedURLs.URL | ForEach-Object { $_.location }
         return $urls
@@ -191,9 +191,9 @@ function Get-EndpointSchema {
         [string]$Method = 'GET',
         [string]$Payload = $null
     )
-    
+
     $url = "http://${DeviceIP}:8090${Endpoint}"
-    
+
     try {
         if ($Method -eq 'GET') {
             $response = Invoke-RestMethod -Uri $url -Method GET -TimeoutSec 5
@@ -201,7 +201,7 @@ function Get-EndpointSchema {
             $headers = @{'Content-Type' = 'application/xml'}
             $response = Invoke-RestMethod -Uri $url -Method $Method -Body $Payload -Headers $headers -TimeoutSec 5
         }
-        
+
         # Convert response to XML string
         if ($response -is [System.Xml.XmlDocument]) {
             return $response.OuterXml
@@ -233,35 +233,35 @@ function Reverse-EngineerEndpoint {
         [string]$DeviceIP,
         [string]$Endpoint
     )
-    
+
     # Try GET first
     $schema = Get-EndpointSchema -DeviceIP $DeviceIP -Endpoint $Endpoint -Method 'GET'
     if ($schema) {
         return @{Schema = $schema; Method = 'GET'; Status = 'OK'}
     }
-    
+
     # Check if we have a known POST template
     if ($payloadTemplates.ContainsKey($Endpoint)) {
         $template = $payloadTemplates[$Endpoint]
         $schema = Get-EndpointSchema -DeviceIP $DeviceIP -Endpoint $Endpoint -Method $template.Method -Payload $template.Payload
-        
+
         if ($schema) {
             return @{Schema = $schema; Method = $template.Method; Status = 'OK-POST'; Description = $template.Description}
         }
     }
-    
+
     # Try POST with empty payload (some endpoints accept this)
     $schema = Get-EndpointSchema -DeviceIP $DeviceIP -Endpoint $Endpoint -Method 'POST' -Payload ''
     if ($schema) {
         return @{Schema = $schema; Method = 'POST'; Status = 'OK-EMPTY'}
     }
-    
+
     # Try PUT (rare, but some endpoints use it)
     $schema = Get-EndpointSchema -DeviceIP $DeviceIP -Endpoint $Endpoint -Method 'PUT' -Payload ''
     if ($schema) {
         return @{Schema = $schema; Method = 'PUT'; Status = 'OK-PUT'}
     }
-    
+
     return @{Schema = $null; Method = 'NONE'; Status = 'SKIP'}
 }
 
@@ -287,30 +287,30 @@ $endpointStats = @{}
 foreach ($device in $devices) {
     Write-Host "Device: $($device.Model) - $($device.Name) ($($device.IP))" -ForegroundColor Yellow
     Write-Host ("=" * 70) -ForegroundColor DarkGray
-    
+
     # Get supported endpoints for this device
     Write-Host "  Fetching supportedURLs..." -NoNewline
     $supportedEndpoints = Get-SupportedEndpoints -DeviceIP $device.IP
     Write-Host " [Found: $($supportedEndpoints.Count) endpoints]" -ForegroundColor Green
     Write-Host ""
-    
+
     foreach ($endpoint in $supportedEndpoints) {
         $filename = "device_$($device.ID)$($endpoint.Replace('/', '_')).xml"
         $filePath = Join-Path $outputDir $filename
-        
+
         Write-Host "  $endpoint" -NoNewline -ForegroundColor White
         Write-Host " -> " -NoNewline -ForegroundColor DarkGray
-        
+
         # Skip if already exists (unless force flag is set)
         if ((Test-Path $filePath) -and -not $env:FORCE_REFETCH) {
             Write-Host "[CACHED]" -ForegroundColor DarkCyan
             $totalFetched++
             continue
         }
-        
+
         # Reverse engineer the endpoint
         $result = Reverse-EngineerEndpoint -DeviceIP $device.IP -Endpoint $endpoint
-        
+
         if ($result.Schema) {
             # Add metadata comment
             $metadata = "<!-- Fetched: $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss') | Method: $($result.Method) | Device: $($device.Model) | Status: $($result.Status) -->`n"
@@ -318,11 +318,11 @@ foreach ($device in $devices) {
                 $metadata += "<!-- Description: $($result.Description) -->`n"
             }
             $content = $metadata + $result.Schema
-            
+
             $content | Out-File -Encoding UTF8 $filePath
             Write-Host "[$($result.Status)]" -ForegroundColor Green
             $totalFetched++
-            
+
             # Track endpoint statistics
             if (-not $endpointStats.ContainsKey($endpoint)) {
                 $endpointStats[$endpoint] = @{Count = 0; Methods = @{}}
@@ -334,7 +334,7 @@ foreach ($device in $devices) {
             $totalSkipped++
         }
     }
-    
+
     Write-Host ""
 }
 
@@ -355,7 +355,7 @@ $endpointStats.GetEnumerator() | Sort-Object Name | ForEach-Object {
     $stats = $_.Value
     $methods = ($stats.Methods.Keys -join ', ')
     $deviceCount = $stats.Count
-    
+
     $color = if ($deviceCount -eq 3) { 'Green' } elseif ($deviceCount -eq 1) { 'Yellow' } else { 'Cyan' }
     Write-Host "  $endpoint" -NoNewline -ForegroundColor White
     Write-Host " ($methods)" -NoNewline -ForegroundColor Gray
