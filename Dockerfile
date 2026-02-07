@@ -8,15 +8,24 @@
 # Stage 1: Build Frontend
 FROM node:20-alpine AS frontend-builder
 
+# Get build architecture from buildx
+ARG TARGETARCH
+
 WORKDIR /app
 
 # Copy workspace configuration first
 COPY package*.json ./
 COPY apps/frontend/package*.json ./apps/frontend/
 
-# Install dependencies using workspace (Alpine uses musl, not gnu)
-RUN npm ci && \
-    npm install --no-save @rollup/rollup-linux-x64-musl
+# Install dependencies using workspace
+RUN npm ci
+
+# Install platform-specific rollup binary for Alpine (musl)
+RUN if [ "$TARGETARCH" = "amd64" ]; then \
+      npm install --no-save @rollup/rollup-linux-x64-musl; \
+    elif [ "$TARGETARCH" = "arm64" ]; then \
+      npm install --no-save @rollup/rollup-linux-arm64-musl; \
+    fi
 
 # Copy frontend source
 COPY apps/frontend/ ./apps/frontend/
