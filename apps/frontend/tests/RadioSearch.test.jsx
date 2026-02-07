@@ -42,10 +42,10 @@ describe('RadioSearch Component', () => {
         onClose={mockOnClose}
       />
     )
-    
+
     const closeButton = screen.getByText('✕')
     fireEvent.click(closeButton)
-    
+
     expect(mockOnClose).toHaveBeenCalledTimes(1)
   })
 
@@ -57,10 +57,10 @@ describe('RadioSearch Component', () => {
         onClose={mockOnClose}
       />
     )
-    
+
     const overlay = screen.getByRole('button', { name: '✕' }).closest('.radio-search-overlay')
     fireEvent.click(overlay)
-    
+
     expect(mockOnClose).toHaveBeenCalled()
   })
 
@@ -72,10 +72,10 @@ describe('RadioSearch Component', () => {
         onClose={mockOnClose}
       />
     )
-    
+
     const modal = document.querySelector('.radio-search-modal')
     fireEvent.click(modal)
-    
+
     expect(mockOnClose).not.toHaveBeenCalled()
   })
 
@@ -87,10 +87,10 @@ describe('RadioSearch Component', () => {
         onClose={mockOnClose}
       />
     )
-    
+
     const searchInput = screen.getByPlaceholderText('Sender suchen...')
     fireEvent.change(searchInput, { target: { value: 'Bayern' } })
-    
+
     expect(screen.getByText('Suche...')).toBeInTheDocument()
   })
 
@@ -102,10 +102,10 @@ describe('RadioSearch Component', () => {
         onClose={mockOnClose}
       />
     )
-    
+
     const searchInput = screen.getByPlaceholderText('Sender suchen...')
     fireEvent.change(searchInput, { target: { value: 'Bayern' } })
-    
+
     await waitFor(() => {
       expect(screen.getByText('Bayern 1')).toBeInTheDocument()
     }, { timeout: 500 })
@@ -119,10 +119,10 @@ describe('RadioSearch Component', () => {
         onClose={mockOnClose}
       />
     )
-    
+
     const searchInput = screen.getByPlaceholderText('Sender suchen...')
     fireEvent.change(searchInput, { target: { value: 'relax' } })
-    
+
     await waitFor(() => {
       expect(screen.getByText('Absolut relax')).toBeInTheDocument()
       expect(screen.queryByText('Bayern 1')).not.toBeInTheDocument()
@@ -137,10 +137,10 @@ describe('RadioSearch Component', () => {
         onClose={mockOnClose}
       />
     )
-    
+
     const searchInput = screen.getByPlaceholderText('Sender suchen...')
     fireEvent.change(searchInput, { target: { value: 'nonexistent' } })
-    
+
     await waitFor(() => {
       expect(screen.getByText('Keine Sender gefunden')).toBeInTheDocument()
     }, { timeout: 500 })
@@ -154,10 +154,10 @@ describe('RadioSearch Component', () => {
         onClose={mockOnClose}
       />
     )
-    
+
     const searchInput = screen.getByPlaceholderText('Sender suchen...')
     fireEvent.change(searchInput, { target: { value: '' } })
-    
+
     expect(screen.queryByText('Suche...')).not.toBeInTheDocument()
     expect(screen.queryByText('Keine Sender gefunden')).not.toBeInTheDocument()
   })
@@ -170,15 +170,15 @@ describe('RadioSearch Component', () => {
         onClose={mockOnClose}
       />
     )
-    
+
     const searchInput = screen.getByPlaceholderText('Sender suchen...')
     fireEvent.change(searchInput, { target: { value: 'Bayern' } })
-    
+
     await waitFor(() => {
       const stationButton = screen.getByText('Bayern 1')
       fireEvent.click(stationButton)
     }, { timeout: 500 })
-    
+
     expect(mockOnStationSelect).toHaveBeenCalledWith(
       expect.objectContaining({
         stationuuid: '2',
@@ -196,15 +196,15 @@ describe('RadioSearch Component', () => {
         onClose={mockOnClose}
       />
     )
-    
+
     const searchInput = screen.getByPlaceholderText('Sender suchen...')
     fireEvent.change(searchInput, { target: { value: 'Bayern' } })
-    
+
     await waitFor(() => {
       const stationButton = screen.getByText('Bayern 1')
       fireEvent.click(stationButton)
     }, { timeout: 500 })
-    
+
     expect(mockOnClose).toHaveBeenCalled()
   })
 
@@ -216,7 +216,7 @@ describe('RadioSearch Component', () => {
         onClose={mockOnClose}
       />
     )
-    
+
     const searchInput = screen.getByPlaceholderText('Sender suchen...')
     expect(searchInput).toHaveFocus()
   })
@@ -229,10 +229,10 @@ describe('RadioSearch Component', () => {
         onClose={mockOnClose}
       />
     )
-    
+
     const searchInput = screen.getByPlaceholderText('Sender suchen...')
     fireEvent.change(searchInput, { target: { value: 'BAYERN' } })
-    
+
     await waitFor(() => {
       expect(screen.getByText('Bayern 1')).toBeInTheDocument()
     }, { timeout: 500 })

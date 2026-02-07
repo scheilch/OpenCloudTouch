@@ -1,0 +1,248 @@
+name: Create Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release version (e.g., 1.2.3 without v prefix)'
+        required: true
+        type: string
+      prerelease:
+        description: 'Mark as pre-release (beta/rc)'
+        required: false
+        type: boolean
+        default: false
+      release_notes:
+        description: 'Release notes (optional, auto-generated if empty)'
+        required: false
+        type: string
+
+jobs:
+  create-release:
+    name: Create Release Tag
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Validate version format
+        run: |
+          VERSION="${{ inputs.version }}"
+          if ! [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "❌ Invalid version format: $VERSION"
+            echo "Expected: X.Y.Z (e.g., 1.2.3)"
+            exit 1
+          fi
+          echo "✅ Valid version: $VERSION"
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Full history for changelog
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Check if tag already exists
+        run: |
+          TAG="v${{ inputs.version }}"
+          if git rev-parse "$TAG" >/dev/null 2>&1; then
+            echo "❌ Tag $TAG already exists!"
+            echo "Delete it first with: git push --delete origin $TAG"
+            exit 1
+          fi
+          echo "✅ Tag $TAG is available"
+
+      - name: Generate changelog
+        id: changelog
+        run: |
+          TAG="v${{ inputs.version }}"
+
+          # Get last tag
+          LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+
+          if [ -z "$LAST_TAG" ]; then
+            echo "📝 First release - no previous tag found"
+            CHANGELOG="## 🎉 First Release\n\nInitial release of OpenCloudTouch v${{ inputs.version }}"
+          else
+            echo "📝 Generating changelog since $LAST_TAG"
+
+            # Parse Conventional Commits and group by type
+            FEATURES=$(git log ${LAST_TAG}..HEAD --pretty=format:"%s (%h)" --no-merges --grep="^feat" || echo "")
+            FIXES=$(git log ${LAST_TAG}..HEAD --pretty=format:"%s (%h)" --no-merges --grep="^fix" || echo "")
+            PERF=$(git log ${LAST_TAG}..HEAD --pretty=format:"%s (%h)" --no-merges --grep="^perf" || echo "")
+            DOCS=$(git log ${LAST_TAG}..HEAD --pretty=format:"%s (%h)" --no-merges --grep="^docs" || echo "")
+            TESTS=$(git log ${LAST_TAG}..HEAD --pretty=format:"%s (%h)" --no-merges --grep="^test" || echo "")
+            REFACTOR=$(git log ${LAST_TAG}..HEAD --pretty=format:"%s (%h)" --no-merges --grep="^refactor" || echo "")
+            CI=$(git log ${LAST_TAG}..HEAD --pretty=format:"%s (%h)" --no-merges --grep="^ci" || echo "")
+            CHORE=$(git log ${LAST_TAG}..HEAD --pretty=format:"%s (%h)" --no-merges --grep="^chore\|^build" || echo "")
+            BREAKING=$(git log ${LAST_TAG}..HEAD --pretty=format:"%s (%h)" --no-merges --grep="BREAKING CHANGE\|!" || echo "")
+
+            # Build changelog
+            CHANGELOG="## 🚀 What's Changed in v${{ inputs.version }}\n\n"
+
+            # Breaking Changes first!
+            if [ -n "$BREAKING" ]; then
+              CHANGELOG="${CHANGELOG}### ⚠️ Breaking Changes\n\n"
+              while IFS= read -r commit; do
+                CHANGELOG="${CHANGELOG}- ${commit}\n"
+              done <<< "$BREAKING"
+              CHANGELOG="${CHANGELOG}\n"
+            fi
+
+            # Features
+            if [ -n "$FEATURES" ]; then
+              CHANGELOG="${CHANGELOG}### ✨ Features\n\n"
+              while IFS= read -r commit; do
+                CHANGELOG="${CHANGELOG}- ${commit}\n"
+              done <<< "$FEATURES"
+              CHANGELOG="${CHANGELOG}\n"
+            fi
+
+            # Bug Fixes
+            if [ -n "$FIXES" ]; then
+              CHANGELOG="${CHANGELOG}### 🐛 Bug Fixes\n\n"
+              while IFS= read -r commit; do
+                CHANGELOG="${CHANGELOG}- ${commit}\n"
+              done <<< "$FIXES"
+              CHANGELOG="${CHANGELOG}\n"
+            fi
+
+            # Performance
+            if [ -n "$PERF" ]; then
+              CHANGELOG="${CHANGELOG}### ⚡ Performance\n\n"
+              while IFS= read -r commit; do
+                CHANGELOG="${CHANGELOG}- ${commit}\n"
+              done <<< "$PERF"
+              CHANGELOG="${CHANGELOG}\n"
+            fi
+
+            # Refactoring
+            if [ -n "$REFACTOR" ]; then
+              CHANGELOG="${CHANGELOG}### ♻️ Refactoring\n\n"
+              while IFS= read -r commit; do
+                CHANGELOG="${CHANGELOG}- ${commit}\n"
+              done <<< "$REFACTOR"
+              CHANGELOG="${CHANGELOG}\n"
+            fi
+
+            # Tests
+            if [ -n "$TESTS" ]; then
+              CHANGELOG="${CHANGELOG}### 🧪 Tests\n\n"
+              while IFS= read -r commit; do
+                CHANGELOG="${CHANGELOG}- ${commit}\n"
+              done <<< "$TESTS"
+              CHANGELOG="${CHANGELOG}\n"
+            fi
+
+            # Documentation
+            if [ -n "$DOCS" ]; then
+              CHANGELOG="${CHANGELOG}### 📚 Documentation\n\n"
+              while IFS= read -r commit; do
+                CHANGELOG="${CHANGELOG}- ${commit}\n"
+              done <<< "$DOCS"
+              CHANGELOG="${CHANGELOG}\n"
+            fi
+
+            # CI/CD
+            if [ -n "$CI" ]; then
+              CHANGELOG="${CHANGELOG}### 🔧 CI/CD\n\n"
+              while IFS= read -r commit; do
+                CHANGELOG="${CHANGELOG}- ${commit}\n"
+              done <<< "$CI"
+              CHANGELOG="${CHANGELOG}\n"
+            fi
+
+            # Maintenance
+            if [ -n "$CHORE" ]; then
+              CHANGELOG="${CHANGELOG}### 🛠️ Maintenance\n\n"
+              while IFS= read -r commit; do
+                CHANGELOG="${CHANGELOG}- ${commit}\n"
+              done <<< "$CHORE"
+              CHANGELOG="${CHANGELOG}\n"
+            fi
+
+            CHANGELOG="${CHANGELOG}\n**Full Changelog**: https://github.com/${{ github.repository }}/compare/${LAST_TAG}...${TAG}"
+          fi
+
+          # Use custom release notes if provided
+          if [ -n "${{ inputs.release_notes }}" ]; then
+            CHANGELOG="${{ inputs.release_notes }}"
+          fi
+
+          # Save to file (multi-line safe)
+          echo -e "$CHANGELOG" > changelog.txt
+          cat changelog.txt
+
+      - name: Create and push tag
+        run: |
+          TAG="v${{ inputs.version }}"
+          git tag -a "$TAG" -m "Release $TAG"
+          git push origin "$TAG"
+
+          echo "✅ Tag $TAG created and pushed"
+          echo "🚀 CI/CD Pipeline will now build and push Docker images"
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ inputs.version }}
+          name: Release v${{ inputs.version }}
+          body_path: changelog.txt
+          prerelease: ${{ inputs.prerelease }}
+          draft: false
+          generate_release_notes: true  # GitHub auto-generates additional notes
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Summary
+        run: |
+          echo "# 🎉 Release v${{ inputs.version }} Created!" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Tag:** \`v${{ inputs.version }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "**Pre-release:** ${{ inputs.prerelease && '✅ Yes' || '❌ No' }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## 🚀 Next Steps" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "1. ✅ Git tag created and pushed" >> $GITHUB_STEP_SUMMARY
+          echo "2. ✅ GitHub Release created" >> $GITHUB_STEP_SUMMARY
+          echo "3. ⏳ **CI/CD Pipeline triggered** - Building Docker images..." >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Watch the build:** [CI/CD Pipeline](https://github.com/${{ github.repository }}/actions/workflows/ci-cd.yml)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## 📦 Docker Images (after CI/CD completes)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`bash" >> $GITHUB_STEP_SUMMARY
+          echo "# Pull latest stable release:" >> $GITHUB_STEP_SUMMARY
+          echo "docker pull ghcr.io/${{ github.repository }}:stable" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "# Pull specific version:" >> $GITHUB_STEP_SUMMARY
+          echo "docker pull ghcr.io/${{ github.repository }}:${{ inputs.version }}" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Release Page:** https://github.com/${{ github.repository }}/releases/tag/v${{ inputs.version }}" >> $GITHUB_STEP_SUMMARY
+
+  verify-trigger:
+    name: Verify CI/CD Trigger
+    runs-on: ubuntu-latest
+    needs: create-release
+
+    steps:
+      - name: Wait for CI/CD
+        run: |
+          echo "⏳ Waiting 5 seconds for CI/CD pipeline to start..."
+          sleep 5
+
+      - name: Check CI/CD status
+        run: |
+          echo "🔍 Checking if CI/CD pipeline was triggered..."
+          echo ""
+          echo "Expected workflow run for tag: v${{ inputs.version }}"
+          echo ""
+          echo "📊 View CI/CD runs: https://github.com/${{ github.repository }}/actions/workflows/ci-cd.yml"
+          echo ""
+          echo "If no run appears after 1 minute, check:"
+          echo "  1. Tag v${{ inputs.version }} exists: git fetch --tags && git tag -l"
+          echo "  2. CI/CD workflow triggers on 'tags: v*'"

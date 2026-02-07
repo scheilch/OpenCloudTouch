@@ -38,10 +38,7 @@ export default function DeviceSwiper({
         onIndexChange(currentIndex - 1);
         setDragDirection(-1);
       }
-    } else if (
-      info.offset.x < -swipeThreshold ||
-      info.velocity.x < -swipeVelocity
-    ) {
+    } else if (info.offset.x < -swipeThreshold || info.velocity.x < -swipeVelocity) {
       // Swipe left - next device
       if (currentIndex < devices.length - 1) {
         onIndexChange(currentIndex + 1);

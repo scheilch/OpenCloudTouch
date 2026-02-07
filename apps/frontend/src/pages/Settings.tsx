@@ -127,8 +127,8 @@ export default function Settings() {
 
         <div className="settings-card">
           <p className="section-description">
-            Fügen Sie IP-Adressen von Geräten manuell hinzu, falls
-            die automatische Erkennung nicht funktioniert.
+            Fügen Sie IP-Adressen von Geräten manuell hinzu, falls die automatische Erkennung nicht
+            funktioniert.
           </p>
 
           {/* Add IP Form */}
@@ -182,9 +182,8 @@ export default function Settings() {
           <div className="info-box">
             <strong>ℹ️ Hinweis:</strong>
             <p>
-              Nach dem Hinzufügen oder Entfernen von IPs wird die
-              Geräteerkennung automatisch neu gestartet. Die Geräte erscheinen
-              dann auf der Startseite.
+              Nach dem Hinzufügen oder Entfernen von IPs wird die Geräteerkennung automatisch neu
+              gestartet. Die Geräte erscheinen dann auf der Startseite.
             </p>
           </div>
         </div>

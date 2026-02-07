@@ -302,7 +302,7 @@ describe('DeviceSwiper Component', () => {
 
     const dotsContainer = container.querySelector('.swiper-dots')
     const dots = dotsContainer.querySelectorAll('.dot')
-    
+
     // Keys are not directly accessible in DOM, but we can verify unique dots exist
     expect(dots).toHaveLength(3)
   })

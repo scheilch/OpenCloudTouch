@@ -85,7 +85,7 @@ describe('App Error Handling', () => {
     await waitFor(() => {
       expect(screen.queryByText(/Fehler beim Laden der Geräte/i)).not.toBeInTheDocument();
     });
-    
+
     // Check navigation is rendered (uses data-test, not data-testid)
     expect(screen.getByRole('navigation')).toBeInTheDocument();
   });
@@ -119,7 +119,7 @@ describe('App Error Handling', () => {
     // Arrange: Mock fetch to fail once, then delay success
     global.fetch
       .mockRejectedValueOnce(new Error('Network error'))
-      .mockImplementationOnce(() => 
+      .mockImplementationOnce(() =>
         new Promise((resolve) =>
           setTimeout(
             () =>

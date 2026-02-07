@@ -1,8 +1,8 @@
 /**
  * Tests for NowPlaying.tsx
- * 
+ *
  * User Story: "Als User möchte ich sehen was gerade abgespielt wird"
- * 
+ *
  * Focus: Functional tests for now playing display
  * - Show track, artist, station info
  * - Show album art or placeholder
@@ -163,7 +163,7 @@ describe('NowPlaying Component', () => {
       };
 
       const { container } = render(<NowPlaying nowPlaying={nowPlaying} />);
-      
+
       // Artist div should not exist when artist is not provided
       const artistElement = container.querySelector('.np-artist');
       expect(artistElement).not.toBeInTheDocument();
@@ -198,10 +198,10 @@ describe('NowPlaying Component', () => {
       expect(screen.getByText('Classic Rock FM')).toBeInTheDocument();
       expect(screen.getByText('Bohemian Rhapsody')).toBeInTheDocument();
       expect(screen.getByText('Queen')).toBeInTheDocument();
-      
+
       const img = container.querySelector('.np-art img');
       expect(img).toHaveAttribute('src', 'https://example.com/art.jpg');
-      
+
       expect(screen.getByText('▶')).toBeInTheDocument();
     });
 

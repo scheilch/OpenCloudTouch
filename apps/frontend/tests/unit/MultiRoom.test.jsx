@@ -1,8 +1,8 @@
 /**
  * Functional Tests for MultiRoom Component
- * 
+ *
  * User Story: "Als User möchte ich mehrere Geräte zu einer Zone gruppieren"
- * 
+ *
  * Test Strategy: Behaviour-driven testing focusing on zone management workflows
  * Coverage: Create Zone, Edit Zone, Dissolve Zone, Device Selection, Validation
  */
@@ -56,7 +56,7 @@ describe('MultiRoom - Zone Creation', () => {
    */
   test('should show empty device grid when no devices available', () => {
     render(<MultiRoom devices={[]} />);
-    
+
     expect(screen.getByText(/Multi-Room Zonen/i)).toBeInTheDocument();
     expect(screen.getByText(/Neue Zone erstellen/i)).toBeInTheDocument();
     // No devices should be shown
@@ -69,7 +69,7 @@ describe('MultiRoom - Zone Creation', () => {
    */
   test('should display all available devices for selection', () => {
     render(<MultiRoom devices={mockDevices} />);
-    
+
     expect(screen.getByText('Living Room')).toBeInTheDocument();
     expect(screen.getByText('Schlafzimmer')).toBeInTheDocument();
     expect(screen.getByText('Küche')).toBeInTheDocument();
@@ -83,14 +83,14 @@ describe('MultiRoom - Zone Creation', () => {
   test('should allow selecting multiple devices', async () => {
     const user = userEvent.setup();
     render(<MultiRoom devices={mockDevices} />);
-    
+
     const checkboxes = screen.getAllByRole('checkbox');
-    
+
     // Select first device
     await user.click(checkboxes[0]);
     expect(checkboxes[0]).toBeChecked();
     expect(screen.getByText(/1 Gerät\(e\) ausgewählt/i)).toBeInTheDocument();
-    
+
     // Select second device
     await user.click(checkboxes[1]);
     expect(checkboxes[1]).toBeChecked();
@@ -104,16 +104,16 @@ describe('MultiRoom - Zone Creation', () => {
   test('should show master badge on first selected device and slave on others', async () => {
     const user = userEvent.setup();
     render(<MultiRoom devices={mockDevices} />);
-    
+
     const checkboxes = screen.getAllByRole('checkbox');
-    
+
     // Select first device - should become Master
     await user.click(checkboxes[0]);
     await waitFor(() => {
       const labels = screen.getAllByText('Master');
       expect(labels.length).toBeGreaterThan(0);
     });
-    
+
     // Select second device - should become Slave
     await user.click(checkboxes[1]);
     await waitFor(() => {
@@ -128,12 +128,12 @@ describe('MultiRoom - Zone Creation', () => {
   test('should disable create button when less than 2 devices selected', async () => {
     const user = userEvent.setup();
     render(<MultiRoom devices={mockDevices} />);
-    
+
     const checkboxes = screen.getAllByRole('checkbox');
-    
+
     // Select only 1 device
     await user.click(checkboxes[0]);
-    
+
     await waitFor(() => {
       expect(screen.getByText(/mindestens 2 erforderlich/i)).toBeInTheDocument();
       const createButton = screen.getByRole('button', { name: /Zone erstellen/i });
@@ -148,19 +148,19 @@ describe('MultiRoom - Zone Creation', () => {
   test('should create zone when 2 or more devices selected', async () => {
     const user = userEvent.setup();
     render(<MultiRoom devices={mockDevices} />);
-    
+
     const checkboxes = screen.getAllByRole('checkbox');
-    
+
     // Select 2 devices
     await user.click(checkboxes[0]); // Living Room
     await user.click(checkboxes[1]); // Schlafzimmer
-    
+
     const createButton = screen.getByRole('button', { name: /Zone erstellen/i });
     expect(createButton).toBeEnabled();
-    
+
     // Create zone
     await user.click(createButton);
-    
+
     // Zone should be created and displayed
     await waitFor(() => {
       expect(screen.getByText(/Aktive Zonen/i)).toBeInTheDocument();
@@ -175,17 +175,17 @@ describe('MultiRoom - Zone Creation', () => {
   test('should allow deselecting devices', async () => {
     const user = userEvent.setup();
     render(<MultiRoom devices={mockDevices} />);
-    
+
     const checkboxes = screen.getAllByRole('checkbox');
-    
+
     // Select device
     await user.click(checkboxes[0]);
     expect(checkboxes[0]).toBeChecked();
-    
+
     // Deselect device
     await user.click(checkboxes[0]);
     expect(checkboxes[0]).not.toBeChecked();
-    
+
     // Selection count should be gone
     expect(screen.queryByText(/Gerät\(e\) ausgewählt/i)).not.toBeInTheDocument();
   });
@@ -198,10 +198,10 @@ describe('MultiRoom - Zone Management', () => {
    */
   test('should display existing zones with master and slaves', () => {
     render(<MultiRoom devices={mockDevices} />);
-    
+
     expect(screen.getByText(/Aktive Zonen/i)).toBeInTheDocument();
     expect(screen.getByText(/Living Room Zone/i)).toBeInTheDocument();
-    
+
     // Should show Master and Slave badges in zone display
     const zoneBadges = screen.getAllByText('Master');
     expect(zoneBadges.length).toBeGreaterThan(0);
@@ -214,13 +214,13 @@ describe('MultiRoom - Zone Management', () => {
   test('should dissolve zone when dissolve button clicked', async () => {
     const user = userEvent.setup();
     render(<MultiRoom devices={mockDevices} />);
-    
+
     // Find dissolve button
     const dissolveButton = screen.getByRole('button', { name: /Auflösen/i });
-    
+
     // Dissolve zone
     await user.click(dissolveButton);
-    
+
     // Zone should be removed
     await waitFor(() => {
       expect(screen.queryByText(/Living Room Zone/i)).not.toBeInTheDocument();
@@ -234,11 +234,11 @@ describe('MultiRoom - Zone Management', () => {
   test('should allow editing existing zone', async () => {
     const user = userEvent.setup();
     render(<MultiRoom devices={mockDevices} />);
-    
+
     // Click edit button
     const editButton = screen.getByRole('button', { name: /Bearbeiten/i });
     await user.click(editButton);
-    
+
     // Should show edit mode
     await waitFor(() => {
       expect(screen.getByText(/Zone bearbeiten: Living Room Zone/i)).toBeInTheDocument();
@@ -253,15 +253,15 @@ describe('MultiRoom - Zone Management', () => {
   test('should disable devices that are already in a zone', async () => {
     const user = userEvent.setup();
     render(<MultiRoom devices={mockDevices} />);
-    
+
     // Create a zone first
     const checkboxes = screen.getAllByRole('checkbox');
     await user.click(checkboxes[2]); // Küche
     await user.click(checkboxes[3]); // Badezimmer
-    
+
     const createButton = screen.getByRole('button', { name: /Zone erstellen/i });
     await user.click(createButton);
-    
+
     // Now those devices should be disabled and show "In Zone" badge
     await waitFor(() => {
       const inZoneBadges = screen.getAllByText('In Zone');
@@ -278,17 +278,17 @@ describe('MultiRoom - Edge Cases', () => {
   test('should clear device selection after creating zone', async () => {
     const user = userEvent.setup();
     render(<MultiRoom devices={mockDevices} />);
-    
+
     const checkboxes = screen.getAllByRole('checkbox');
-    
+
     // Select devices
     await user.click(checkboxes[2]);
     await user.click(checkboxes[3]);
-    
+
     // Create zone
     const createButton = screen.getByRole('button', { name: /Zone erstellen/i });
     await user.click(createButton);
-    
+
     // Selection should be cleared
     await waitFor(() => {
       expect(checkboxes[2]).not.toBeChecked();
@@ -304,7 +304,7 @@ describe('MultiRoom - Edge Cases', () => {
   test('should handle zone with devices not in device list', () => {
     // Mock zone references devices not in mockDevices
     render(<MultiRoom devices={mockDevices} />);
-    
+
     // Should show "Unknown Device" for missing devices
     expect(screen.queryByText(/Unknown Device/i)).toBeInTheDocument();
   });
@@ -316,16 +316,16 @@ describe('MultiRoom - Edge Cases', () => {
   test('should allow creating multiple independent zones', async () => {
     const user = userEvent.setup();
     render(<MultiRoom devices={mockDevices} />);
-    
+
     // Already has 1 mock zone, create another
     const checkboxes = screen.getAllByRole('checkbox');
-    
+
     // Create first new zone
     await user.click(checkboxes[2]);
     await user.click(checkboxes[3]);
     const createButton = screen.getByRole('button', { name: /Zone erstellen/i });
     await user.click(createButton);
-    
+
     // Should now have 2 zones total
     await waitFor(() => {
       const zoneCards = screen.getAllByText(/Zone/i);
@@ -342,7 +342,7 @@ describe('MultiRoom - User Guidance', () => {
    */
   test('should display info box with multi-room hints', () => {
     render(<MultiRoom devices={mockDevices} />);
-    
+
     expect(screen.getByText(/Multi-Room Hinweise/i)).toBeInTheDocument();
     expect(screen.getByText(/Das erste ausgewählte Gerät wird automatisch zum Master/i)).toBeInTheDocument();
     expect(screen.getByText(/Lautstärke kann pro Gerät individuell angepasst werden/i)).toBeInTheDocument();

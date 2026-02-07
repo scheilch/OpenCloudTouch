@@ -1,8 +1,8 @@
 /**
  * Tests for VolumeSlider.tsx
- * 
+ *
  * User Story: "Als User möchte ich die Lautstärke präzise steuern"
- * 
+ *
  * Focus: Functional tests for volume control
  * - Volume adjustment (0-100)
  * - Mute/Unmute toggle

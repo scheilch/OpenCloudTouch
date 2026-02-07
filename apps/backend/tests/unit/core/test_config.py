@@ -57,7 +57,6 @@ def test_config_feature_toggles():
 
 def test_config_feature_toggles_from_env():
     """Test feature toggles from environment variables."""
-    import os
 
     # Set ENV variables
     os.environ["OCT_ENABLE_HDMI_CONTROLS"] = "false"
@@ -92,7 +91,6 @@ def test_config_log_level_validation():
 
 def test_config_env_prefix():
     """Test that ENV variables are recognized with OCT_ prefix."""
-    import os
 
     # Set ENV variable
     os.environ["OCT_PORT"] = "9000"
