@@ -72,24 +72,25 @@ repos:
           - prettier@3.4.2
 
   # ============================================================================
-  # LOCAL HOOKS (Custom scripts) - DISABLED ON WINDOWS
-  # Use CI/CD instead or run from Git Bash
+  # LOCAL HOOKS (Custom scripts)
   # ============================================================================
-  # - repo: local
-  #   hooks:
-  #     # Frontend ESLint
-  #     - id: eslint
-  #       name: Lint frontend (eslint)
-  #       entry: cmd /c "cd apps/frontend && npm run lint:src"
-  #       language: system
-  #       files: ^apps/frontend/src/.*\.(js|jsx|ts|tsx)$
-  #       pass_filenames: false
-  #
-  #     # Backend Tests (fast subset)
-  #     - id: pytest-quick
-  #       name: Run backend unit tests
-  #       entry: cmd /c "cd apps/backend && pytest tests/unit -v --tb=short"
-  #       language: system
-  #       files: ^apps/backend/(src|tests)/.*\.py$
-  #       pass_filenames: false
-  #       stages: [pre-push]  # Only on push, not every commit
+  - repo: local
+    hooks:
+      # Backend Tests (pre-push only)
+      - id: pytest-quick
+        name: Run backend unit tests (pre-push)
+        entry: python -m pytest
+        args: [apps/backend/tests/unit, -v, --tb=short, -x]
+        language: system
+        files: ^apps/backend/(src|tests)/.*\.py$
+        pass_filenames: false
+        stages: [pre-push]  # Only on push, not every commit
+
+      # Frontend ESLint (pre-push only) - Note: Requires Git Bash on Windows
+      - id: eslint
+        name: Lint frontend (eslint, pre-push)
+        entry: bash -c 'cd apps/frontend && npm run lint:src'
+        language: system
+        files: ^apps/frontend/src/.*\.(js|jsx|ts|tsx)$
+        pass_filenames: false
+        stages: [pre-push]
