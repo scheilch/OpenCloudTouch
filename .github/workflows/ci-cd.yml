@@ -73,12 +73,14 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: apps/frontend/package-lock.json
       
       - name: Install dependencies
         working-directory: apps/frontend
         run: |
-          npm cache clean --force
-          npm install
+          npm ci
+          npm install @rollup/rollup-linux-x64-gnu --save-optional
       
       - name: Build frontend
         working-directory: apps/frontend
