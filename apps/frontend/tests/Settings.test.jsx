@@ -12,9 +12,9 @@ describe('Settings Page', () => {
 
   it('shows loading state initially', () => {
     fetch.mockImplementation(() => new Promise(() => {})) // Never resolves
-    
+
     render(<Settings />)
-    
+
     expect(screen.getByText('Einstellungen werden geladen...')).toBeInTheDocument()
   })
 

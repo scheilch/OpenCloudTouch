@@ -1,8 +1,4 @@
-import {
-  getDeviceImage,
-  getDeviceDisplayName,
-  getDeviceAspectRatio,
-} from "../utils/deviceImages";
+import { getDeviceImage, getDeviceDisplayName, getDeviceAspectRatio } from "../utils/deviceImages";
 
 /**
  * DeviceImage Component
@@ -39,9 +35,7 @@ export default function DeviceImage({
 
   return (
     <div className={`device-image-container ${className}`}>
-      <div
-        className={`${sizeClasses[size]} ${aspectRatio} flex items-center justify-center`}
-      >
+      <div className={`${sizeClasses[size]} ${aspectRatio} flex items-center justify-center`}>
         <img
           src={imagePath}
           alt={alt || displayName}
@@ -56,11 +50,7 @@ export default function DeviceImage({
           }}
         />
       </div>
-      {showLabel && (
-        <div className="mt-2 text-center text-sm text-gray-400">
-          {displayName}
-        </div>
-      )}
+      {showLabel && <div className="mt-2 text-center text-sm text-gray-400">{displayName}</div>}
     </div>
   );
 }

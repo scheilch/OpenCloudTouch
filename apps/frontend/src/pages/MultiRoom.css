@@ -274,11 +274,7 @@
   display: flex;
   gap: var(--space-md);
   padding: var(--space-lg);
-  background: linear-gradient(
-    135deg,
-    rgba(0, 102, 204, 0.1) 0%,
-    rgba(0, 82, 163, 0.1) 100%
-  );
+  background: linear-gradient(135deg, rgba(0, 102, 204, 0.1) 0%, rgba(0, 82, 163, 0.1) 100%);
   border: 1px solid rgba(0, 102, 204, 0.3);
   border-radius: var(--border-radius-md);
 }

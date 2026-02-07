@@ -18,12 +18,7 @@ interface ToastProps {
   onClose?: () => void;
 }
 
-export default function Toast({
-  message,
-  type = "info",
-  duration = 5000,
-  onClose,
-}: ToastProps) {
+export default function Toast({ message, type = "info", duration = 5000, onClose }: ToastProps) {
   const [isVisible, setIsVisible] = useState(true);
 
   useEffect(() => {

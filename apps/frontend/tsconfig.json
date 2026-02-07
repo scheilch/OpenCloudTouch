@@ -19,7 +19,7 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
-    
+
     /* Type checking */
     "strictNullChecks": true,
     "strictFunctionTypes": true,
@@ -28,7 +28,7 @@
     "noImplicitThis": true,
     "noImplicitAny": true,
     "alwaysStrict": true,
-    
+
     /* Additional checks */
     "noUncheckedIndexedAccess": true,
     "noImplicitReturns": true,

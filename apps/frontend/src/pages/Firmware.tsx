@@ -57,15 +57,11 @@ export default function Firmware({ devices = [] }: FirmwareProps) {
           <div className="firmware-details">
             <div className="firmware-detail-row">
               <span className="detail-label">Aktuelle Version:</span>
-              <span className="detail-value">
-                {parseFirmwareVersion(currentDevice.firmware)}
-              </span>
+              <span className="detail-value">{parseFirmwareVersion(currentDevice.firmware)}</span>
             </div>
             <div className="firmware-detail-row">
               <span className="detail-label">Status:</span>
-              <span
-                className={`status-badge ${getFirmwareStatus(currentDevice.firmware)}`}
-              >
+              <span className={`status-badge ${getFirmwareStatus(currentDevice.firmware)}`}>
                 {getFirmwareStatus(currentDevice.firmware) === "up-to-date" ? (
                   <>✓ Aktuell</>
                 ) : (
@@ -112,9 +108,7 @@ export default function Firmware({ devices = [] }: FirmwareProps) {
                 </div>
 
                 <div className="firmware-item-right">
-                  <span className="firmware-version">
-                    {parseFirmwareVersion(device.firmware)}
-                  </span>
+                  <span className="firmware-version">{parseFirmwareVersion(device.firmware)}</span>
                   <span className={`status-icon ${status}`}>
                     {status === "up-to-date" ? "✓" : "⚠️"}
                   </span>
@@ -136,9 +130,9 @@ export default function Firmware({ devices = [] }: FirmwareProps) {
         <div className="warning-content">
           <h3 className="warning-title">Experimentelle Funktion</h3>
           <p className="warning-text">
-            Firmware-Updates sind experimentell und können Ihr Gerät
-            beschädigen. Verwenden Sie nur offizielle Firmware-Dateien von Ihrem
-            Gerätehersteller. Der Upload ist derzeit deaktiviert.
+            Firmware-Updates sind experimentell und können Ihr Gerät beschädigen. Verwenden Sie nur
+            offizielle Firmware-Dateien von Ihrem Gerätehersteller. Der Upload ist derzeit
+            deaktiviert.
           </p>
         </div>
       </motion.div>
@@ -153,16 +147,12 @@ export default function Firmware({ devices = [] }: FirmwareProps) {
         <h2 className="section-title">Firmware hochladen</h2>
         <div className="upload-card disabled">
           <div className="upload-icon">📤</div>
-          <p className="upload-text">
-            Firmware-Upload ist derzeit nicht verfügbar
-          </p>
+          <p className="upload-text">Firmware-Upload ist derzeit nicht verfügbar</p>
           <button className="upload-button" disabled>
             <span className="button-icon">📁</span>
             <span>Firmware auswählen</span>
           </button>
-          <p className="upload-hint">
-            Diese Funktion wird in zukünftigen Versionen aktiviert
-          </p>
+          <p className="upload-hint">Diese Funktion wird in zukünftigen Versionen aktiviert</p>
         </div>
       </motion.section>
 
@@ -177,12 +167,8 @@ export default function Firmware({ devices = [] }: FirmwareProps) {
         <div className="info-content">
           <h4 className="info-title">Firmware-Hinweise</h4>
           <ul className="info-list">
-            <li>
-              Firmware-Updates sollten nur bei Problemen durchgeführt werden
-            </li>
-            <li>
-              Während des Updates darf das Gerät nicht ausgeschaltet werden
-            </li>
+            <li>Firmware-Updates sollten nur bei Problemen durchgeführt werden</li>
+            <li>Während des Updates darf das Gerät nicht ausgeschaltet werden</li>
             <li>Der Update-Prozess kann 5-10 Minuten dauern</li>
             <li>Nach dem Update startet das Gerät automatisch neu</li>
           </ul>

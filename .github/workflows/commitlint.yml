@@ -1,0 +1,128 @@
+name: Commit Lint
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened]
+
+jobs:
+  conventional-commits:
+    name: Validate Commit Messages
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Full history for commit validation
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install commitlint
+        run: |
+          npm install -g @commitlint/cli @commitlint/config-conventional
+
+      - name: Validate PR title
+        run: |
+          PR_TITLE="${{ github.event.pull_request.title }}"
+          echo "$PR_TITLE" | commitlint --config .commitlintrc.json
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Validate commit messages
+        run: |
+          # Get commits in PR
+          git fetch origin ${{ github.base_ref }}
+          COMMITS=$(git log origin/${{ github.base_ref }}..HEAD --pretty=format:"%s")
+
+          echo "📝 Validating commits in PR..."
+          echo ""
+
+          # Validate each commit
+          EXIT_CODE=0
+          while IFS= read -r commit; do
+            echo "Checking: $commit"
+            if ! echo "$commit" | commitlint --config .commitlintrc.json; then
+              EXIT_CODE=1
+            fi
+          done <<< "$COMMITS"
+
+          if [ $EXIT_CODE -ne 0 ]; then
+            echo ""
+            echo "❌ Some commits don't follow Conventional Commits format!"
+            echo ""
+            echo "📖 Format: <type>(<scope>): <subject>"
+            echo ""
+            echo "Examples:"
+            echo "  ✅ feat(devices): add SSDP auto-discovery"
+            echo "  ✅ fix(api): handle null response"
+            echo "  ✅ docs(readme): update installation"
+            echo ""
+            echo "Allowed types:"
+            echo "  feat, fix, docs, style, refactor, perf, test, build, ci, chore, revert"
+            exit 1
+          fi
+
+          echo ""
+          echo "✅ All commits follow Conventional Commits format!"
+
+      - name: PR comment on failure
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `## ❌ Commit Message Validation Failed
+
+            Your PR contains commits that don't follow the [Conventional Commits](https://www.conventionalcommits.org/) format.
+
+            ### Required Format
+            \`\`\`
+            <type>(<scope>): <subject>
+            \`\`\`
+
+            ### Examples
+            ✅ \`feat(devices): add SSDP auto-discovery\`
+            ✅ \`fix(api): handle null response in device sync\`
+            ✅ \`docs(readme): update installation instructions\`
+            ✅ \`test(backend): add regression test for XML parsing\`
+
+            ### Allowed Types
+            - \`feat\` - New feature
+            - \`fix\` - Bug fix
+            - \`docs\` - Documentation only
+            - \`style\` - Code style (formatting, no logic change)
+            - \`refactor\` - Code refactoring (no feature/fix)
+            - \`perf\` - Performance improvement
+            - \`test\` - Adding/updating tests
+            - \`build\` - Build system changes
+            - \`ci\` - CI/CD changes
+            - \`chore\` - Maintenance (dependencies, etc.)
+            - \`revert\` - Revert previous commit
+
+            ### Optional Scopes
+            \`devices\`, \`api\`, \`frontend\`, \`backend\`, \`docker\`, \`workflow\`
+
+            ### How to Fix
+
+            **Option 1: Amend last commit**
+            \`\`\`bash
+            git commit --amend -m "feat(devices): add SSDP discovery"
+            git push --force-with-lease
+            \`\`\`
+
+            **Option 2: Interactive rebase (multiple commits)**
+            \`\`\`bash
+            git rebase -i HEAD~3  # Last 3 commits
+            # Mark commits as "reword" in editor
+            # Update commit messages
+            git push --force-with-lease
+            \`\`\`
+
+            **Need help?** Check [Conventional Commits Guide](https://www.conventionalcommits.org/)`
+            })

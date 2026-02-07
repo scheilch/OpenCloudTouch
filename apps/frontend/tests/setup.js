@@ -7,10 +7,10 @@ beforeAll(() => {
   const originalFetch = global.fetch;
   global.fetch = vi.fn((url, options) => {
     const baseUrl = 'http://localhost:8000';
-    const fullUrl = typeof url === 'string' && url.startsWith('/') 
-      ? baseUrl + url 
+    const fullUrl = typeof url === 'string' && url.startsWith('/')
+      ? baseUrl + url
       : url;
-    
+
     // Return mock response by default
     return Promise.resolve({
       ok: true,

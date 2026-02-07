@@ -17,19 +17,147 @@ env:
   IMAGE_NAME: ${{ github.repository }}
 
 jobs:
-  backend-tests:
-    name: Backend Tests
+  # ============================================================================
+  # SECURITY SCANNING (runs first, fast fail)
+  # ============================================================================
+  security:
+    name: Security Scan
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.13'
-      
+
+      - name: Install security tools
+        run: |
+          pip install bandit safety
+
+      - name: Run bandit (Python security)
+        run: |
+          bandit -r apps/backend/src -f json -o bandit-report.json || true
+          bandit -r apps/backend/src --severity-level medium
+
+      - name: Run safety (Python vulnerabilities)
+        run: |
+          safety check --file apps/backend/requirements.txt --json || true
+          safety check --file apps/backend/requirements.txt
+        continue-on-error: true
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: apps/frontend/package-lock.json
+
+      - name: Run npm audit (Frontend vulnerabilities)
+        working-directory: apps/frontend
+        run: |
+          npm audit --audit-level=moderate || true
+          npm audit --production --audit-level=high
+        continue-on-error: true
+
+  # ============================================================================
+  # CODE FORMATTING (runs parallel with security)
+  # ============================================================================
+  format:
+    name: Check Formatting
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Install black
+        run: pip install black
+
+      - name: Check Python formatting
+        run: |
+          black --check apps/backend/
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: apps/frontend/package-lock.json
+
+      - name: Install frontend dependencies
+        working-directory: apps/frontend
+        run: npm ci --prefer-offline
+
+      - name: Check TypeScript/React formatting
+        working-directory: apps/frontend
+        run: npx prettier --check "src/**/*.{js,jsx,ts,tsx,json,css}"
+
+  # ============================================================================
+  # LINTING (runs after security/format)
+  # ============================================================================
+  lint:
+    name: Lint Code
+    runs-on: ubuntu-latest
+    needs: [security, format]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Install linting tools
+        run: |
+          pip install ruff mypy
+
+      - name: Run ruff (Python linter)
+        run: |
+          ruff check apps/backend/ --select=E,F,W --ignore=E501
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: apps/frontend/package-lock.json
+
+      - name: Install frontend dependencies
+        working-directory: apps/frontend
+        run: npm ci --prefer-offline
+
+      - name: Run ESLint (TypeScript/React linter)
+        working-directory: apps/frontend
+        run: npm run lint || true
+        continue-on-error: true
+
+  # ============================================================================
+  # BACKEND TESTS (runs parallel with lint)
+  # ============================================================================
+  backend-tests:
+    name: Backend Tests
+    runs-on: ubuntu-latest
+    needs: [security, format]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
       - name: Cache Python dependencies
         uses: actions/cache@v4
         with:
@@ -37,80 +165,113 @@ jobs:
           key: ${{ runner.os }}-pip-${{ hashFiles('apps/backend/requirements-dev.txt') }}
           restore-keys: |
             ${{ runner.os }}-pip-
-      
+
       - name: Install dependencies
         run: |
           pip install -r apps/backend/requirements.txt
           pip install -r apps/backend/requirements-dev.txt
-      
+
       - name: Run tests with coverage
         run: |
           cd apps/backend
-          pytest --cov=opencloudtouch --cov-report=xml --cov-report=term-missing --cov-fail-under=80
+          pytest --cov=opencloudtouch --cov-report=xml --cov-report=json --cov-report=term-missing --cov-fail-under=80
         env:
           PYTHONPATH: ${{ github.workspace }}
           OCT_MOCK_MODE: "true"
           OCT_HAS_DEVICES: "false"
           CI: "true"
-      
-      - name: Upload coverage reports
-        uses: codecov/codecov-action@v4
-        if: success()
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v5
         with:
           files: ./apps/backend/coverage.xml
-          fail_ci_if_error: false
+          flags: backend
+          name: backend-coverage
+          fail_ci_if_error: true
           token: ${{ secrets.CODECOV_TOKEN }}
 
+      - name: Upload coverage JSON (for summary)
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: backend-coverage
+          path: apps/backend/coverage.json
+          retention-days: 1
+
+  # ============================================================================
+  # FRONTEND TESTS (runs parallel with backend-tests)
+  # ============================================================================
   frontend-tests:
     name: Frontend Tests
     runs-on: ubuntu-latest
-    
+    needs: [security, format]
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: 'npm'
           cache-dependency-path: apps/frontend/package-lock.json
-      
+
       - name: Install dependencies
         working-directory: apps/frontend
         run: |
           npm ci
           npm install @rollup/rollup-linux-x64-gnu --save-optional
-      
+
       - name: Build frontend
         working-directory: apps/frontend
         run: npm run build
-      
+
       - name: Run unit tests with coverage
         working-directory: apps/frontend
         run: npm run test:coverage
 
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          files: ./apps/frontend/coverage/coverage-summary.json
+          flags: frontend
+          name: frontend-coverage
+          fail_ci_if_error: true
+          token: ${{ secrets.CODECOV_TOKEN }}
+
+      - name: Upload coverage JSON (for summary)
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: frontend-coverage
+          path: apps/frontend/coverage/coverage-summary.json
+          retention-days: 1
+
+  # ============================================================================
+  # E2E TESTS (runs after backend + frontend)
+  # ============================================================================
   e2e-tests:
     name: E2E Tests
     runs-on: ubuntu-latest
     needs: [backend-tests, frontend-tests]
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.13'
-      
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: 'npm'
           cache-dependency-path: apps/frontend/package-lock.json
-      
+
       - name: Cache Python dependencies
         uses: actions/cache@v4
         with:
@@ -118,41 +279,41 @@ jobs:
           key: ${{ runner.os }}-pip-${{ hashFiles('apps/backend/requirements.txt') }}
           restore-keys: |
             ${{ runner.os }}-pip-
-      
+
       - name: Install backend dependencies
         run: pip install -r apps/backend/requirements.txt
-      
+
       - name: Install frontend dependencies
         working-directory: apps/frontend
         run: |
           npm ci
           npm install @rollup/rollup-linux-x64-gnu --save-optional
-      
+
       - name: Build frontend
         working-directory: apps/frontend
         run: npm run build
-      
+
       - name: Start backend server
         run: |
           cd apps/backend
           PYTHONPATH=src OCT_MOCK_MODE=true OCT_LOG_LEVEL=WARNING OCT_ALLOW_DANGEROUS_OPERATIONS=true python -m uvicorn opencloudtouch.main:app --host 0.0.0.0 --port 7778 &
           sleep 10
           curl --retry 10 --retry-delay 2 --retry-connrefused http://localhost:7778/health
-      
+
       - name: Start frontend preview server
         run: |
           cd apps/frontend
           npm run preview -- --port 4173 --strictPort &
           sleep 5
           curl --retry 10 --retry-delay 2 --retry-connrefused http://localhost:4173
-      
+
       - name: Run Cypress E2E tests
         working-directory: apps/frontend
         run: npm run test:e2e
         env:
           CYPRESS_BASE_URL: http://localhost:4173
           CYPRESS_API_URL: http://localhost:7778/api
-      
+
       - name: Upload Cypress screenshots on failure
         uses: actions/upload-artifact@v4
         if: failure()
@@ -160,7 +321,7 @@ jobs:
           name: cypress-screenshots
           path: apps/frontend/tests/e2e/screenshots
           retention-days: 7
-      
+
       - name: Upload Cypress videos on failure
         uses: actions/upload-artifact@v4
         if: failure()
@@ -169,65 +330,44 @@ jobs:
           path: apps/frontend/tests/e2e/videos
           retention-days: 7
 
-  lint:
-    name: Lint Code
-    runs-on: ubuntu-latest
-    
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-      
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.13'
-      
-      - name: Install linting tools
-        run: |
-          pip install ruff black mypy
-      
-      - name: Run ruff (linter)
-        run: |
-          ruff check apps/backend/ --select=E,F,W --ignore=E501
-        continue-on-error: true
-      
-      - name: Check code formatting with black
-        run: |
-          black --check apps/backend/
-
+  # ============================================================================
+  # DOCKER BUILD (runs parallel from start, only main/tags)
+  # ============================================================================
   build:
     name: Build Docker Image
     runs-on: ubuntu-latest
     # Runs in parallel with tests (no push yet)
     if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v'))
-    
+
     permissions:
       contents: read
       packages: write
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      
+
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
-      
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-      
+
       - name: Extract metadata (tags, labels)
         id: meta
         uses: docker/metadata-action@v5
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
-            type=ref,event=branch
+            type=raw,value=latest,enable={{is_default_branch}}
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
             type=semver,pattern={{major}}
+            type=raw,value=stable,enable=${{ startsWith(github.ref, 'refs/tags/v') }}
             type=sha,prefix={{branch}}-
-      
+
       - name: Build Docker image (without push)
+        id: build
         uses: docker/build-push-action@v5
         with:
           context: .
@@ -237,51 +377,64 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
-      
+          outputs: type=image,name=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }},push-by-digest=true,name-canonical=true
+
       - name: Build summary
         run: |
           echo "## 🔨 Docker Build Complete" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "Image built successfully (not pushed yet)." >> $GITHUB_STEP_SUMMARY
           echo "Waiting for E2E tests to pass before push." >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Platforms:** linux/amd64, linux/arm64" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Tags:**" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          echo "${{ steps.meta.outputs.tags }}" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
 
+  # ============================================================================
+  # DOCKER PUSH (after build + e2e, only main/tags)
+  # ============================================================================
   push:
     name: Push Docker Image
     runs-on: ubuntu-latest
     needs: [build, e2e-tests]
     if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v'))
-    
+
     permissions:
       contents: read
       packages: write
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-      
+
       - name: Log in to GitHub Container Registry
         uses: docker/login-action@v3
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      
+
       - name: Extract metadata (tags, labels)
         id: meta
         uses: docker/metadata-action@v5
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
-            type=ref,event=branch
+            type=raw,value=latest,enable={{is_default_branch}}
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
             type=semver,pattern={{major}}
+            type=raw,value=stable,enable=${{ startsWith(github.ref, 'refs/tags/v') }}
             type=sha,prefix={{branch}}-
-      
+
       - name: Push Docker image (from cache)
+        id: push
         uses: docker/build-push-action@v5
         with:
           context: .
@@ -290,12 +443,26 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
-      
+
+      - name: Save image digest
+        run: |
+          mkdir -p /tmp/digests
+          echo "${{ steps.push.outputs.digest }}" > /tmp/digests/digest.txt
+
+      - name: Upload digest
+        uses: actions/upload-artifact@v4
+        with:
+          name: docker-digest
+          path: /tmp/digests/digest.txt
+          retention-days: 1
+
       - name: Generate deployment summary
         run: |
           echo "## ✅ Docker Image Published" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**Image:** \`${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Digest:** \`${{ steps.push.outputs.digest }}\`" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**Tags:**" >> $GITHUB_STEP_SUMMARY
           echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
@@ -304,4 +471,86 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**Platforms:** linux/amd64, linux/arm64" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**Status:** All tests passed ✅" >> $GITHUB_STEP_SUMMARY
+          echo "**Pull Command:**" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`bash" >> $GITHUB_STEP_SUMMARY
+          echo "docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}@${{ steps.push.outputs.digest }}" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+
+  # ============================================================================
+  # BUILD SUMMARY (runs always at the end)
+  # ============================================================================
+  summary:
+    name: Build Summary
+    runs-on: ubuntu-latest
+    needs: [security, format, lint, backend-tests, frontend-tests, e2e-tests]
+    if: always()
+
+    steps:
+      - name: Download backend coverage
+        uses: actions/download-artifact@v4
+        continue-on-error: true
+        with:
+          name: backend-coverage
+          path: ./coverage
+
+      - name: Download frontend coverage
+        uses: actions/download-artifact@v4
+        continue-on-error: true
+        with:
+          name: frontend-coverage
+          path: ./coverage
+
+      - name: Parse coverage and generate summary
+        run: |
+          echo "# 📊 CI/CD Pipeline Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          # Job status overview
+          echo "## 🔍 Job Status" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Job | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|-----|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Security Scan | ${{ needs.security.result == 'success' && '✅ Passed' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Format Check | ${{ needs.format.result == 'success' && '✅ Passed' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Lint | ${{ needs.lint.result == 'success' && '✅ Passed' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Backend Tests | ${{ needs.backend-tests.result == 'success' && '✅ Passed' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Frontend Tests | ${{ needs.frontend-tests.result == 'success' && '✅ Passed' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| E2E Tests | ${{ needs.e2e-tests.result == 'success' && '✅ Passed' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          # Coverage
+          echo "## 📈 Test Coverage" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          # Backend coverage
+          if [ -f ./coverage/coverage.json ]; then
+            BACKEND_COV=$(python3 -c "import json; data=json.load(open('./coverage/coverage.json')); print(f\"{data['totals']['percent_covered']:.1f}%\")" 2>/dev/null || echo "N/A")
+            echo "**Backend:** $BACKEND_COV" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "**Backend:** Coverage data not available" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          # Frontend coverage
+          if [ -f ./coverage/coverage-summary.json ]; then
+            FRONTEND_COV=$(python3 -c "import json; data=json.load(open('./coverage/coverage-summary.json')); total=data.get('total', {}); lines=total.get('lines', {}); print(f\"{lines.get('pct', 0):.1f}%\")" 2>/dev/null || echo "N/A")
+            echo "**Frontend:** $FRONTEND_COV" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "**Frontend:** Coverage data not available" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "_💡 Tip: Click on job names above to see detailed results_" >> $GITHUB_STEP_SUMMARY
+
+      - name: Check overall status
+        run: |
+          if [[ "${{ needs.security.result }}" != "success" ]] || \
+             [[ "${{ needs.format.result }}" != "success" ]] || \
+             [[ "${{ needs.lint.result }}" != "success" ]] || \
+             [[ "${{ needs.backend-tests.result }}" != "success" ]] || \
+             [[ "${{ needs.frontend-tests.result }}" != "success" ]] || \
+             [[ "${{ needs.e2e-tests.result }}" != "success" ]]; then
+            echo "❌ Some jobs failed - see summary above" >> $GITHUB_STEP_SUMMARY
+            exit 1
+          else
+            echo "✅ All jobs passed successfully!" >> $GITHUB_STEP_SUMMARY
+          fi

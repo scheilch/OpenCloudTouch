@@ -1,7 +1,7 @@
 /**
  * Real Device Unit Tests (Frontend)
  * Tests that interact with real backend/devices
- * 
+ *
  * NOTE: These tests are NOT run by default (not in standard test suite)
  * Run with: npm run test:real
  */
@@ -25,20 +25,20 @@ describe('Real Device API Integration', () => {
     const syncResponse = await fetch(`${API_BASE_URL}/devices/sync`, {
       method: 'POST'
     })
-    
+
     expect(syncResponse.ok).toBe(true)
-    
+
     // Wait for sync to complete
     await new Promise(resolve => setTimeout(resolve, 15000))
-    
+
     // Fetch devices
     const response = await fetch(`${API_BASE_URL}/devices`)
     const data = await response.json()
-    
+
     expect(response.ok).toBe(true)
     expect(data.count).toBeGreaterThan(0)
     expect(Array.isArray(data.devices)).toBe(true)
-    
+
     // Verify real device data (NOT mock)
     const device = data.devices[0]
     expect(device.device_id).toBeTruthy()
@@ -50,15 +50,15 @@ describe('Real Device API Integration', () => {
     // Get devices first
     const devicesResponse = await fetch(`${API_BASE_URL}/devices`)
     const devicesData = await devicesResponse.json()
-    
+
     expect(devicesData.count).toBeGreaterThan(0)
-    
+
     const deviceId = devicesData.devices[0].device_id
-    
+
     // Fetch capabilities
     const capResponse = await fetch(`${API_BASE_URL}/devices/${deviceId}/capabilities`)
     const capabilities = await capResponse.json()
-    
+
     expect(capResponse.ok).toBe(true)
     expect(capabilities).toHaveProperty('hdmi_control')
     expect(capabilities).toHaveProperty('supports_bluetooth')
@@ -72,11 +72,11 @@ describe('Real RadioBrowser API Integration', () => {
   skipIfNoDevices('should search real radio stations from RadioBrowser', async () => {
     const response = await fetch(`${API_BASE_URL}/radio/search?query=BBC&search_type=name&limit=5`)
     const data = await response.json()
-    
+
     expect(response.ok).toBe(true)
     expect(data.count).toBeGreaterThan(0)
     expect(Array.isArray(data.stations)).toBe(true)
-    
+
     // Verify real station data
     const station = data.stations[0]
     expect(station.name).toBeTruthy()
@@ -88,15 +88,15 @@ describe('Real RadioBrowser API Integration', () => {
     // Search first
     const searchResponse = await fetch(`${API_BASE_URL}/radio/search?query=Radio&search_type=name&limit=1`)
     const searchData = await searchResponse.json()
-    
+
     expect(searchData.count).toBeGreaterThan(0)
-    
+
     const stationUuid = searchData.stations[0].uuid
-    
+
     // Fetch details
     const detailResponse = await fetch(`${API_BASE_URL}/radio/stations/${stationUuid}`)
     const station = await detailResponse.json()
-    
+
     expect(detailResponse.ok).toBe(true)
     expect(station.uuid).toBe(stationUuid)
     expect(station.name).toBeTruthy()

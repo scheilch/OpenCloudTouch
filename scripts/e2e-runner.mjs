@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * E2E Test Runner
- * 
+ *
  * Orchestrates E2E tests:
  * 1. Start backend on port 7778
  * 2. Build and preview frontend on port 4173
@@ -61,7 +61,7 @@ async function killPort(port) {
     if (platform() === 'win32') {
       const { stdout } = await execAsync(`netstat -ano | findstr :${port}`);
       const lines = stdout.trim().split('\n');
-      
+
       for (const line of lines) {
         const parts = line.trim().split(/\s+/);
         const pid = parts[parts.length - 1];
@@ -87,7 +87,7 @@ async function killPort(port) {
  */
 async function waitForEndpoint(url, maxRetries = 30, retryDelay = 1000) {
   log(`[DEBUG] Polling ${url} (max ${maxRetries} retries)...`, colors.yellow);
-  
+
   for (let i = 0; i < maxRetries; i++) {
     try {
       const response = await fetch(url);
@@ -109,18 +109,18 @@ async function waitForEndpoint(url, maxRetries = 30, retryDelay = 1000) {
  */
 async function startBackend() {
   logInfo('Starting backend on port 7778...');
-  
+
   await killPort(TEST_PORT_BACKEND);
-  
-  const pythonCmd = platform() === 'win32' 
+
+  const pythonCmd = platform() === 'win32'
     ? join(rootDir, '.venv', 'Scripts', 'python.exe')
     : join(rootDir, '.venv', 'bin', 'python');
-  
+
   log(`[DEBUG] Python path: ${pythonCmd}`, colors.yellow);
-  
+
   // Add src directory to PYTHON PATH
   const srcDir = join(BACKEND_DIR, 'src');
-  
+
   const env = {
     ...process.env,
     OCT_PORT: String(TEST_PORT_BACKEND),
@@ -128,20 +128,20 @@ async function startBackend() {
     OCT_LOG_LEVEL: 'WARNING',
     PYTHONPATH: srcDir
   };
-  
+
   backendProcess = spawn(
     pythonCmd,
     ['-m', 'uvicorn', 'opencloudtouch.main:app', '--host', '0.0.0.0', '--port', String(TEST_PORT_BACKEND)],
     { cwd: BACKEND_DIR, env, stdio: 'inherit' }
   );
-  
+
   backendProcess.on('error', (error) => {
     logError(`Backend process error: ${error.message}`);
     throw error;
   });
-  
+
   log('[DEBUG] Waiting for backend health endpoint...', colors.yellow);
-  
+
   // Wait for backend to be ready
   await waitForEndpoint(`http://localhost:${TEST_PORT_BACKEND}/health`);
   logSuccess('Backend started successfully');
@@ -152,40 +152,40 @@ async function startBackend() {
  */
 async function startFrontend() {
   logInfo('Building frontend (production build)...');
-  
+
   await killPort(TEST_PORT_FRONTEND);
-  
+
   // Build frontend
   const buildProcess = spawn(
     'npm',
     ['run', 'build'],
     { cwd: FRONTEND_DIR, stdio: 'inherit', shell: true }
   );
-  
+
   await new Promise((resolve, reject) => {
     buildProcess.on('close', (code) => {
       if (code === 0) resolve();
       else reject(new Error(`Build failed with code ${code}`));
     });
   });
-  
+
   logSuccess('Frontend built successfully');
   logInfo(`Starting frontend preview server on port ${TEST_PORT_FRONTEND}...`);
-  
+
   // Start preview server
   frontendProcess = spawn(
     'npm',
     ['run', 'preview', '--', '--port', String(TEST_PORT_FRONTEND), '--strictPort'],
     { cwd: FRONTEND_DIR, stdio: 'pipe', shell: true }
   );
-  
+
   frontendProcess.stderr.on('data', (data) => {
     const msg = data.toString();
     if (msg.includes('ERROR')) {
       logError(msg.trim());
     }
   });
-  
+
   // Wait for frontend to be ready
   await waitForEndpoint(`http://localhost:${TEST_PORT_FRONTEND}`);
   logSuccess('Frontend started successfully');
@@ -196,18 +196,18 @@ async function startFrontend() {
  */
 async function runCypressTests() {
   logInfo('Running Cypress E2E tests...');
-  
+
   const env = {
     ...process.env,
     CYPRESS_API_URL: `http://localhost:${TEST_PORT_BACKEND}/api`
   };
-  
+
   const cypressProcess = spawn(
     'npx',
     ['cypress', 'run'],
     { cwd: FRONTEND_DIR, env, stdio: 'inherit', shell: true }
   );
-  
+
   return new Promise((resolve, reject) => {
     cypressProcess.on('close', (code) => {
       // Cypress sometimes returns -1 due to async cleanup issues
@@ -218,7 +218,7 @@ async function runCypressTests() {
         reject(new Error(`Cypress tests failed with code ${code}`));
       }
     });
-    
+
     cypressProcess.on('error', (error) => {
       reject(error);
     });
@@ -230,20 +230,20 @@ async function runCypressTests() {
  */
 async function cleanup() {
   logInfo('Cleaning up...');
-  
+
   if (backendProcess && !backendProcess.killed) {
     backendProcess.kill('SIGTERM');
   }
-  
+
   if (frontendProcess && !frontendProcess.killed) {
     frontendProcess.kill('SIGTERM');
   }
-  
+
   await new Promise(resolve => setTimeout(resolve, 500));
-  
+
   await killPort(TEST_PORT_BACKEND);
   await killPort(TEST_PORT_FRONTEND);
-  
+
   logSuccess('Cleanup complete');
 }
 
@@ -252,19 +252,19 @@ async function cleanup() {
  */
 async function main() {
   logSection('OpenCloudTouch E2E Test Runner');
-  
+
   let exitCode = 0;
-  
+
   try {
     // Step 1: Start backend
     await startBackend();
-    
+
     // Step 2: Build and start frontend
     await startFrontend();
-    
+
     // Step 3: Run Cypress tests
     await runCypressTests();
-    
+
     logSection('E2E Tests PASSED ✅');
   } catch (error) {
     logError(error.message);
@@ -273,7 +273,7 @@ async function main() {
   } finally {
     await cleanup();
   }
-  
+
   process.exit(exitCode);
 }
 

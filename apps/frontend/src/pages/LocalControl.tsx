@@ -32,7 +32,7 @@ export default function LocalControl({ devices = [] }: LocalControlProps) {
   const [playState, setPlayState] = useState<"PLAY_STATE" | "PAUSE_STATE">("PLAY_STATE");
 
   const currentDevice = devices[currentDeviceIndex];
-  
+
   // Temporary: Set nowPlaying to null properly typed
   const nowPlaying = null as NowPlayingData | null;
 
@@ -59,7 +59,8 @@ export default function LocalControl({ devices = [] }: LocalControlProps) {
   };
 
   const handlePlayPause = () => {
-    const newState: "PLAY_STATE" | "PAUSE_STATE" = playState === "PLAY_STATE" ? "PAUSE_STATE" : "PLAY_STATE";
+    const newState: "PLAY_STATE" | "PAUSE_STATE" =
+      playState === "PLAY_STATE" ? "PAUSE_STATE" : "PLAY_STATE";
     setPlayState(newState);
   };
 
@@ -161,12 +162,8 @@ export default function LocalControl({ devices = [] }: LocalControlProps) {
               transition={{ delay: 0.3 }}
             >
               <div className="now-playing-text">
-                <div className="station-name">
-                  {nowPlaying.station || "Kein Sender"}
-                </div>
-                <div className="track-info">
-                  {nowPlaying.track || "Keine Wiedergabe"}
-                </div>
+                <div className="station-name">{nowPlaying.station || "Kein Sender"}</div>
+                <div className="track-info">{nowPlaying.track || "Keine Wiedergabe"}</div>
               </div>
             </motion.div>
           )}
@@ -192,9 +189,7 @@ export default function LocalControl({ devices = [] }: LocalControlProps) {
                 onClick={handlePlayPause}
                 disabled={selectedSource === "AUX"}
               >
-                <span className="playback-icon">
-                  {playState === "PLAY_STATE" ? "⏸️" : "▶️"}
-                </span>
+                <span className="playback-icon">{playState === "PLAY_STATE" ? "⏸️" : "▶️"}</span>
               </button>
               <button
                 className="playback-button next"
@@ -218,14 +213,9 @@ export default function LocalControl({ devices = [] }: LocalControlProps) {
               onClick={handleMuteToggle}
             >
               <span className="quick-action-icon">{muted ? "🔇" : "🔊"}</span>
-              <span className="quick-action-label">
-                {muted ? "Ton an" : "Stumm"}
-              </span>
+              <span className="quick-action-label">{muted ? "Ton an" : "Stumm"}</span>
             </button>
-            <button
-              className="quick-action-button standby"
-              onClick={handleStandby}
-            >
+            <button className="quick-action-button standby" onClick={handleStandby}>
               <span className="quick-action-icon">💤</span>
               <span className="quick-action-label">Standby</span>
             </button>

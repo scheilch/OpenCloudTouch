@@ -1,6 +1,6 @@
 /**
  * Custom Cypress Commands
- * 
+ *
  * Note: Tests run against REAL backend API with OCT_MOCK_MODE=true
  * No more cy.intercept - backend provides mock data via MockDiscoveryAdapter
  */
@@ -40,4 +40,3 @@ Cypress.Commands.add('saveIPsInModal', (ips) => {
 Cypress.Commands.add('waitForModalClose', () => {
   cy.get('[data-test="modal-content"]').should('not.exist')
 })
-

@@ -1,8 +1,8 @@
 ﻿/**
  * Tests for EmptyState.tsx
- * 
+ *
  * User Story: "Als neuer User möchte ich durch das Setup geführt werden"
- * 
+ *
  * Focus: Functional tests for initial device discovery
  * - Display welcome message and setup steps
  * - Auto-discovery flow (trigger /api/devices/sync)
@@ -52,7 +52,7 @@ describe('EmptyState Component', () => {
 
       expect(screen.getByText('Willkommen bei OpenCloudTouch')).toBeInTheDocument();
       expect(screen.getByText('Noch keine Geräte gefunden.')).toBeInTheDocument();
-      
+
       // Setup steps
       expect(screen.getByText('Geräte einschalten')).toBeInTheDocument();
       expect(screen.getByText('Geräte suchen')).toBeInTheDocument();
@@ -274,8 +274,8 @@ describe('EmptyState Component', () => {
 
       // Enter valid IPs
       const textarea = screen.getByRole('textbox');
-      fireEvent.change(textarea, { 
-        target: { value: '192.168.1.100\n192.168.1.101' } 
+      fireEvent.change(textarea, {
+        target: { value: '192.168.1.100\n192.168.1.101' }
       });
 
       // Save

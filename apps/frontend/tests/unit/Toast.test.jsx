@@ -1,8 +1,8 @@
 /**
  * Tests for Toast.tsx
- * 
+ *
  * User Story: "Als User möchte ich visuelles Feedback für Aktionen erhalten"
- * 
+ *
  * Focus: Functional tests for toast notifications
  * - Display messages with different types (success, error, warning, info)
  * - Auto-hide after duration

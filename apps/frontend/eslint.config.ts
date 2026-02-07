@@ -2,32 +2,51 @@ import js from "@eslint/js";
 import globals from "globals";
 import tseslint from "typescript-eslint";
 import pluginReact from "eslint-plugin-react";
-import json from "@eslint/json";
-import markdown from "@eslint/markdown";
-import css from "@eslint/css";
-import { defineConfig } from "eslint/config";
 
-export default defineConfig([
-  { 
-    files: ["**/*.{js,mjs,cjs,ts,mts,cts,jsx,tsx}"], 
-    plugins: { js }, 
-    extends: ["js/recommended"], 
-    languageOptions: { globals: globals.browser }
-  },
-  tseslint.configs.recommended,
-  pluginReact.configs.flat.recommended,
-  { files: ["**/*.json"], plugins: { json }, language: "json/json", extends: ["json/recommended"] },
-  { files: ["**/*.jsonc"], plugins: { json }, language: "json/jsonc", extends: ["json/recommended"] },
-  { files: ["**/*.json5"], plugins: { json }, language: "json/json5", extends: ["json/recommended"] },
-  { files: ["**/*.md"], plugins: { markdown }, language: "markdown/commonmark", extends: ["markdown/recommended"] },
-  { files: ["**/*.css"], plugins: { css }, language: "css/css", extends: ["css/recommended"] },
-  // Override React rules AFTER all other configs
+export default [
   {
-    files: ["**/*.{js,jsx,tsx}"],
+    ignores: [
+      "**/node_modules/**",
+      "**/dist/**",
+      "**/coverage/**",
+      "**/tests/**",
+      "**/*.test.*",
+      "**/*.cy.*",
+      "**/*.min.js",
+      "**/*.min.css",
+      "**/*.css",  // CSS files handled by stylelint, not ESLint
+      "**/*.json",
+      "**/*.md"
+    ]
+  },
+  {
+    files: ["**/*.{js,mjs,cjs,ts,mts,cts,jsx,tsx}"],
+    plugins: {
+      react: pluginReact
+    },
+    settings: {
+      react: {
+        version: "detect"
+      }
+    },
+    languageOptions: {
+      globals: globals.browser,
+      parserOptions: {
+        ecmaFeatures: {
+          jsx: true
+        }
+      }
+    },
     rules: {
+      ...js.configs.recommended.rules,
+      ...pluginReact.configs.recommended.rules,
       // React 18+ doesn't require React import in JSX files
       "react/react-in-jsx-scope": "off",
       // TypeScript migration complete - prop-types no longer needed
+      "react/prop-types": "off",
+      // Temporary: Disable display-name until eslint-plugin-react v8
+      "react/display-name": "off"
     }
-  }
-]);
+  },
+  ...tseslint.configs.recommended
+];

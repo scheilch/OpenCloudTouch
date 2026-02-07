@@ -21,20 +21,20 @@
       </feMerge>
     </filter>
   </defs>
-  
+
   <!-- Shadow -->
   <ellipse cx="140" cy="165" rx="100" ry="8" fill="#000" opacity="0.25"/>
-  
+
   <!-- Main body -->
-  <rect x="15" y="25" width="250" height="125" rx="10" 
+  <rect x="15" y="25" width="250" height="125" rx="10"
         fill="url(#st30-body)" filter="url(#st30-shadow)"/>
-  
+
   <!-- Left speaker grill -->
   <rect x="25" y="35" width="100" height="105" rx="5" fill="url(#st30-grill)"/>
-  
+
   <!-- Right speaker grill -->
   <rect x="155" y="35" width="100" height="105" rx="5" fill="url(#st30-grill)"/>
-  
+
   <!-- Grill pattern left -->
   <g opacity="0.15">
     <line x1="35" y1="45" x2="35" y2="130" stroke="#fff" stroke-width="1"/>
@@ -47,7 +47,7 @@
     <line x1="105" y1="45" x2="105" y2="130" stroke="#fff" stroke-width="1"/>
     <line x1="115" y1="45" x2="115" y2="130" stroke="#fff" stroke-width="1"/>
   </g>
-  
+
   <!-- Grill pattern right -->
   <g opacity="0.15">
     <line x1="165" y1="45" x2="165" y2="130" stroke="#fff" stroke-width="1"/>
@@ -60,34 +60,34 @@
     <line x1="235" y1="45" x2="235" y2="130" stroke="#fff" stroke-width="1"/>
     <line x1="245" y1="45" x2="245" y2="130" stroke="#fff" stroke-width="1"/>
   </g>
-  
+
   <!-- Center display panel -->
   <rect x="130" y="55" width="20" height="70" rx="3" fill="#0a0a0a"/>
-  
+
   <!-- Display screen -->
   <rect x="133" y="65" width="14" height="25" rx="1" fill="#000"/>
-  <text x="140" y="76" text-anchor="middle" font-family="monospace" 
+  <text x="140" y="76" text-anchor="middle" font-family="monospace"
         font-size="4" fill="#0f0" opacity="0.8">SOUND</text>
-  <text x="140" y="83" text-anchor="middle" font-family="monospace" 
+  <text x="140" y="83" text-anchor="middle" font-family="monospace"
         font-size="4" fill="#0f0" opacity="0.8">TOUCH</text>
-  
+
   <!-- Bose logo top -->
   <rect x="122" y="10" width="36" height="7" rx="2" fill="#fff" opacity="0.9"/>
-  <text x="140" y="15.5" text-anchor="middle" font-family="Arial, sans-serif" 
+  <text x="140" y="15.5" text-anchor="middle" font-family="Arial, sans-serif"
         font-size="5.5" font-weight="bold" fill="#000">BOSE</text>
-  
+
   <!-- Control buttons on center panel -->
   <circle cx="140" cy="98" r="3" fill="#222" stroke="#444" stroke-width="0.5"/>
   <circle cx="140" cy="107" r="3" fill="#222" stroke="#444" stroke-width="0.5"/>
   <circle cx="140" cy="116" r="3" fill="#222" stroke="#444" stroke-width="0.5"/>
-  
+
   <!-- Top buttons -->
   <rect x="30" y="155" width="8" height="8" rx="1" fill="#333" stroke="#555" stroke-width="0.5"/>
   <rect x="70" y="155" width="8" height="8" rx="1" fill="#333" stroke="#555" stroke-width="0.5"/>
   <rect x="135" y="155" width="10" height="10" rx="2" fill="#333" stroke="#555" stroke-width="0.5"/>
   <rect x="202" y="155" width="8" height="8" rx="1" fill="#333" stroke="#555" stroke-width="0.5"/>
   <rect x="242" y="155" width="8" height="8" rx="1" fill="#333" stroke="#555" stroke-width="0.5"/>
-  
+
   <!-- LED indicator -->
   <circle cx="140" cy="32" r="2.5" fill="#0f0" opacity="0.8"/>
 </svg>

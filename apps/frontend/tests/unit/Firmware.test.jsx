@@ -1,8 +1,8 @@
 /**
  * Tests for Firmware.tsx
- * 
+ *
  * User Story: "Als User möchte ich Firmware-Status meiner Geräte sehen"
- * 
+ *
  * Focus: Functional tests for firmware management UI
  * - Display device firmware information
  * - Firmware status detection (up-to-date vs. update-available)
@@ -105,7 +105,7 @@ describe('Firmware Page', () => {
 
       expect(screen.getByText('Firmware hochladen')).toBeInTheDocument();
       expect(screen.getByText(/Upload ist derzeit nicht verfügbar/)).toBeInTheDocument();
-      
+
       const uploadButton = screen.getByRole('button', { name: /Firmware auswählen/i });
       expect(uploadButton).toBeDisabled();
     });

@@ -10,17 +10,17 @@ export default defineConfig({
     screenshotsFolder: 'tests/e2e/screenshots',
     videosFolder: 'tests/e2e/videos',
     video: false, // Disable video recording (speeds up tests)
-    
+
     env: {
       // API URL set via CYPRESS_API_URL env var by run-e2e-tests.ps1
       // Default: http://localhost:7778/api (test port)
       apiUrl: 'http://localhost:7778/api'
     },
-    
+
     setupNodeEvents(on, config) {
       // Future: Code Coverage Plugin
     },
-    
+
     viewportWidth: 1280,
     viewportHeight: 720,
     defaultCommandTimeout: 10000,

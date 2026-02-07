@@ -1,8 +1,8 @@
 /**
  * Tests for RadioPresets.tsx
- * 
+ *
  * User Story: "Als User möchte ich Radiosender auf Preset-Tasten speichern"
- * 
+ *
  * Focus: Functional tests for preset management
  * - Display device information and presets (1-6)
  * - Assign radio station to preset (opens search modal)
@@ -307,7 +307,7 @@ describe('RadioPresets Page', () => {
       render(<RadioPresets devices={mockDevices} />);
 
       const muteButton = screen.getByTestId('mute-button');
-      
+
       // Initially not muted
       expect(muteButton).toHaveTextContent('Mute');
 
