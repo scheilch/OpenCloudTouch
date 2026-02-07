@@ -14,8 +14,9 @@ WORKDIR /app
 COPY package*.json ./
 COPY apps/frontend/package*.json ./apps/frontend/
 
-# Install dependencies using workspace
-RUN npm ci
+# Install dependencies using workspace (Alpine uses musl, not gnu)
+RUN npm ci && \
+    npm install --no-save @rollup/rollup-linux-x64-musl
 
 # Copy frontend source
 COPY apps/frontend/ ./apps/frontend/
