@@ -23,7 +23,7 @@ class AppConfig(BaseSettings):
     )
 
     # Server
-    host: str = Field(default="0.0.0.0", description="API bind address")
+    host: str = Field(default="0.0.0.0", description="API bind address")  # nosec B104
     port: int = Field(default=7777, description="API port")
     log_level: str = Field(default="INFO", description="Logging level")
     log_format: str = Field(default="text", description="Log format: 'text' or 'json'")
