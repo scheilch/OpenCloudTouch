@@ -86,6 +86,15 @@ repos:
         always_run: true
         stages: [pre-push]  # Only on push, not every commit
 
+      # Frontend Unit Tests (pre-push only) - Note: Requires Git Bash on Windows
+      - id: vitest
+        name: Run frontend unit tests (pre-push)
+        entry: bash -c 'cd apps/frontend && npm run test'
+        language: system
+        pass_filenames: false
+        always_run: true
+        stages: [pre-push]
+
       # Frontend ESLint (pre-push only) - Note: Requires Git Bash on Windows
       - id: eslint
         name: Lint frontend (eslint, pre-push)
