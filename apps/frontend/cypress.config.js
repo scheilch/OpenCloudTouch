@@ -17,7 +17,7 @@ export default defineConfig({
       apiUrl: 'http://localhost:7778/api'
     },
 
-    setupNodeEvents(_on, _config) {
+    setupNodeEvents() {
       // Future: Code Coverage Plugin
     },
 
