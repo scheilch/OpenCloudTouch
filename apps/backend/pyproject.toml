@@ -19,6 +19,9 @@ dependencies = [
     "pydantic-settings>=2.0.0",
     "pyyaml>=6.0",
     "bosesoundtouchapi>=0.2.0",
+    "defusedxml>=0.7.1",
+    "websockets>=13.0",
+    "ssdpy>=0.4.0",
 ]
 
 [project.optional-dependencies]
