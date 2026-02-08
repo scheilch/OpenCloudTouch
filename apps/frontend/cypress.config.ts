@@ -5,7 +5,7 @@ export default defineConfig({
     baseUrl: 'http://localhost:4173', // Frontend (Vite Preview)
     specPattern: 'tests/e2e/**/*.cy.{js,jsx,ts,tsx}',
     excludeSpecPattern: 'tests/real/**/*.cy.{js,jsx,ts,tsx}', // Exclude real device tests from default runs
-    supportFile: 'tests/e2e/support/e2e.js',
+    supportFile: 'tests/e2e/support/e2e.ts',
     fixturesFolder: false, // No fixtures needed (backend provides mocks)
     screenshotsFolder: 'tests/e2e/screenshots',
     videosFolder: 'tests/e2e/videos',

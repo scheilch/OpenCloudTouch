@@ -48,5 +48,8 @@
     "streaming"
   ],
   "author": "Your Name",
-  "license": "Apache-2.0"
+  "license": "Apache-2.0",
+  "dependencies": {
+    "cypress": "^15.10.0"
+  }
 }
