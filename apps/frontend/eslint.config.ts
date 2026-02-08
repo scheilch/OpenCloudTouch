@@ -30,7 +30,11 @@ export default [
       }
     },
     languageOptions: {
-      globals: globals.browser,
+      globals: {
+        ...globals.browser,
+        // Node.js globals for config files (vite.config.js, cypress.config.js)
+        ...globals.node
+      },
       parserOptions: {
         ecmaFeatures: {
           jsx: true
