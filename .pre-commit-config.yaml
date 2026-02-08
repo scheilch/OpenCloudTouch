@@ -79,8 +79,7 @@ repos:
       # Backend Tests (pre-push only)
       - id: pytest-quick
         name: Run backend unit tests (pre-push)
-        entry: python -m pytest
-        args: [apps/backend/tests/unit, -v, --tb=short, -x]
+        entry: bash -c 'cd apps/backend && ../../.venv/Scripts/python.exe -m pytest tests/unit -v --tb=short -x'
         language: system
         pass_filenames: false
         always_run: true
