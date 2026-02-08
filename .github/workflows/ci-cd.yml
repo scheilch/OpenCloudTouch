@@ -234,7 +234,7 @@ jobs:
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v5
         with:
-          files: ./apps/frontend/coverage/coverage-summary.json
+          files: ./apps/frontend/coverage/lcov.info
           flags: frontend
           name: frontend-coverage
           fail_ci_if_error: true
