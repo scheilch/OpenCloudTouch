@@ -6,7 +6,7 @@ export default defineConfig({
   test: {
     globals: true,
     environment: 'jsdom',
-    setupFiles: './tests/setup.js',
+    setupFiles: './tests/setup.ts',
     exclude: [
       '**/node_modules/**',
       '**/dist/**',
@@ -19,9 +19,10 @@ export default defineConfig({
       exclude: [
         'node_modules/',
         'tests/',
-        '**/*.test.{js,jsx}',
-        'vite.config.js',
-        'vitest.config.js',
+        '**/*.test.{js,jsx,ts,tsx}',
+        'vite.config.ts',
+        'vitest.config.ts',
+        'eslint.config.ts',
       ],
       thresholds: {
         lines: 80,        // Current: 85.31% ✓

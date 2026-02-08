@@ -18,7 +18,7 @@ import RadioPresets from '../../src/pages/RadioPresets';
 
 // Mock child components
 vi.mock('../../src/components/DeviceSwiper', () => ({
-  default: ({ children, devices, currentIndex, onIndexChange }) => (
+  default: ({ children, onIndexChange }) => (
     <div data-testid="device-swiper">
       <button onClick={() => onIndexChange(0)}>Device 1</button>
       <button onClick={() => onIndexChange(1)}>Device 2</button>

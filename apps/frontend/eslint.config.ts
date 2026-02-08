@@ -9,9 +9,9 @@ export default [
       "**/node_modules/**",
       "**/dist/**",
       "**/coverage/**",
-      "**/tests/**",
-      "**/*.test.*",
-      "**/*.cy.*",
+      "**/tests/e2e/**",      // Keep e2e tests ignored (Cypress)
+      "**/tests/real/**",     // Keep real hardware tests ignored
+      "**/*.cy.*",            // Keep Cypress files ignored
       "**/*.min.js",
       "**/*.min.css",
       "**/*.css",  // CSS files handled by stylelint, not ESLint
@@ -50,6 +50,25 @@ export default [
       "react/prop-types": "off",
       // Temporary: Disable display-name until eslint-plugin-react v8
       "react/display-name": "off"
+    }
+  },
+  // Test files configuration
+  {
+    files: ["**/*.test.{ts,tsx}", "**/tests/**/*.{ts,tsx}"],
+    languageOptions: {
+      globals: {
+        ...globals.browser,
+        // Vitest globals
+        describe: "readonly",
+        it: "readonly",
+        expect: "readonly",
+        vi: "readonly",
+        beforeEach: "readonly",
+        afterEach: "readonly",
+        beforeAll: "readonly",
+        afterAll: "readonly",
+        test: "readonly"
+      }
     }
   },
   ...tseslint.configs.recommended

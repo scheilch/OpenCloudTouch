@@ -138,8 +138,7 @@ jobs:
 
       - name: Run ESLint (TypeScript/React linter)
         working-directory: apps/frontend
-        run: npm run lint || true
-        continue-on-error: true
+        run: npm run lint
 
   # ============================================================================
   # BACKEND TESTS (runs parallel with lint)
