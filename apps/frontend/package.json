@@ -6,19 +6,15 @@
   "description": "OpenCloudTouch - Local control for compatible streaming devices",
   "scripts": {
     "dev": "vite",
-    "dev:mock": "vite --mode development",
     "build": "vite build",
     "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest watch",
-    "test:ui": "vitest --ui",
     "test:coverage": "vitest run --coverage",
     "test:e2e": "cypress run",
     "test:e2e:headed": "cypress run --headed --browser electron",
     "test:e2e:open": "cypress open",
     "lint": "eslint .",
-    "format": "prettier --write \"src/**/*.{js,jsx,ts,tsx,json,css}\"",
-    "format:check": "prettier --check \"src/**/*.{js,jsx,ts,tsx,json,css}\"",
     "clean": "rimraf node_modules dist .vite coverage cypress/screenshots cypress/videos"
   },
   "dependencies": {

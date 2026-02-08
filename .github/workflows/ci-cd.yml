@@ -167,7 +167,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install -r apps/backend/requirements.txt
+          pip install -e apps/backend
           pip install -r apps/backend/requirements-dev.txt
 
       - name: Run tests with coverage
@@ -175,7 +175,6 @@ jobs:
           cd apps/backend
           pytest --cov=opencloudtouch --cov-report=xml --cov-report=json --cov-report=term-missing --cov-fail-under=80
         env:
-          PYTHONPATH: ${{ github.workspace }}
           OCT_MOCK_MODE: "true"
           OCT_HAS_DEVICES: "false"
           CI: "true"
@@ -280,7 +279,7 @@ jobs:
             ${{ runner.os }}-pip-
 
       - name: Install backend dependencies
-        run: pip install -r apps/backend/requirements.txt
+        run: pip install -e apps/backend
 
       - name: Install frontend dependencies
         working-directory: apps/frontend
@@ -295,7 +294,7 @@ jobs:
       - name: Start backend server
         run: |
           cd apps/backend
-          PYTHONPATH=src OCT_MOCK_MODE=true OCT_LOG_LEVEL=WARNING OCT_ALLOW_DANGEROUS_OPERATIONS=true python -m uvicorn opencloudtouch.main:app --host 0.0.0.0 --port 7778 &
+          OCT_MOCK_MODE=true OCT_LOG_LEVEL=WARNING OCT_ALLOW_DANGEROUS_OPERATIONS=true python -m uvicorn opencloudtouch.main:app --host 0.0.0.0 --port 7778 &
           sleep 10
           curl --retry 10 --retry-delay 2 --retry-connrefused http://localhost:7778/health
 

@@ -22,13 +22,10 @@ npm run test:e2e         # Cypress E2E tests
 ### All Tests
 
 ```bash
-# Sequential execution (recommended for CI)
+# All tests (Backend → Frontend → E2E)
 npm test
 # or
 npm run test:all
-
-# Parallel execution (faster, for local dev)
-npm run test:all:parallel
 ```
 
 ### Backend Tests (Python)
@@ -86,19 +83,16 @@ npm run preview
 ```bash
 # Clean all build artifacts and dependencies
 npm run clean
-
-# Clean frontend only
-npm run clean:frontend
 ```
 
 ## Docker
 
 ```bash
 # Build Docker image
-npm run docker:build
+docker build -t opencloudtouch:latest .
 
 # Run Docker container
-npm run docker:run
+docker run --rm -p 7777:7777 opencloudtouch:latest
 ```
 
 ## Architecture
@@ -287,7 +281,7 @@ pytest -v
 
 ### Optimization Tips
 
-1. **Parallel execution** for local dev: `npm run test:all:parallel`
+1. **Run tests individually** during development for faster feedback
 2. **Skip E2E in pre-commit** (too slow): only run backend + frontend unit
 3. **Use Vite watch mode** during frontend development
 4. **Run E2E headed mode** for debugging (see what's happening)

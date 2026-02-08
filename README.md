@@ -197,9 +197,6 @@ npm run test:frontend
 # Nur E2E Tests (Cypress mit Auto-Setup)
 npm run test:e2e
 
-# Code Formatting
-npm run format
-
 # Linting
 npm run lint
 ```
