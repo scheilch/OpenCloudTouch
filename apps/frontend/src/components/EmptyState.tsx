@@ -95,7 +95,7 @@ export default function EmptyState({ onRefreshDevices }: EmptyStateProps) {
       // Update hasManualIPs state
       setHasManualIPs(ips.length > 0);
 
-      // Close modal after short delay
+      // Close modal after short delay to show success state (UX: allow users to see success message)
       setTimeout(() => {
         setShowModal(false);
         setIpList("");
