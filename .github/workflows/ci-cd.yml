@@ -53,7 +53,7 @@ jobs:
         with:
           node-version: '20'
           cache: 'npm'
-          cache-dependency-path: apps/frontend/package-lock.json
+          cache-dependency-path: package-lock.json
 
       - name: Run npm audit (Frontend vulnerabilities)
         working-directory: apps/frontend
@@ -90,7 +90,7 @@ jobs:
         with:
           node-version: '20'
           cache: 'npm'
-          cache-dependency-path: apps/frontend/package-lock.json
+          cache-dependency-path: package-lock.json
 
       - name: Install frontend dependencies
         working-directory: apps/frontend
@@ -130,7 +130,7 @@ jobs:
         with:
           node-version: '20'
           cache: 'npm'
-          cache-dependency-path: apps/frontend/package-lock.json
+          cache-dependency-path: package-lock.json
 
       - name: Install frontend dependencies
         working-directory: apps/frontend
@@ -213,7 +213,7 @@ jobs:
         with:
           node-version: '20'
           cache: 'npm'
-          cache-dependency-path: apps/frontend/package-lock.json
+          cache-dependency-path: package-lock.json
 
       - name: Install dependencies
         working-directory: apps/frontend
@@ -268,7 +268,7 @@ jobs:
         with:
           node-version: '20'
           cache: 'npm'
-          cache-dependency-path: apps/frontend/package-lock.json
+          cache-dependency-path: package-lock.json
 
       - name: Cache Python dependencies
         uses: actions/cache@v4
