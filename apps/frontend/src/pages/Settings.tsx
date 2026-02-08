@@ -74,6 +74,7 @@ export default function Settings() {
       setNewIP("");
       setSuccess(`IP ${trimmedIP} hinzugefügt`);
       setError("");
+      // Auto-clear success message after 3s (UX: temporary notification)
       setTimeout(() => setSuccess(""), 3000);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : "Unknown error";
@@ -94,6 +95,7 @@ export default function Settings() {
       setManualIPs(manualIPs.filter((ip) => ip !== ipToDelete));
       setSuccess(`IP ${ipToDelete} entfernt`);
       setError("");
+      // Auto-clear success message after 3s (UX: temporary notification)
       setTimeout(() => setSuccess(""), 3000);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : "Unknown error";
