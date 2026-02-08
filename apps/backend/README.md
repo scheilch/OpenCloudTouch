@@ -21,22 +21,29 @@ FastAPI-basierter REST-API-Server für kompatible Streaming-Geräte.
 ## Installation
 
 ```bash
-cd apps/backend
+# From project root
 python -m venv .venv
 .venv\Scripts\activate  # Windows
 # source .venv/bin/activate  # Linux/Mac
-pip install -e .[dev]
+
+# Install backend as editable package (required!)
+pip install -e apps/backend
+
+# Install dev dependencies (optional)
+pip install -r apps/backend/requirements-dev.txt
 ```
+
+**Why editable install?** Makes `opencloudtouch` module globally available in the virtual environment, eliminating the need for PYTHONPATH configuration.
 
 ## Ausführen
 
 ### Development Mode
 
 ```bash
-# Als Modul (empfohlen)
+# Als Modul (empfohlen) - from project root
 python -m opencloudtouch
 
-# Mit Uvicorn direkt
+# Mit Uvicorn direkt - from project root
 uvicorn opencloudtouch.main:app --reload --host 0.0.0.0 --port 8000
 
 # Mit Umgebungsvariablen
@@ -252,12 +259,11 @@ pytest tests/unit/devices/test_adapter.py::test_get_info_success -vv
 ### Import Errors
 
 ```bash
-# Paket neu installieren
-pip install -e .[dev]
+# Verify editable install
+python -c "import opencloudtouch; print('✓ Package installed correctly')"
 
-# PYTHONPATH prüfen
-echo $PYTHONPATH  # Linux/Mac
-echo $env:PYTHONPATH  # Windows PowerShell
+# Reinstall if needed (from project root)
+pip install -e apps/backend --force-reinstall
 ```
 
 ### Coverage zu niedrig

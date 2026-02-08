@@ -8,7 +8,6 @@ OpenCloudTouch Frontend unterstützt zwei Development-Modi:
 
 ```bash
 npm run dev         # Startet mit Mock-Interceptor (Standard)
-npm run dev:mock    # Explizit Mock-Mode
 ```
 
 **Features**:

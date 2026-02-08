@@ -118,15 +118,14 @@ async function startBackend() {
 
   log(`[DEBUG] Python path: ${pythonCmd}`, colors.yellow);
 
-  // Add src directory to PYTHON PATH
-  const srcDir = join(BACKEND_DIR, 'src');
+  // Add src directory to PYTHONPATH (no longer needed with editable install)
 
   const env = {
     ...process.env,
     OCT_PORT: String(TEST_PORT_BACKEND),
     OCT_MOCK_MODE: 'true',
-    OCT_LOG_LEVEL: 'WARNING',
-    PYTHONPATH: srcDir
+    OCT_ALLOW_DANGEROUS_OPERATIONS: 'true',
+    OCT_LOG_LEVEL: 'WARNING'
   };
 
   backendProcess = spawn(

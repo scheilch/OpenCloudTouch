@@ -54,11 +54,11 @@ npm test
 # Watch mode
 npm run test:watch
 
-# Run tests with UI (interactive)
-npm run test:ui
-
 # Generate coverage report (~55%)
 npm run test:coverage
+
+# Interactive UI mode (optional)
+npx vitest --ui
 
 # E2E Tests (Cypress)
 npx cypress open              # Interactive mode
@@ -74,9 +74,6 @@ npm run build
 
 # Preview production build
 npm run preview
-
-# Format code
-npm run format
 
 # Lint code
 npm run lint

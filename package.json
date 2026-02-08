@@ -9,22 +9,17 @@
   ],
   "scripts": {
     "dev": "concurrently -n backend,frontend -c blue,magenta \"npm run dev:backend\" \"npm run dev:frontend\"",
-    "dev:backend": "cd apps/backend && python -m uvicorn opencloudtouch.main:app --reload --port 7777",
+    "dev:backend": "cd apps/backend && ../../.venv/Scripts/python.exe -m uvicorn opencloudtouch.main:app --reload --host 0.0.0.0 --port 7777",
     "dev:frontend": "npm run dev --workspace=apps/frontend",
     "build": "npm run build --workspace=apps/frontend",
     "preview": "npm run preview --workspace=apps/frontend",
     "test": "npm run test:all",
-    "test:backend": "cd apps/backend && pytest -v --cov=src --cov-report=term-missing --cov-report=html",
+    "test:backend": ".venv\\Scripts\\python.exe -m pytest apps/backend/tests -v --cov=opencloudtouch --cov-report=term-missing --cov-report=html",
     "test:frontend": "npm run test --workspace=apps/frontend",
     "test:e2e": "node scripts/e2e-runner.mjs",
     "test:all": "npm run test:backend && npm run test:frontend && npm run test:e2e",
-    "test:all:parallel": "concurrently -n backend,frontend -c blue,magenta \"npm run test:backend\" \"npm run test:frontend\"",
     "lint": "npm run lint --workspace=apps/frontend",
-    "format": "prettier --write \"**/*.{js,jsx,mjs,ts,tsx,json,md}\" --ignore-path .gitignore",
-    "clean": "npm run clean --workspaces --if-present && rimraf node_modules .venv data-local htmlcov .coverage .pytest_cache",
-    "clean:frontend": "npm run clean --workspace=apps/frontend",
-    "docker:build": "docker build -t opencloudtouch:latest .",
-    "docker:run": "docker run --rm -p 7777:7777 opencloudtouch:latest"
+    "clean": "npm run clean --workspaces --if-present && rimraf node_modules .venv data-local htmlcov .coverage .pytest_cache"
   },
   "devDependencies": {
     "concurrently": "^9.1.2",
