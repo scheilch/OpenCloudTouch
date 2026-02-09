@@ -1,4 +1,4 @@
-﻿"""
+"""
 Tests for SSDP Discovery
 """
 
@@ -150,7 +150,7 @@ async def test_fetch_device_descriptions_compatible_device():
         mock_client.return_value = mock_client_instance
 
         devices = await discovery._fetch_device_descriptions(
-            ["http://192.168.1.100:8091/XD/BO5EBO5E-F00D-F00D-FEED-B92C7D383488.xml"]
+            ["http://192.0.2.78:8091/XD/BO5EBO5E-F00D-F00D-FEED-B92C7D383488.xml"]
         )
 
         # Bose device should be parsed correctly

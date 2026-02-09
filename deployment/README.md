@@ -25,7 +25,7 @@ docker-compose up --build
 siehe `tools/local-scripts/` (z. B. `run-container.ps1`)iner.ps1 -Port 7777 -ManualIPs "192.168.1.100"
 ```
 
-### NAS Server Deployment
+### NAS/Server Deployment
 
 ```bash
 cd deployment/
@@ -34,7 +34,7 @@ cd deployment/
 
 **Voraussetzungen**:
 - PowerShell 7+
-- SSH-Zugriff zu NAS Server Host (user@targethost)
+- SSH-Zugriff zu Target Server (user@targethost)
 - Podman (für export-image.ps1)
 - Docker (für docker-compose)
 
@@ -47,7 +47,7 @@ deployment/
 ├── docker-compose.yml      → context: .., dockerfile: Dockerfile
 ├── export-image.ps1        → podman build -t opencloudtouch:latest ..
 ├── run-container.ps1       → podman build -f ../Dockerfile ..
-└── deploy-to-server.ps1   → ruft export-image.ps1 auf
+└── deploy-to-server.ps1    → ruft export-image.ps1 auf
 ```
 
 **Build Context**: `..` (Parent directory = Repository Root)  
@@ -114,7 +114,7 @@ Windows Container können kein SSDP:
 siehe `tools/local-scripts/` (z. B. `run-container.ps1`)iner.ps1 -ManualIPs "192.168.1.100,192.168.1.101"
 ```
 
-### NAS Server SSH Fehler
+### Server SSH Fehler
 
 ```bash
 # SSH Verbindung testen
@@ -128,4 +128,4 @@ ssh user@targethost "docker ps -a | grep opencloudtouch"
 
 - [Main README](../README.md): Projektübersicht
 - [Backend README](../apps/backend/README.md): Backend-spezifische Docs
-- [SERVER-DEPLOY.md](../SERVER-DEPLOY.md): NAS Server Deployment Guide
+- [SERVER-DEPLOYMENT.md](../SERVER-DEPLOYMENT.md): Server Deployment Guide

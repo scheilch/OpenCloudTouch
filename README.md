@@ -137,7 +137,7 @@ opencloudtouch/
 │   └── package.json           # NPM dependencies
 ├── deployment/                # Deployment scripts
 │   ├── docker-compose.yml     # Docker Compose config
-│   ├── deploy-to-server.ps1  # NAS Server deployment
+│   ├── local-deploy.ps1       # Local deployment (NAS/Server)
 │   └── README.md              # Deployment guide
 ├── scripts/                   # User utility scripts
 │   ├── test-all.ps1           # Full test suite

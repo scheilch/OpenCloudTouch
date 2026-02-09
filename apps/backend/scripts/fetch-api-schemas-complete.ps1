@@ -43,17 +43,17 @@ $payloadTemplates = @{
     }
     '/setZone' = @{
         Method = 'POST'
-        Payload = '<zone master="192.168.1.10"><member ipaddress="192.168.1.11">B92C7D383488</member></zone>'
+        Payload = '<zone master="192.0.2.78"><member ipaddress="192.0.2.79">B92C7D383488</member></zone>'
         Description = 'Create multi-room zone'
     }
     '/removeZoneSlave' = @{
         Method = 'POST'
-        Payload = '<zone master="192.168.1.10"><member ipaddress="192.168.1.11">B92C7D383488</member></zone>'
+        Payload = '<zone master="192.0.2.78"><member ipaddress="192.0.2.79">B92C7D383488</member></zone>'
         Description = 'Remove device from zone'
     }
     '/addZoneSlave' = @{
         Method = 'POST'
-        Payload = '<zone master="192.168.1.10"><member ipaddress="192.168.1.11">B92C7D383488</member></zone>'
+        Payload = '<zone master="192.0.2.78"><member ipaddress="192.0.2.79">B92C7D383488</member></zone>'
         Description = 'Add device to zone'
     }
     '/select' = @{
