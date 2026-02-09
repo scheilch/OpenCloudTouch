@@ -160,7 +160,7 @@ async def test_fetch_device_descriptions_compatible_device():
         device = devices[mac_key]
         assert device["name"] == "Wohnzimmer"
         assert device["model"] == "SoundTouch 30"
-        assert device["ip"] == "192.168.1.100"
+        assert device["ip"] == "192.0.2.78"
 
 
 def test_xml_namespace_parsing_regression():
