@@ -3,8 +3,8 @@
 Pre-commit hook: Validate Git user configuration.
 
 Blocks commits if:
-- user.name contains corporate IDs (user, etc.)
-- user.email is corporate email (example.de)
+- user.name contains corporate ID patterns
+- user.email is corporate email domain
 
 Run: pre-commit install
 """
@@ -29,7 +29,7 @@ def main():
 
     # Blocked patterns
     blocked_name_patterns = [
-        r'^T\d{5}[A-Z]$',  # user format
+        r'^T\d{5}[A-Z]$',  # Corporate ID format (letter + 5 digits + letter)
         r'^\d+$',           # Pure numbers
         r'^user\d+$',       # user123
     ]
