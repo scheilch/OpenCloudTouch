@@ -3,6 +3,18 @@
 
 repos:
   # ============================================================================
+  # GIT USER VALIDATION (PREVENT CORPORATE IDS)
+  # ============================================================================
+  - repo: local
+    hooks:
+      - id: check-git-user
+        name: Validate Git user configuration
+        entry: python .pre-commit-config-hooks/check-git-user.py
+        language: system
+        always_run: true
+        pass_filenames: false
+
+  # ============================================================================
   # COMMIT MESSAGE VALIDATION
   # ============================================================================
   - repo: https://github.com/commitizen-tools/commitizen
