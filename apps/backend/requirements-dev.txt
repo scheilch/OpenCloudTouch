@@ -12,4 +12,4 @@ bandit==1.7.10
 safety==3.2.11
 pre-commit==4.0.1
 commitizen==3.29.1
-types-PyYAML==6.0.12.20240917
+types-PyYAML==6.0.12.20250915
