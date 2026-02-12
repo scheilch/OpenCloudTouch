@@ -187,7 +187,7 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
 
       - name: Upload coverage JSON (for summary)
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         if: always()
         with:
           name: backend-coverage
@@ -236,7 +236,7 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
 
       - name: Upload coverage JSON (for summary)
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         if: always()
         with:
           name: frontend-coverage
@@ -309,7 +309,7 @@ jobs:
           CYPRESS_API_URL: http://localhost:7778/api
 
       - name: Upload Cypress screenshots on failure
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         if: failure()
         with:
           name: cypress-screenshots
@@ -317,7 +317,7 @@ jobs:
           retention-days: 7
 
       - name: Upload Cypress videos on failure
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         if: failure()
         with:
           name: cypress-videos
@@ -392,7 +392,7 @@ jobs:
           touch "/tmp/digests/${digest#sha256:}"
 
       - name: Upload digest
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: digests-${{ strategy.job-index }}
           path: /tmp/digests/*
