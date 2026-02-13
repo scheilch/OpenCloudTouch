@@ -200,6 +200,178 @@ npm uninstall @types/react-router-dom
 
 ---
 
+### P2-008: Standardized Error Response Format
+
+**Report:** User feedback (2026-02-13)  
+**Files:** All API endpoints, exception handlers  
+**Effort:** 3 hours  
+**Priority:** High - Improves error handling UX
+
+**Problem:**
+- Backend returns inconsistent error formats (500 without response body, HTTP exceptions with different structures)
+- Frontend cannot reliably parse and display error messages
+- No standard error codes for client-side error categorization
+- Radio search returns 500 errors without meaningful error details
+
+**Current Issues:**
+1. Device page shows "unknown IP, unknown Model, unknown device" (error handling missing)
+2. Radio search modal: Fast/slow typing triggers 500 errors without error response body
+3. No consistent error object structure across endpoints
+
+**Solution:**
+Create RFC 7807 Problem Details-inspired error response format:
+
+```python
+# core/exceptions.py (NEW)
+from pydantic import BaseModel
+from typing import Any
+
+class ErrorDetail(BaseModel):
+    """Standardized error response format."""
+    type: str  # Error category: validation_error, not_found, server_error, etc.
+    title: str  # Human-readable error title
+    status: int  # HTTP status code
+    detail: str  # Detailed error message
+    instance: str | None = None  # Request path that triggered error
+    errors: list[dict[str, Any]] | None = None  # Field-level validation errors
+
+# Example responses:
+# 404 Not Found
+{
+    "type": "not_found",
+    "title": "Device Not Found",
+    "status": 404,
+    "detail": "Device with ID 'abc123' does not exist",
+    "instance": "/api/devices/abc123"
+}
+
+# 422 Validation Error
+{
+    "type": "validation_error",
+    "title": "Invalid Request Data",
+    "status": 422,
+    "detail": "Query parameter 'q' is required for search",
+    "instance": "/api/radio/search",
+    "errors": [
+        {"field": "q", "message": "Field required", "type": "missing"}
+    ]
+}
+
+# 500 Internal Server Error
+{
+    "type": "server_error",
+    "title": "Internal Server Error",
+    "status": 500,
+    "detail": "Failed to connect to RadioBrowser API",
+    "instance": "/api/radio/search"
+}
+```
+
+**Implementation Steps:**
+
+1. **Create exception handler** (`main.py`):
+```python
+from fastapi.exceptions import RequestValidationError, HTTPException
+from starlette.exceptions import HTTPException as StarletteHTTPException
+
+@app.exception_handler(HTTPException)
+async def http_exception_handler(request: Request, exc: HTTPException):
+    return JSONResponse(
+        status_code=exc.status_code,
+        content=ErrorDetail(
+            type=_map_status_to_type(exc.status_code),
+            title=exc.detail,
+            status=exc.status_code,
+            detail=exc.detail,
+            instance=str(request.url.path)
+        ).model_dump()
+    )
+
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request: Request, exc: RequestValidationError):
+    return JSONResponse(
+        status_code=422,
+        content=ErrorDetail(
+            type="validation_error",
+            title="Invalid Request Data",
+            status=422,
+            detail="Request validation failed",
+            instance=str(request.url.path),
+            errors=[
+                {"field": ".".join(str(loc) for loc in err["loc"]), 
+                 "message": err["msg"], 
+                 "type": err["type"]}
+                for err in exc.errors()
+            ]
+        ).model_dump()
+    )
+
+@app.exception_handler(Exception)
+async def generic_exception_handler(request: Request, exc: Exception):
+    logger.exception("Unhandled exception", exc_info=exc)
+    return JSONResponse(
+        status_code=500,
+        content=ErrorDetail(
+            type="server_error",
+            title="Internal Server Error",
+            status=500,
+            detail=str(exc) if config.debug else "An unexpected error occurred",
+            instance=str(request.url.path)
+        ).model_dump()
+    )
+```
+
+2. **Update all endpoints** to use HTTPException with meaningful messages
+3. **Create TypeScript interface** in frontend:
+```typescript
+// api/types.ts
+export interface ApiError {
+  type: string;
+  title: string;
+  status: number;
+  detail: string;
+  instance?: string;
+  errors?: Array<{
+    field: string;
+    message: string;
+    type: string;
+  }>;
+}
+```
+
+4. **Update API error handling** in frontend:
+```typescript
+// api/errorHandler.ts
+export function handleApiError(error: unknown): string {
+  if (axios.isAxiosError(error) && error.response?.data) {
+    const apiError = error.response.data as ApiError;
+    return apiError.detail || apiError.title;
+  }
+  return "An unexpected error occurred";
+}
+```
+
+**Benefits:**
+- ✅ Consistent error format across all endpoints
+- ✅ Frontend can display meaningful error messages
+- ✅ Field-level validation errors for forms
+- ✅ Error categorization (type field) for different UI treatments
+- ✅ Better debugging with instance path
+- ✅ Security: Generic messages in production (via config.debug flag)
+
+**Testing:**
+```bash
+# Backend
+pytest tests/integration/test_error_responses.py -v
+
+# Manual testing
+curl http://localhost:8000/api/devices/invalid-id
+curl http://localhost:8000/api/radio/search (without query param)
+curl http://localhost:8000/api/presets -X POST -d '{"invalid": "data"}'
+```
+
+---
+
 ## P3 - Cleanup Items (Next Sprint)
 
 ### Code Quality
