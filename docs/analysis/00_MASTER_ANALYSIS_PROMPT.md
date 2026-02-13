@@ -208,6 +208,79 @@ Nach jedem größeren Abschnitt:
 ---
 ```
 
+### 8️⃣ REDUNDANZ-VERMEIDUNG (KOMPAKTHEIT > FÜLLE)
+
+**PROBLEM:** Längere Reports sind NICHT bessere Reports. Redundanz verschwendet Tokens und erschwert Lesbarkeit.
+
+❌ **VERBOTEN:**
+- Gleiche Information in mehreren Dokumenten wiederholen
+- Findings mit 5 Absätzen Erklärung die 2 Sätze brauchen
+- "Padding" um Reports länger wirken zu lassen
+- Mehrere Beispiele wenn eines reicht
+
+✅ **ERWARTET:**
+- Ein Finding = ein Ort (nicht in 03 UND 09 erklären)
+- Roadmap REFERENZIERT Findings aus anderen Docs (nicht kopieren)
+- Kompakte Prosa: Subjekt-Prädikat-Objekt, keine Füllwörter
+
+**Faustregel:** 
+- Archiv-Report mit 450 Zeilen > Aktueller Report mit 650 Zeilen
+- Weniger ist mehr wenn gleiche Information
+
+**Self-Check nach jedem Dokument:**
+- Kann ich 20% kürzen ohne Information zu verlieren? → Kürzen!
+
+### 9️⃣ AKTUALITÄTS-PRÜFUNG (IMPLEMENTIERUNGSSTATUS)
+
+**PROBLEM:** Findings für bereits gefixt/implementierte Issues verschwenden Zeit.
+
+**PFLICHT VOR JEDEM FINDING:**
+1. Prüfe ob das Problem vielleicht schon gelöst ist
+2. Prüfe Git-History der betroffenen Datei
+3. Prüfe ob Dependabot/CI/etc. bereits konfiguriert sind
+
+❌ **VERBOTEN:**
+- "Dependabot fehlt" schreiben OHNE `.github/dependabot.yml` zu prüfen
+- "Keine CI Pipeline" behaupten OHNE `.github/workflows/` zu lesen
+- "Feature X fehlt" OHNE aktuelle `main.py` / Routes zu prüfen
+
+✅ **ERWARTET:**
+```markdown
+### [P2] [BUILD] Dependabot fehlt
+**Status-Check:** ❌ `.github/dependabot.yml` existiert nicht (verifiziert)
+```
+
+```markdown
+### ~~[P2] [BUILD] Dependabot fehlt~~
+**Status-Check:** ✅ Bereits implementiert in `.github/dependabot.yml` (Zeile 1-45)
+**Aktion:** SKIP - Kein Finding
+```
+
+### 🔟 SYNTAX/INDENTATION BUG-DETECTION (KRITISCH!)
+
+**PROBLEM:** Indentation-Bugs in Python können Code AUSSERHALB einer Klasse/Funktion platzieren. Diese Bugs sind subtil aber KRITISCH (P1).
+
+**PFLICHT bei JEDER Python-Datei:**
+1. Prüfe ob alle Methoden INNERHALB ihrer Klassen sind
+2. Prüfe ob Leerzeilen zwischen Methoden korrekt sind
+3. Achte auf Protocol/ABC-Klassen die Methoden haben sollten aber leer sind
+
+**Beispiel (ÜBERSEHEN im Archiv-Report):**
+```python
+class IDeviceSyncService(Protocol):
+    """Protocol for device sync."""
+
+
+async def sync(self) -> SyncResult:  # ⚠️ FALSCHE INDENTATION!
+    """This method is OUTSIDE the class!"""
+    ...
+```
+
+**Erkennungsmuster:**
+- Leere `Protocol` oder `ABC` Klassen (sollten Methoden haben)
+- Methoden ohne `self` Parameter auf Modul-Ebene
+- `async def` direkt nach Klassen-End ohne Indentation
+
 ---
 
 ## 🔁 KONTEXT-ERINNERUNG (ALLE 10 DATEIEN WIEDERHOLEN)
@@ -238,6 +311,9 @@ Nach jeder 10. analysierten Datei, lies diesen Block und prüfe dich selbst:
 │  ❓ War ich kritisch genug?                               │
 │  ❓ Habe ich bei Unklarheiten recherchiert?               │
 │  ❓ Sind meine Findings KONKRET (mit Zeilennummern)?      │
+│  ❓ Sind meine P1-Einstufungen WIRKLICH P1?               │
+│  ❓ Habe ich auf Indentation-Bugs geprüft?                │
+│  ❓ Habe ich den Implementierungsstatus gecheckt?         │
 │                                                          │
 │  Wenn NEIN → ZURÜCK und nacharbeiten!                    │
 └──────────────────────────────────────────────────────────┘
@@ -487,6 +563,36 @@ async def get_device_repo(request: Request) -> DeviceRepository:
 - **Type Coverage**: TypeScript/Python Type Hints vollständig?
 - **Dependency Health**: Veraltete/unsichere Dependencies?
 
+### Phase 3a: Health Score (PFLICHT!)
+
+**Jedes Analyse-Dokument MUSS einen quantitativen Health Score enthalten!**
+
+```markdown
+## Executive Summary
+
+**[Bereich] Health Score:** 75/100
+
+| Dimension | Score | Kommentar |
+|-----------|-------|-----------|
+| Correctness | 85/100 | 2 Bugs gefunden |
+| Security | 60/100 | Path Traversal offen |
+| Maintainability | 80/100 | Gute Struktur |
+| Test Coverage | 70/100 | 80% erreicht |
+| Documentation | 75/100 | API Docs fehlen |
+```
+
+**Scoring-Guideline:**
+- 90-100: Exzellent (Production-ready)
+- 75-89: Gut (Minor Issues)
+- 60-74: Akzeptabel (P2 Issues)
+- 40-59: Problematisch (P1 Issues)
+- <40: Kritisch (Major Rewrite nötig)
+
+**Warum wichtig:**
+- Erlaubt schnelle Einschätzung ohne alle Findings zu lesen
+- Quantifizierbare Fortschrittsmessung bei Re-Audits
+- Priorisierung: Niedrigster Score = höchste Priorität
+
 ### Phase 4: Infrastruktur-Analyse
 
 - **Dockerfile**: Layer Caching? Image Size? Security?
@@ -541,6 +647,31 @@ korrigierter_code_hier
 | **P1** | Kritisch - Blocker für Production | Security, Data Loss, Crashes |
 | **P2** | Wichtig - Sollte vor Release | Bugs, Performance, Best Practices |
 | **P3** | Nice-to-have - Technische Schulden | Refactoring, Cleanup, Docs |
+
+### ⚠️ PRIORISIERUNGS-KALIBRIERUNG (KRITISCH!)
+
+**P1 wird zu oft falsch vergeben!** Nur ECHTE kritische Issues verdienen P1:
+
+✅ **ECHTE P1-Issues:**
+- Path Traversal, SQL Injection, XSS (Security)
+- NullPointerException in Production Path (Crashes)
+- Data Corruption, Data Loss (Data Integrity)
+- Authentication Bypass (Security)
+- Indentation-Bugs die Code außerhalb Klasse/Funktion platzieren
+
+❌ **KEINE P1-Issues (maximal P2 oder P3):**
+- Version Mismatch (`__version__ = "0.1.0"` statt `"0.2.0"`) → P3
+- CORS Wildcard in Development → P2
+- Fehlende Dokumentation → P3
+- Veraltete Dependencies ohne CVE → P3
+- Code Style Violations → P3
+- Missing Type Hints → P3
+
+**Faustregel:** 
+- P1 = "Production bricht JETZT" oder "Angreifer kann JETZT exploiten"
+- Alles andere ist P2 oder P3
+
+**Wenn du >5 P1-Issues findest:** Überprüfe deine Kalibrierung!
 
 ### Kategorien
 
@@ -680,6 +811,40 @@ Das wichtigste Dokument. Struktur:
 4. P3 wenn Zeit
 ```
 
+### Roadmap-Qualitätskriterien (PFLICHT!)
+
+| Kriterium | Anforderung |
+|-----------|-------------|
+| **Konkreter Zeitplan** | Wochen/Sprints mit konkreten Deadlines (nicht nur "Phase 1") |
+| **Aufwandsschätzung** | JEDER Task mit Stunden-Schätzung + Gesamtsumme |
+| **Abhängigkeiten** | Welche Tasks blocken andere? Kritischer Pfad? |
+| **Exit Criteria** | Wann ist jede Phase "done"? Messbare Kriterien |
+| **Referenzen** | Tasks verweisen auf Finding-IDs aus anderen Docs (nicht kopieren!) |
+
+❌ **UNZUREICHENDE Roadmap:**
+```markdown
+## Phase 1: Critical
+- Fix security issues
+- Fix bugs
+```
+
+✅ **GUTE Roadmap:**
+```markdown
+## Phase 1: Critical Security (Woche 1, ~8h)
+
+### Sprint Goal: Eliminate P1 Security Risks
+
+| ID | Finding | Action | Effort | Ref |
+|----|---------|--------|--------|-----|
+| 1.1 | Path Traversal | Implement path validation | 2h | BE-01 |
+| 1.2 | CORS Wildcard | Restrict to known origins | 1h | BE-02 |
+
+**Exit Criteria:**
+- [ ] All P1 security alerts closed
+- [ ] Penetration test passed
+- [ ] Security audit green
+```
+
 ---
 
 ## CONSTRAINTS & HINWEISE
@@ -696,7 +861,12 @@ Das wichtigste Dokument. Struktur:
 
 6. **Agent-Ready Output**: Der Output wird an einen anderen Agenten gegeben der die Fixes implementiert. Dieser kennt das Projekt nicht. Code-Snippets müssen copy-paste-ready sein.
 
-7. **Deutsch für Erklärungen**: Technische Begriffe und Code auf Englisch, Erklärungen auf Deutsch.
+7. **SPRACHKONSISTENZ (STRIKT!)**: Wähle EINE Sprache pro Dokument und halte sie durch:
+   - **Option A:** Komplett Deutsch (Erklärungen + Headers + Kommentare)
+   - **Option B:** Komplett Englisch (alles)
+   - **VERBOTEN:** Deutsch/Englisch gemischt (z.B. "Phase 1: Security & Stability" + "Warum schlecht:")
+   - **Empfehlung:** Englisch für technische Docs (internationale Nutzbarkeit)
+   - Code-Identifier bleiben immer Englisch (`device_repo`, nicht `geraete_repo`)
 
 8. **KEINE ABKÜRZUNGEN (KRITISCH)**:
    - Jede `.py` und `.ts/.tsx` Datei MUSS vollständig gelesen werden
@@ -913,6 +1083,12 @@ Am Ende jedes Analyse-Dokuments:
 ❓ Habe ich die Vollständigkeits-Tabelle ausgefüllt?
 ❓ Ist mein Output KRITISCH genug? (Nicht zu nett?)
 ❓ Habe ich recherchiert wo nötig?
+❓ **Habe ich einen Health Score vergeben?**
+❓ **Sind meine P1-Einstufungen wirklich kritisch (Security/Crash/Data Loss)?**
+❓ **Kann ich 20% des Textes kürzen ohne Information zu verlieren?**
+❓ **Habe ich auf Indentation/Syntax-Bugs geprüft?**
+❓ **Habe ich geprüft ob Findings bereits implementiert sind?**
+❓ **Ist die Sprache konsistent (nicht Deutsch/Englisch gemischt)?**
 
 Wenn NEIN → Nacharbeiten bevor nächstes Dokument.
 
