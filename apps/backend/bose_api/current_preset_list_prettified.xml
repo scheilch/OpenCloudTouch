@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<presets>
+  
+  <!-- PRESET 1: INTERNET_RADIO (Direct Stream URL) - CREATED BY OCT -->
+  <preset id="1" createdOn="1771093109" updatedOn="1771093109">
+    <ContentItem 
+      source="INTERNET_RADIO" 
+      type="stationurl" 
+      location="https://edge71.live-sm.absolutradio.de/absolut-relax/stream/mp3" 
+      isPresetable="true">
+      <itemName>Absolut Relax (Direct)</itemName>
+    </ContentItem>
+  </preset>
+  
+  <!-- PRESET 2: TUNEIN (Relative Path) -->
+  <preset id="2">
+    <ContentItem 
+      source="TUNEIN" 
+      type="stationurl" 
+      location="/v1/playback/station/s3115" 
+      sourceAccount="" 
+      isPresetable="true">
+      <itemName>Charivari 98.6</itemName>
+      <containerArt>http://cdn-radiotime-logos.tunein.com/s3115q.png</containerArt>
+    </ContentItem>
+  </preset>
+  
+  <!-- PRESET 3: TUNEIN (Relative Path) -->
+  <preset id="3">
+    <ContentItem 
+      source="TUNEIN" 
+      type="stationurl" 
+      location="/v1/playback/station/s14991" 
+      sourceAccount="" 
+      isPresetable="true">
+      <itemName>Bayern 3</itemName>
+      <containerArt>http://cdn-radiotime-logos.tunein.com/s14991q.png</containerArt>
+    </ContentItem>
+  </preset>
+  
+  <!-- PRESET 4: TUNEIN (Relative Path) - SAME STATION AS PRESET 1 VIA TUNEIN -->
+  <preset id="4">
+    <ContentItem 
+      source="TUNEIN" 
+      type="stationurl" 
+      location="/v1/playback/station/s158432" 
+      sourceAccount="" 
+      isPresetable="true">
+      <itemName>Absolut relax</itemName>
+      <containerArt>http://cdn-profiles.tunein.com/s158432/images/logog.png?t=638533472870000000</containerArt>
+    </ContentItem>
+  </preset>
+  
+  <!-- PRESET 5: TUNEIN (Relative Path) -->
+  <preset id="5">
+    <ContentItem 
+      source="TUNEIN" 
+      type="stationurl" 
+      location="/v1/playback/station/s6634" 
+      sourceAccount="" 
+      isPresetable="true">
+      <itemName>MDR JUMP</itemName>
+      <containerArt>http://cdn-profiles.tunein.com/s6634/images/logoq.jpg?t=1</containerArt>
+    </ContentItem>
+  </preset>
+  
+  <!-- PRESET 6: TUNEIN (Relative Path) -->
+  <preset id="6">
+    <ContentItem 
+      source="TUNEIN" 
+      type="stationurl" 
+      location="/v1/playback/station/s17231" 
+      sourceAccount="" 
+      isPresetable="true">
+      <itemName>Radio Brocken</itemName>
+      <containerArt>http://cdn-radiotime-logos.tunein.com/s17231g.png</containerArt>
+    </ContentItem>
+  </preset>
+  
+</presets>
